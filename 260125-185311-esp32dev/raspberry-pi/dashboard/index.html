@@ -3409,13 +3409,15 @@ ${JSON.stringify(device.status, null, 2)}
         // Settings functionality - Foolproof implementation
         function toggleSettings() {
             try {
-                console.log('toggleSettings called');
+                console.log('=== toggleSettings called ===');
                 const dropdown = document.getElementById('settingsDropdown');
                 
                 if (!dropdown) {
                     console.error('Settings dropdown element not found');
                     return;
                 }
+                
+                console.log('Dropdown element found:', dropdown);
                 
                 const isShowing = dropdown.style.display === 'block';
                 console.log('Current display state:', dropdown.style.display, 'isShowing:', isShowing);
@@ -3426,6 +3428,7 @@ ${JSON.stringify(device.status, null, 2)}
                     console.log('Hidden settings dropdown');
                 } else {
                     // Show dropdown with direct inline styles to bypass all CSS conflicts
+                    console.log('Applying inline styles to show dropdown...');
                     dropdown.style.cssText = `
                         display: block !important;
                         position: fixed !important;
@@ -3441,18 +3444,37 @@ ${JSON.stringify(device.status, null, 2)}
                         z-index: 999999 !important;
                         overflow-y: auto !important;
                         margin: 0 !important;
-                        padding: 0 !important;
+                        padding: 1rem 0 !important;
                         opacity: 1 !important;
                         visibility: visible !important;
                         transform: translateY(0) !important;
                         transition: none !important;
                     `;
-                    console.log('Showed settings dropdown with inline styles');
+                    console.log('Applied inline styles. New display value:', dropdown.style.display);
+                    console.log('Dropdown should now be visible');
+                    
+                    // Verify the dropdown is actually visible
+                    setTimeout(() => {
+                        const rect = dropdown.getBoundingClientRect();
+                        console.log('Dropdown position after styling:', rect);
+                    }, 100);
                 }
             } catch (error) {
                 console.error('Error in toggleSettings:', error);
+                console.error('Stack trace:', error.stack);
             }
         }
+
+        // Test function for debugging
+        function testSettings() {
+            console.log('Test function called');
+            const dropdown = document.getElementById('settingsDropdown');
+            if (dropdown) {
+                dropdown.style.cssText = 'display: block !important; position: fixed !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; background: red !important; width: 300px !important; height: 200px !important; z-index: 999999 !important;';
+                console.log('Test styles applied');
+            }
+        }
+        window.testSettings = testSettings;
 
         // Close dropdown when clicking outside
         document.addEventListener('click', function(event) {
