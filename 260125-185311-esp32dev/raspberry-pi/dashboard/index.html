@@ -1972,24 +1972,7 @@
                 height: 8px;
             }
             
-            .settings-dropdown {
-                position: fixed;
-                top: auto;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                margin: 0;
-                min-width: auto;
-                max-height: 80vh;
-                overflow-y: auto;
-                border-radius: 20px 20px 0 0;
-                transform: translateY(100%);
-                transition: transform 0.3s ease;
-            }
-            
-            .settings-dropdown.show {
-                transform: translateY(0);
-            }
+            /* REMOVED - Second duplicate settings dropdown CSS that conflicts */
             
             /* Mobile Settings Form Improvements */
             .settings-section {
@@ -3415,34 +3398,48 @@ ${JSON.stringify(device.status, null, 2)}
             }
         }
 
-        // Settings functionality
+        // Settings functionality - Foolproof implementation
         function toggleSettings() {
             try {
                 console.log('toggleSettings called');
                 const dropdown = document.getElementById('settingsDropdown');
-                if (dropdown) {
-                    const isShowing = dropdown.classList.contains('show');
-                    console.log('Current show state:', isShowing);
-                    
-                    if (isShowing) {
-                        dropdown.classList.remove('show');
-                        console.log('Removed show class');
-                    } else {
-                        dropdown.classList.add('show');
-                        console.log('Added show class');
-                        
-                        // Force visibility for mobile debugging
-                        if (window.innerWidth <= 768) {
-                            dropdown.style.display = 'block';
-                            dropdown.style.visibility = 'visible';
-                            dropdown.style.opacity = '1';
-                            dropdown.style.transform = 'translateY(0)';
-                            dropdown.style.zIndex = '99999';
-                            console.log('Applied mobile visibility fixes');
-                        }
-                    }
-                } else {
+                
+                if (!dropdown) {
                     console.error('Settings dropdown element not found');
+                    return;
+                }
+                
+                const isShowing = dropdown.style.display === 'block';
+                console.log('Current display state:', dropdown.style.display, 'isShowing:', isShowing);
+                
+                if (isShowing) {
+                    // Hide dropdown
+                    dropdown.style.display = 'none';
+                    console.log('Hidden settings dropdown');
+                } else {
+                    // Show dropdown with direct inline styles to bypass all CSS conflicts
+                    dropdown.style.cssText = `
+                        display: block !important;
+                        position: fixed !important;
+                        bottom: 0 !important;
+                        left: 0 !important;
+                        right: 0 !important;
+                        width: 100vw !important;
+                        height: auto !important;
+                        max-height: 85vh !important;
+                        background: white !important;
+                        border-radius: 20px 20px 0 0 !important;
+                        box-shadow: 0 -4px 20px rgba(0,0,0,0.2) !important;
+                        z-index: 999999 !important;
+                        overflow-y: auto !important;
+                        margin: 0 !important;
+                        padding: 0 !important;
+                        opacity: 1 !important;
+                        visibility: visible !important;
+                        transform: translateY(0) !important;
+                        transition: none !important;
+                    `;
+                    console.log('Showed settings dropdown with inline styles');
                 }
             } catch (error) {
                 console.error('Error in toggleSettings:', error);
@@ -3455,7 +3452,8 @@ ${JSON.stringify(device.status, null, 2)}
             const settingsBtn = event.target.closest('.settings-btn');
             
             if (!settingsBtn && !dropdown.contains(event.target)) {
-                dropdown.classList.remove('show');
+                dropdown.style.display = 'none';
+                console.log('Settings dropdown closed by outside click');
             }
         });
 
