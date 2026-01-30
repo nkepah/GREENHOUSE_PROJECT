@@ -2319,8 +2319,12 @@
                     };
                 }
                 
-                document.getElementById('farm-name').textContent = 'Farm Hub';
-                document.getElementById('footer-farm-name').textContent = 'Farm Hub';
+                // Safely update DOM elements if they exist
+                const farmNameEl = document.getElementById('farm-name');
+                const footerFarmNameEl = document.getElementById('footer-farm-name');
+                
+                if (farmNameEl) farmNameEl.textContent = 'Farm Hub';
+                if (footerFarmNameEl) footerFarmNameEl.textContent = 'Farm Hub';
             } catch (error) {
                 console.error('Failed to fetch farm config:', error);
                 // Fallback to Virginia coordinates
@@ -2477,27 +2481,38 @@ ${JSON.stringify(device.status, null, 2)}
             if (temp === undefined || temp === null) return;
 
             document.getElementById('weather-icon').textContent = getWeatherIcon(code, isDay);
-            document.getElementById('weather-temp').textContent = `${Math.round(temp)}°C`;
-            document.getElementById('feels-like').textContent = `${Math.round(feelsLike ?? temp)}°C`;
-            document.getElementById('humidity').textContent = `${humidity ?? '--'}%`;
-            document.getElementById('wind').textContent = `${Math.round(wind ?? 0)} km/h`;
+            // Safely update weather elements if they exist
+            const weatherTempEl = document.getElementById('weather-temp');
+            const feelsLikeEl = document.getElementById('feels-like');
+            const humidityEl = document.getElementById('humidity');
+            const windEl = document.getElementById('wind');
+            const locationEl = document.getElementById('location');
+            
+            if (weatherTempEl) weatherTempEl.textContent = `${Math.round(temp)}°C`;
+            if (feelsLikeEl) feelsLikeEl.textContent = `${Math.round(feelsLike ?? temp)}°C`;
+            if (humidityEl) humidityEl.textContent = `${humidity ?? '--'}%`;
+            if (windEl) windEl.textContent = `${Math.round(wind ?? 0)} km/h`;
             
             // Set location from multiple possible sources
             const location = weatherData?.data?.city || weatherData?.timezone?.replace('_', ' ').split('/').pop() || 'Unknown';
-            document.getElementById('location').textContent = location;
+            if (locationEl) locationEl.textContent = location;
 
-            // Mini weather
-            document.getElementById('mini-weather-icon').textContent = getWeatherIcon(code, isDay);
-            document.getElementById('mini-temp').textContent = `${Math.round(temp)}°C`;
+            // Mini weather - safely update if elements exist
+            const miniWeatherIconEl = document.getElementById('mini-weather-icon');
+            const miniTempEl = document.getElementById('mini-temp');
+            
+            if (miniWeatherIconEl) miniWeatherIconEl.textContent = getWeatherIcon(code, isDay);
+            if (miniTempEl) miniTempEl.textContent = `${Math.round(temp)}°C`;
 
             // Hourly forecast (if available)
             if (weatherData?.data?.hourly && Array.isArray(weatherData.data.hourly)) {
                 const hourlyContainer = document.getElementById('hourly-forecast');
-                hourlyContainer.innerHTML = '';
+                if (hourlyContainer) {
+                    hourlyContainer.innerHTML = '';
 
-                const hourlyData = weatherData.data.hourly;
-                for (let i = 0; i < Math.min(12, hourlyData.length); i++) {
-                    const hour = hourlyData[i];
+                    const hourlyData = weatherData.data.hourly;
+                    for (let i = 0; i < Math.min(12, hourlyData.length); i++) {
+                        const hour = hourlyData[i];
                     const hourItem = document.createElement('div');
                     hourItem.className = 'hourly-item';
                     hourItem.innerHTML = `
