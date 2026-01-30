@@ -1745,11 +1745,17 @@
     <!-- Navigation -->
     <nav class="navbar">
         <div class="navbar-content">
-            <div class="navbar-left">
-                <a href="/" class="navbar-brand">
-                    <span class="navbar-icon">🌿</span>
-                    <span>Smart Farm Hub</span>
-                </a>
+            <div class="navbar-top">
+                <div class="navbar-left">
+                    <a href="/" class="navbar-brand">
+                        <span class="navbar-icon">🌿</span>
+                        <span>Smart Farm Hub</span>
+                    </a>
+                </div>
+                <button class="settings-btn" id="settingsBtn" onclick="toggleSettings()" title="Settings">
+                    <span class="settings-icon">⚙️</span>
+                    <span class="settings-text">Settings</span>
+                </button>
             </div>
             <div class="navbar-right">
                 <div class="status-time-container">
@@ -1758,10 +1764,6 @@
                         <div class="date-sub" id="date-sub">--- -- ----</div>
                     </div>
                 </div>
-                <button class="settings-btn" id="settingsBtn" onclick="toggleSettings()" title="Settings">
-                    <span class="settings-icon">⚙️</span>
-                    <span class="settings-text">Settings</span>
-                </button>
             </div>
         </div>
     </nav>
