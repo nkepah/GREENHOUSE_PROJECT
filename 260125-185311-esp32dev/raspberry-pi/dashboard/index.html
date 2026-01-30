@@ -2933,7 +2933,7 @@
                     </a>
                 </div>
                 <div class="navbar-item">
-                    <button class="settings-btn" id="settingsBtn" title="Settings" onclick="toggleSettings()">
+                    <button class="settings-btn" id="settingsBtn" title="Settings" onclick="toggleSettings(event)">
                         <span class="settings-icon">⚙️</span>
                     </button>
                     <!-- Settings Dropdown -->
@@ -3390,11 +3390,23 @@ ${JSON.stringify(device.status, null, 2)}
             console.log("Dashboard initialized - v2.1.3");
         }
 
-        // Settings functionality - SIMPLE VERSION
-        function toggleSettings() {
+        // Settings functionality - ROBUST VERSION
+        function toggleSettings(event) {
+            console.log('⚙️ Settings toggled');
+            
+            // Stop event bubbling so document listener doesn't immediately close it
+            if (event) {
+                event.stopPropagation();
+                event.preventDefault();
+            }
+
             const dropdown = document.getElementById('settingsDropdown');
             if (dropdown) {
                 dropdown.classList.toggle('show');
+                const isVisible = dropdown.classList.contains('show');
+                console.log('Dropdown state:', isVisible ? 'VISIBLE' : 'HIDDEN');
+            } else {
+                console.error('CRITICAL: Settings dropdown element not found!');
             }
         }
 
@@ -3412,10 +3424,13 @@ ${JSON.stringify(device.status, null, 2)}
         // Close dropdown when clicking outside
         document.addEventListener('click', function(event) {
             const dropdown = document.getElementById('settingsDropdown');
-            const settingsBtn = event.target.closest('.settings-btn');
-            
-            if (!settingsBtn && !dropdown.contains(event.target)) {
-                dropdown.classList.remove('show');
+            // Logic: If click is NOT inside dropdown, close it
+            // (Note: Button clicks are stopped by stopPropagation, so they never reach here)
+            if (dropdown && dropdown.classList.contains('show')) {
+                if (!dropdown.contains(event.target)) {
+                    console.log('Closing settings (clicked outside)');
+                    dropdown.classList.remove('show');
+                }
             }
         });
 
