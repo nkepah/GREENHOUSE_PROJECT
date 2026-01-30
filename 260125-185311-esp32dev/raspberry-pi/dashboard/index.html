@@ -850,6 +850,17 @@
             .navbar-content {
                 padding: 1rem;
                 gap: 1rem;
+                flex-direction: column;
+            }
+            
+            .navbar-top {
+                width: 100%;
+            }
+            
+            .navbar-right {
+                gap: 0;
+                justify-content: center;
+                width: 100%;
             }
             
             .navbar-brand {
@@ -860,8 +871,27 @@
                 font-size: 1.4rem;
             }
             
-            .navbar-right {
-                gap: 1rem;
+            .status-time-container {
+                padding: 0.4rem 0;
+                font-size: 0.9rem;
+                justify-content: center;
+            }
+            
+            .time-display {
+                min-width: auto;
+                text-align: center;
+            }
+            
+            .time-main {
+                font-size: 1rem;
+                display: inline;
+                margin-right: 0.5rem;
+            }
+            
+            .date-sub {
+                font-size: 0.8rem;
+                display: inline;
+                opacity: 0.9;
             }
             
             .settings-btn {
