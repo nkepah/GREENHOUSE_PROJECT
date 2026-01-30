@@ -199,7 +199,7 @@
             100% { transform: scale(1); opacity: 1; }
         }
 
-        /* Settings Dropdown */
+        /* Settings Dropdown - Desktop Only */
         .settings-dropdown {
             position: absolute;
             top: calc(100% + 10px);
@@ -216,10 +216,13 @@
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
-        .settings-dropdown.show {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
+        /* Desktop show state */
+        @media (min-width: 769px) {
+            .settings-dropdown.show {
+                opacity: 1;
+                visibility: visible;
+                transform: translateY(0);
+            }
         }
 
         .dropdown-section {
