@@ -831,8 +831,11 @@ ${JSON.stringify(device.status, null, 2)}
         // Fetch weather
         async function fetchWeather() {
             try {
-                // Get coordinates from config or use defaults
-                const response = await fetch('/api/weather?lat=-33.8&lon=151.2');
+                // Get coordinates from config (fetched in fetchFarmInfo)
+                const lat = window.farmConfig?.lat || 38.130254613092;
+                const lon = window.farmConfig?.lon || -77.73829202505;
+                
+                const response = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
                 weatherData = await response.json();
                 renderWeather();
             } catch (error) {
