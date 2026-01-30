@@ -2626,59 +2626,71 @@ ${JSON.stringify(device.status, null, 2)}
         }
 
         function openUnitsSettings() {
-            showModal('Units & Time Format', `
+            showModal('Units & Time Format Configuration', `
                 <div class="settings-section">
-                    <h4>🕐 Time & Date Preferences</h4>
+                    <h4>🕐 Time & Date Display</h4>
                     <label class="settings-label">
                         <span class="label-text">Time Format</span>
                         <select class="settings-select" id="timeFormat">
-                            <option value="12">12 Hour (3:00 PM)</option>
-                            <option value="24">24 Hour (15:00)</option>
+                            <option value="12">12-Hour Format (3:45 PM)</option>
+                            <option value="24">24-Hour Format (15:45)</option>
                         </select>
                     </label>
                     
                     <label class="settings-label">
                         <span class="label-text">Date Format</span>
                         <select class="settings-select" id="dateFormat">
-                            <option value="US">MM/DD/YYYY (American)</option>
-                            <option value="EU">DD/MM/YYYY (European)</option>
+                            <option value="US">MM/DD/YYYY (American Style)</option>
+                            <option value="EU">DD/MM/YYYY (European Style)</option>
                             <option value="ISO">YYYY-MM-DD (ISO Standard)</option>
+                            <option value="SHORT">MMM DD, YYYY (Jan 30, 2026)</option>
                         </select>
                     </label>
                     
-                    <h4>🌡️ Measurement Units</h4>
+                    <label class="settings-label">
+                        <span class="label-text">Week Start</span>
+                        <select class="settings-select" id="weekStart">
+                            <option value="sunday">Sunday (US Standard)</option>
+                            <option value="monday">Monday (ISO Standard)</option>
+                        </select>
+                    </label>
+                    
+                    <h4>🌡️ Environmental Units</h4>
                     <label class="settings-label">
                         <span class="label-text">Temperature</span>
                         <select class="settings-select" id="tempUnit">
                             <option value="C">Celsius (°C)</option>
                             <option value="F">Fahrenheit (°F)</option>
+                            <option value="K">Kelvin (K)</option>
                         </select>
                     </label>
                     
                     <label class="settings-label">
-                        <span class="label-text">Humidity Display</span>
-                        <select class="settings-select" id="humidityUnit">
-                            <option value="percent">Percentage (%)</option>
-                            <option value="dewpoint">Dew Point (°)</option>
-                        </select>
-                    </label>
-                    
-                    <label class="settings-label">
-                        <span class="label-text">Pressure</span>
+                        <span class="label-text">Atmospheric Pressure</span>
                         <select class="settings-select" id="pressureUnit">
                             <option value="hPa">Hectopascal (hPa)</option>
-                            <option value="inHg">Inches Mercury (inHg)</option>
-                            <option value="mmHg">Millimeters Mercury (mmHg)</option>
+                            <option value="inHg">Inches of Mercury (inHg)</option>
+                            <option value="mmHg">Millimeters of Mercury (mmHg)</option>
+                            <option value="kPa">Kilopascal (kPa)</option>
                         </select>
                     </label>
                     
                     <label class="settings-label">
                         <span class="label-text">Wind Speed</span>
                         <select class="settings-select" id="windUnit">
-                            <option value="kmh">Kilometers per Hour (km/h)</option>
-                            <option value="mph">Miles per Hour (mph)</option>
-                            <option value="ms">Meters per Second (m/s)</option>
-                            <option value="knots">Knots (kn)</option>
+                            <option value="kmh">km/h (Kilometers per Hour)</option>
+                            <option value="mph">mph (Miles per Hour)</option>
+                            <option value="ms">m/s (Meters per Second)</option>
+                            <option value="knots">Knots (Nautical)</option>
+                            <option value="beaufort">Beaufort Scale</option>
+                        </select>
+                    </label>
+                    
+                    <label class="settings-label">
+                        <span class="label-text">Distance/Length</span>
+                        <select class="settings-select" id="distanceUnit">
+                            <option value="metric">Metric (meters, kilometers)</option>
+                            <option value="imperial">Imperial (feet, miles)</option>
                         </select>
                     </label>
                 </div>
@@ -2687,67 +2699,61 @@ ${JSON.stringify(device.status, null, 2)}
         }
 
         function openLocationSettings() {
-            showModal('Farm Location Settings', `
+            showModal('Farm Location Configuration', `
                 <div class="settings-section">
-                    <h4>🗺️ Location Setup</h4>
-                    <div class="location-method">
-                        <label class="radio-label">
-                            <input type="radio" name="locationMethod" value="auto" checked>
-                            <span class="radio-text">📍 Auto-detect Location</span>
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="locationMethod" value="coordinates">
-                            <span class="radio-text">📐 Enter GPS Coordinates</span>
-                        </label>
-                    </div>
+                    <h4>🗺️ GPS Coordinates Input</h4>
+                    <p class="settings-description">Enter your farm's GPS coordinates to get precise location data, weather forecasts, and timezone information.</p>
                     
-                    <div class="coordinates-input" id="coordinatesInput" style="display: none;">
-                        <div class="coordinate-row">
-                            <label class="settings-label">
-                                <span class="label-text">Latitude</span>
-                                <input type="number" class="settings-input" id="latitude" 
-                                       step="0.000001" placeholder="40.7128" onchange="translateCoordinates()">
-                            </label>
-                            
-                            <label class="settings-label">
-                                <span class="label-text">Longitude</span>
-                                <input type="number" class="settings-input" id="longitude" 
-                                       step="0.000001" placeholder="-74.0060" onchange="translateCoordinates()">
-                            </label>
-                        </div>
+                    <div class="coordinate-input-grid">
+                        <label class="settings-label">
+                            <span class="label-text">Latitude</span>
+                            <input type="number" class="settings-input" id="latitude" 
+                                   step="0.000001" placeholder="38.130254" 
+                                   onchange="translateCoordinates()" 
+                                   title="Decimal degrees (-90 to 90)">
+                        </label>
                         
-                        <div class="location-lookup">
-                            <button type="button" class="lookup-btn" onclick="translateCoordinates()">🔍 Lookup Address</button>
-                        </div>
+                        <label class="settings-label">
+                            <span class="label-text">Longitude</span>
+                            <input type="number" class="settings-input" id="longitude" 
+                                   step="0.000001" placeholder="-77.738292" 
+                                   onchange="translateCoordinates()" 
+                                   title="Decimal degrees (-180 to 180)">
+                        </label>
                     </div>
                     
-                    <div class="location-display" id="locationDisplay">
-                        <h4>📍 Current Farm Location</h4>
-                        <div class="location-info">
-                            <div class="info-row">
-                                <span class="info-label">Address:</span>
-                                <span id="currentAddress">Loading...</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label">City:</span>
-                                <span id="currentCity">--</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label">State/Region:</span>
-                                <span id="currentState">--</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label">Coordinates:</span>
-                                <span id="currentCoords">--</span>
-                            </div>
-                        </div>
+                    <div class="coordinate-actions">
+                        <button type="button" class="coord-btn" onclick="getCurrentLocation()">
+                            📍 Get My Current Location
+                        </button>
+                        <button type="button" class="coord-btn secondary" onclick="translateCoordinates()">
+                            🔍 Lookup Address
+                        </button>
                     </div>
                     
-                    <div class="timezone-info">
-                        <h4>🕐 Time Zone Information</h4>
-                        <div class="info-row">
-                            <span class="info-label">Time Zone:</span>
-                            <span id="currentTimezone">Auto-detecting...</span>
+                    <div class="location-results" id="locationResults">
+                        <h4>📍 Resolved Location</h4>
+                        <div class="location-grid">
+                            <div class="location-item">
+                                <span class="location-label">Full Address:</span>
+                                <span class="location-value" id="resolvedAddress">Enter coordinates above</span>
+                            </div>
+                            <div class="location-item">
+                                <span class="location-label">City:</span>
+                                <span class="location-value" id="resolvedCity">--</span>
+                            </div>
+                            <div class="location-item">
+                                <span class="location-label">State/Region:</span>
+                                <span class="location-value" id="resolvedState">--</span>
+                            </div>
+                            <div class="location-item">
+                                <span class="location-label">Country:</span>
+                                <span class="location-value" id="resolvedCountry">--</span>
+                            </div>
+                            <div class="location-item">
+                                <span class="location-label">Timezone:</span>
+                                <span class="location-value" id="resolvedTimezone">--</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2755,126 +2761,138 @@ ${JSON.stringify(device.status, null, 2)}
             setupLocationSettings();
         }
 
-        function openNetworkSettings() {
-            showModal('Network Setup', `
-                <div class="settings-section">
-                    <div class="network-status">
-                        <h4>🌐 Connection Status</h4>
-                        <div class="status-grid">
-                            <div class="status-item">
-                                <span>Pi Gateway:</span>
-                                <span class="status-online">Online</span>
-                            </div>
-                            <div class="status-item">
-                                <span>Internet:</span>
-                                <span id="internetStatus">Checking...</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="network-info">
-                        <h4>🔌 Connected Devices</h4>
-                        <div id="deviceNetworkList">Loading...</div>
-                    </div>
-                    
-                    <div class="network-tools">
-                        <h4>🛠️ Network Tools</h4>
-                        <button class="tool-btn" onclick="pingTest()">📡 Connectivity Test</button>
-                        <button class="tool-btn" onclick="refreshNetwork()">🔄 Refresh Network</button>
-                        <button class="tool-btn" onclick="showWiFiCredentials()">🔐 WiFi Credentials</button>
-                    </div>
-                </div>
-            `, null, true);
-            checkNetworkStatus();
-        }
+
 
         function openOTASettings() {
-            showModal('ESP32 OTA Manager', `
+            showModal('ESP32 Device & OTA Management', `
                 <div class="settings-section">
-                    <div class="ota-header">
-                        <h4>🚀 ESP32 Over-The-Air Updates</h4>
-                        <p class="ota-description">Remotely update your connected ESP32 devices. Updates are failsafe - devices automatically rollback on failure.</p>
+                    <div class="ota-overview">
+                        <h4>🚀 Connected ESP32 Devices</h4>
+                        <p class="settings-description">Manage firmware updates for all connected ESP32 devices. Updates are failsafe with automatic rollback on failure.</p>
                     </div>
                     
-                    <div class="connected-esp32s" id="connectedESP32s">
-                        <h4>🔌 Connected ESP32 Devices</h4>
-                        <div class="esp32-grid">
-                            <div class="esp32-card">
-                                <div class="device-header">
-                                    <span class="device-name">🌱 Greenhouse Controller</span>
-                                    <span class="device-status online">Online</span>
-                                </div>
+                    <div class="device-scan-section">
+                        <button class="scan-btn" onclick="scanForDevices()">
+                            🔍 Scan for ESP32 Devices
+                        </button>
+                        <span class="scan-status" id="scanStatus">Last scan: Never</span>
+                    </div>
+                    
+                    <div class="esp32-device-grid" id="esp32DeviceGrid">
+                        <!-- Greenhouse Controller -->
+                        <div class="esp32-device-card online">
+                            <div class="device-header">
                                 <div class="device-info">
-                                    <div class="info-item">
-                                        <span>IP:</span> <span>192.168.1.100</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span>Firmware:</span> <span>v2.1.0</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span>Uptime:</span> <span>5d 12h</span>
-                                    </div>
+                                    <h4>🌱 Greenhouse Controller</h4>
+                                    <span class="device-ip">192.168.1.100</span>
                                 </div>
-                                <div class="device-actions">
-                                    <button class="ota-btn primary" onclick="startOTAUpdate('greenhouse')">📤 Update Firmware</button>
-                                    <button class="ota-btn secondary" onclick="restartDevice('greenhouse')">🔄 Restart</button>
+                                <div class="device-status online">Online</div>
+                            </div>
+                            
+                            <div class="device-details">
+                                <div class="detail-row">
+                                    <span>Firmware:</span> <strong>v2.1.0</strong>
+                                </div>
+                                <div class="detail-row">
+                                    <span>Uptime:</span> <span>5d 12h 34m</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span>Free Memory:</span> <span>245KB</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span>WiFi Signal:</span> <span>-45 dBm (Excellent)</span>
                                 </div>
                             </div>
                             
-                            <div class="esp32-card">
-                                <div class="device-header">
-                                    <span class="device-name">🐔 Coop Monitor</span>
-                                    <span class="device-status offline">Offline</span>
-                                </div>
+                            <div class="device-actions">
+                                <button class="action-btn primary" onclick="updateFirmware('greenhouse')">
+                                    📤 Update Firmware
+                                </button>
+                                <button class="action-btn secondary" onclick="restartDevice('greenhouse')">
+                                    🔄 Restart Device
+                                </button>
+                                <button class="action-btn info" onclick="showDeviceInfo('greenhouse')">
+                                    📊 View Details
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Coop Monitor -->
+                        <div class="esp32-device-card offline">
+                            <div class="device-header">
                                 <div class="device-info">
-                                    <div class="info-item">
-                                        <span>Last Seen:</span> <span>2h ago</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span>Firmware:</span> <span>v1.9.2</span>
-                                    </div>
+                                    <h4>🐔 Coop Monitor</h4>
+                                    <span class="device-ip">192.168.1.101</span>
                                 </div>
-                                <div class="device-actions">
-                                    <button class="ota-btn disabled" disabled>⏸️ Device Offline</button>
+                                <div class="device-status offline">Offline</div>
+                            </div>
+                            
+                            <div class="device-details">
+                                <div class="detail-row">
+                                    <span>Last Firmware:</span> <strong>v1.9.2</strong>
                                 </div>
+                                <div class="detail-row">
+                                    <span>Last Seen:</span> <span>2h 15m ago</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span>Status:</span> <span class="text-warning">Connection Lost</span>
+                                </div>
+                            </div>
+                            
+                            <div class="device-actions">
+                                <button class="action-btn disabled" disabled>
+                                    ⏸️ Device Offline
+                                </button>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="firmware-upload" id="firmwareUpload">
-                        <h4>📁 Upload New Firmware</h4>
-                        <div class="upload-area">
-                            <input type="file" id="firmwareFile" accept=".bin" style="display: none;" onchange="handleFirmwareSelect(this)">
-                            <button class="upload-btn" onclick="document.getElementById('firmwareFile').click()">
-                                📂 Select .bin Firmware File
-                            </button>
-                            <div class="upload-info" id="uploadInfo"></div>
+                    <div class="firmware-management">
+                        <h4>📁 Firmware Upload</h4>
+                        <div class="upload-section">
+                            <div class="file-drop-area" id="firmwareDropArea">
+                                <input type="file" id="firmwareFile" accept=".bin" style="display: none;" onchange="handleFirmwareFile(this)">
+                                <div class="drop-content">
+                                    <span class="drop-icon">📂</span>
+                                    <p>Drop .bin firmware file here or click to select</p>
+                                    <button class="select-file-btn" onclick="document.getElementById('firmwareFile').click()">
+                                        Select Firmware File
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="firmware-info" id="firmwareInfo"></div>
                         </div>
                     </div>
                     
-                    <div class="ota-logs" id="otaLogs">
+                    <div class="ota-history">
                         <h4>📋 Update History</h4>
-                        <div class="log-container">
-                            <div class="log-entry success">
-                                <span class="log-time">Jan 30, 15:42</span>
-                                <span class="log-device">Greenhouse ESP32</span>
-                                <span class="log-status">✅ Updated to v2.1.0</span>
+                        <div class="history-list">
+                            <div class="history-item success">
+                                <div class="history-icon">✅</div>
+                                <div class="history-details">
+                                    <div class="history-title">Greenhouse Controller → v2.1.0</div>
+                                    <div class="history-time">Today, 15:42 - Update successful</div>
+                                </div>
                             </div>
-                            <div class="log-entry failed">
-                                <span class="log-time">Jan 29, 09:15</span>
-                                <span class="log-device">Coop Monitor</span>
-                                <span class="log-status">⚠️ Update failed - Rolled back</span>
+                            <div class="history-item failed">
+                                <div class="history-icon">⚠️</div>
+                                <div class="history-details">
+                                    <div class="history-title">Coop Monitor → v1.9.3</div>
+                                    <div class="history-time">Yesterday, 09:15 - Failed, rolled back to v1.9.2</div>
+                                </div>
                             </div>
-                            <div class="log-entry success">
-                                <span class="log-time">Jan 28, 14:30</span>
-                                <span class="log-device">Coop Monitor</span>
-                                <span class="log-status">✅ Updated to v1.9.2</span>
+                            <div class="history-item success">
+                                <div class="history-icon">✅</div>
+                                <div class="history-details">
+                                    <div class="history-title">Coop Monitor → v1.9.2</div>
+                                    <div class="history-time">Jan 28, 14:30 - Update successful</div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             `, null, true);
-            loadESP32Devices();
+            loadESP32DeviceList();
         }
 
         function openAboutDialog() {
