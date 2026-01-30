@@ -785,68 +785,75 @@
 
         /* Responsive Design */
         @media (max-width: 768px) {
-            /* Header Mobile */
-            .header {
-                padding: 1.2rem 0;
-                background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-            }
-            
-            .header-content {
-                padding: 0 1rem;
-                gap: 1.5rem;
-            }
-            
-            .logo {
-                justify-content: center;
+            /* Mobile Navbar */
+            .navbar-content {
+                padding: 1rem;
+                flex-wrap: wrap;
                 gap: 1rem;
-                text-align: center;
             }
             
-            .logo-icon {
-                font-size: 2.2rem;
+            .navbar-brand {
+                font-size: 1.2rem;
             }
             
-            .logo h1 {
+            .navbar-icon {
                 font-size: 1.6rem;
-                font-weight: 800;
             }
             
-            .logo-tagline {
-                font-size: 0.8rem;
-                opacity: 0.9;
-            }
-            
-            .header-info {
-                flex-direction: row;
-                gap: 1.5rem;
+            .navbar-menu {
+                order: 3;
                 width: 100%;
-                justify-content: space-between;
-                align-items: center;
+                justify-content: center;
+                gap: 0.3rem;
+                margin-top: 0.5rem;
+                overflow-x: auto;
+                padding: 0.5rem 0;
             }
             
-            .header-actions {
-                gap: 1.2rem;
-                align-items: center;
+            .navbar-link {
+                padding: 0.5rem 0.8rem;
+                font-size: 0.85rem;
+                white-space: nowrap;
+                min-width: auto;
+            }
+            
+            .status-time-container {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.9rem;
             }
             
             .time-display {
-                text-align: center;
                 min-width: auto;
-                padding: 0.8rem 1rem;
-                font-size: 0.9rem;
-                border-radius: 20px;
-                background: rgba(255, 255, 255, 0.15);
-                backdrop-filter: blur(15px);
             }
             
             .time-main {
-                font-size: 1rem;
-                font-weight: 700;
+                font-size: 0.85rem;
             }
             
             .date-sub {
-                font-size: 0.65rem;
-                opacity: 0.9;
+                font-size: 0.6rem;
+            }
+            
+            .status-dot {
+                width: 8px;
+                height: 8px;
+            }
+            
+            /* Settings Dropdown Mobile */
+            .settings-dropdown {
+                position: fixed;
+                top: auto;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                border-radius: 25px 25px 0 0;
+                min-width: auto;
+                max-height: 80vh;
+                transform: translateY(100%);
+            }
+            
+            .settings-dropdown.show {
+                transform: translateY(0);
             }
             
             .settings-btn {
