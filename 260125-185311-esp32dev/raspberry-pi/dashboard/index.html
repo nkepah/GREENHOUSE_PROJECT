@@ -2570,6 +2570,15 @@ ${JSON.stringify(device.status, null, 2)}
             // Refresh intervals
             setInterval(fetchDevices, CONFIG.refreshInterval);
             setInterval(fetchWeather, CONFIG.weatherRefresh);
+            
+            // Add event listener for settings button as backup
+            const settingsBtn = document.getElementById('settingsBtn');
+            if (settingsBtn) {
+                settingsBtn.addEventListener('click', toggleSettings);
+                console.log('Settings button event listener added');
+            } else {
+                console.error('Settings button not found');
+            }
         }
 
         // Settings functionality
