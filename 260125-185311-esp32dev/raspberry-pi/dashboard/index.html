@@ -782,7 +782,7 @@
                 'coop2': '/coop2/',
                 'coop3': '/coop3/'
             };
-            window.open(paths[id] || `/${id}/`, '_blank');
+            window.location.href = paths[id] || `/${id}/`;
         }
 
         // Show device details modal
