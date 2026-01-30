@@ -2574,8 +2574,17 @@ ${JSON.stringify(device.status, null, 2)}
 
         // Settings functionality
         function toggleSettings() {
-            const dropdown = document.getElementById('settingsDropdown');
-            dropdown.classList.toggle('show');
+            try {
+                const dropdown = document.getElementById('settingsDropdown');
+                if (dropdown) {
+                    dropdown.classList.toggle('show');
+                    console.log('Settings dropdown toggled, show class:', dropdown.classList.contains('show'));
+                } else {
+                    console.error('Settings dropdown element not found');
+                }
+            } catch (error) {
+                console.error('Error in toggleSettings:', error);
+            }
         }
 
         // Close dropdown when clicking outside
