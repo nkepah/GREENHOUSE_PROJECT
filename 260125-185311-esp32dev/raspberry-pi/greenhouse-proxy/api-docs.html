@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌿 Greenhouse Pi Proxy API</title>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --card: #161b22;
+            --border: #30363d;
+            --text: #e6edf3;
+            --muted: #8b949e;
+            --green: #3fb950;
+            --blue: #58a6ff;
+            --orange: #d29922;
+            --red: #f85149;
+            --purple: #a371f7;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 { color: var(--green); margin-bottom: 10px; }
+        h2 { color: var(--blue); margin: 30px 0 15px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+        h3 { color: var(--text); margin: 20px 0 10px; }
+        .subtitle { color: var(--muted); margin-bottom: 30px; }
+        
+        .endpoint {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        .endpoint-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: rgba(0,0,0,0.2);
+            cursor: pointer;
+        }
+        .endpoint-header:hover { background: rgba(255,255,255,0.05); }
+        .method {
+            font-weight: bold;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            min-width: 60px;
+            text-align: center;
+        }
+        .method.get { background: var(--green); color: #000; }
+        .method.post { background: var(--blue); color: #000; }
+        .method.ws { background: var(--purple); color: #fff; }
+        .path { font-family: monospace; color: var(--text); }
+        .desc { color: var(--muted); margin-left: auto; font-size: 14px; }
+        
+        .endpoint-body {
+            padding: 16px;
+            display: none;
+            border-top: 1px solid var(--border);
+        }
+        .endpoint.open .endpoint-body { display: block; }
+        
+        pre {
+            background: #000;
+            padding: 12px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 13px;
+            margin: 10px 0;
+        }
+        code { color: var(--green); }
+        .param { color: var(--orange); }
+        .note { color: var(--muted); font-size: 13px; margin-top: 8px; }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        th, td {
+            text-align: left;
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+        }
+        th { background: rgba(0,0,0,0.3); color: var(--muted); }
+        
+        .status { display: inline-flex; align-items: center; gap: 8px; margin: 20px 0; }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .status-dot.online { background: var(--green); animation: pulse 2s infinite; }
+        .status-dot.offline { background: var(--red); }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        
+        .nav { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+        .nav a {
+            color: var(--blue);
+            text-decoration: none;
+            padding: 6px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+        }
+        .nav a:hover { background: var(--card); }
+    </style>
+</head>
+<body>
+    <h1>🌿 Greenhouse Pi Proxy API</h1>
+    <p class="subtitle">REST API and WebSocket documentation for the Greenhouse automation system</p>
+    
+    <div class="status">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">Checking connection...</span>
+    </div>
+    
+    <nav class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/routines">Routines</a>
+        <a href="/alerts">Alerts</a>
+        <a href="#websocket">WebSocket</a>
+        <a href="#weather">Weather</a>
+        <a href="#system">System</a>
+        <a href="#ota">OTA Updates</a>
+    </nav>
+
+    <h2 id="websocket">WebSocket Connection</h2>
+    <p>Connect to the WebSocket for real-time data streaming from the ESP32 greenhouse controller.</p>
+    
+    <div class="endpoint open">
+        <div class="endpoint-header">
+            <span class="method ws">WS</span>
+            <span class="path">/ws</span>
+            <span class="desc">Real-time bidirectional communication</span>
+        </div>
+        <div class="endpoint-body">
+            <h3>Connection</h3>
+            <pre>const ws = new WebSocket(`ws://${window.location.host}/ws`);</pre>
+            
+            <h3>Incoming Messages (from ESP32)</h3>
+            <table>
+                <tr><th>Type</th><th>Description</th><th>Frequency</th></tr>
+                <tr><td><code>sync</code></td><td>Full system state (sensors, relays, power, alerts)</td><td>500ms</td></tr>
+                <tr><td><code>weather</code></td><td>Weather data (current + 2-day forecast)</td><td>On request</td></tr>
+                <tr><td><code>routines</code></td><td>All automation routines</td><td>On request</td></tr>
+                <tr><td><code>alert</code></td><td>Alert triggered notification</td><td>Event-driven</td></tr>
+                <tr><td><code>amp_reading</code></td><td>Real-time current sensor readings</td><td>500ms</td></tr>
+            </table>
+            
+            <h3>Outgoing Messages (to ESP32)</h3>
+            <pre>{
+  "type": "relay",
+  "id": 0,
+  "state": true
+}</pre>
+            <pre>{
+  "type": "set_routine",
+  "routine": { "id": "r1", "name": "Lights", "enabled": true, ... }
+}</pre>
+        </div>
+    </div>
+
+    <h2 id="weather">Weather API</h2>
+    
+    <div class="endpoint">
+        <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+            <span class="method get">GET</span>
+            <span class="path">/api/weather</span>
+            <span class="desc">Get cached 2-day weather forecast</span>
+        </div>
+        <div class="endpoint-body">
+            <h3>Response</h3>
+            <pre>{
+  "type": "weather",
+  "data": {
+    "valid": true,
+    "temp": 16.5,
+    "humi": 58,
+    "code": 3,
+    "wind": 9.7,
+    "is_day": 1,
+    "feels": 15.2,
+    "max": 22.1,
+    "min": 12.4,
+    "hourly": [
+      { "time": "14:00", "date": "2026-01-30", "temp": 18.2, "code": 2, "is_day": 1, "precip_prob": 10 },
+      ...
+    ],
+    "daily": [
+      { "date": "2026-01-30", "max": 22, "min": 12, "code": 3, "precip": 0, "sunrise": "05:43", "sunset": "18:52" },
+      { "date": "2026-01-31", "max": 24, "min": 14, "code": 1, "precip": 0, "sunrise": "05:44", "sunset": "18:51" }
+    ]
+  },
+  "cached": true,
+  "age_minutes": 5
+}</pre>
+            <p class="note">Weather is cached for 10 minutes. Data from Open-Meteo API.</p>
+        </div>
+    </div>
+
+    <h2>Time API</h2>
+    
+    <div class="endpoint">
+        <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+            <span class="method get">GET</span>
+            <span class="path">/api/time</span>
+            <span class="desc">Get current server time</span>
+        </div>
+        <div class="endpoint-body">
+            <pre>{
+  "unix": 1769738786,
+  "iso": "2026-01-30T02:06:26.656Z",
+  "local": "1/30/2026, 4:06:26 AM"
+}</pre>
+            <p class="note">Pi automatically syncs time to ESP32 every 60 seconds via WebSocket.</p>
+        </div>
+    </div>
+
+    <h2>Relay Control</h2>
+    
+    <div class="endpoint">
+        <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+            <span class="method post">POST</span>
+            <span class="path">/api/relay</span>
+            <span class="desc">Control a relay via REST API</span>
+        </div>
+        <div class="endpoint-body">
+            <h3>Request Body</h3>
+            <pre>{
+  "id": 0,
+  "state": true
+}</pre>
+            <table>
+                <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+                <tr><td><code>id</code></td><td>number</td><td>Relay index (0-7)</td></tr>
+                <tr><td><code>state</code></td><td>boolean</td><td>true = ON, false = OFF</td></tr>
+            </table>
+            <p class="note">Command is forwarded to ESP32 via WebSocket.</p>
+        </div>
+    </div>
+
+    <h2>Routines API</h2>
+    
+    <div class="endpoint">
+        <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+            <span class="method get">GET</span>
+            <span class="path">/api/routines</span>
+            <span class="desc">Get all automation routines</span>
+        </div>
+        <div class="endpoint-body">
+            <p>Returns routines from ESP32 (via WebSocket request) or cached copy if disconnected.</p>
+            <pre>{
+  "routines": [...],
+  "source": "esp32"
+}</pre>
+        </div>
+    </div>
+    
+    <div class="endpoint">
+        <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+            <span class="method post">POST</span>
+            <span class="path">/api/routines/<span class="param">:action</span></span>
+            <span class="desc">Manage routines</span>
+        </div>
+        <div class="endpoint-body">
+            <table>
+                <tr><th>Action</th><th>Description</th><th>Body</th></tr>
+                <tr><td><code>save</code></td><td>Save/update a routine</td><td><code>{ routine: {...} }</code></td></tr>
+                <tr><td><code>delete</code></td><td>Delete a routine</td><td><code>{ id: "routine_id" }</code></td></tr>
+                <tr><td><code>toggle</code></td><td>Enable/disable a routine</td><td><code>{ id: "routine_id", enabled: true }</code></td></tr>
+            </table>
+        </div>
+    </div>
+
+    <h2 id="system">System Status</h2>
+    
+    <div class="endpoint">
+        <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+            <span class="method get">GET</span>
+            <span class="path">/api/status</span>
+            <span class="desc">Get proxy status and connections</span>
+        </div>
+        <div class="endpoint-body">
+            <pre>{
+  "proxy": {
+    "uptime": 3600,
+    "clients": 2,
+    "esp32_connected": true
+  },
+  "esp32": { "ip": "10.0.0.163" },
+  "weather": { "cached": true, "age_minutes": 5 }
+}</pre>
+        </div>
+    </div>
+    
+    <div class="endpoint">
+        <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+            <span class="method get">GET</span>
+            <span class="path">/api/system</span>
+            <span class="desc">Get Pi system information</span>
+        </div>
+        <div class="endpoint-body">
+            <pre>{
+  "hostname": "greenhouse-hub",
+  "platform": "linux",
+  "arch": "arm64",
+  "uptime": 86400,
+  "memory": { "total": 4096, "free": 2048, "used_percent": 50 },
+  "loadavg": [0.5, 0.3, 0.2],
+  "node_version": "v20.10.0"
+}</pre>
+        </div>
+    </div>
+    
+    <div class="endpoint">
+        <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+            <span class="method get">GET</span>
+            <span class="path">/api/config</span>
+            <span class="desc">Get current configuration</span>
+        </div>
+        <div class="endpoint-body">
+            <pre>{
+  "port": 3000,
+  "esp32": { "ip": "10.0.0.163", "wsPort": 80 },
+  "weather": { "enabled": true, "cacheMinutes": 10, "location": {...} }
+}</pre>
+        </div>
+    </div>
+    
+    <div class="endpoint">
+        <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+            <span class="method post">POST</span>
+            <span class="path">/api/config</span>
+            <span class="desc">Update configuration</span>
+        </div>
+        <div class="endpoint-body">
+            <h3>Request Body</h3>
+            <pre>{
+  "esp32": { "ip": "10.0.0.200" },
+  "weather": { "cacheMinutes": 15 }
+}</pre>
+            <p class="note">Partial updates supported. Server restarts to apply changes.</p>
+        </div>
+    </div>
+
+    <h2 id="ota">OTA Update Endpoints</h2>
+    
+    <div class="endpoint">
+        <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+            <span class="method post">POST</span>
+            <span class="path">/api/update/git</span>
+            <span class="desc">Pull latest code from Git</span>
+        </div>
+        <div class="endpoint-body">
+            <pre>curl -X POST http://pi:3000/api/update/git</pre>
+            <p>Runs <code>git pull</code> in the proxy directory and restarts the service.</p>
+            <h3>Response</h3>
+            <pre>{
+  "success": true,
+  "output": "Already up to date.",
+  "restarting": true
+}</pre>
+        </div>
+    </div>
+    
+    <div class="endpoint">
+        <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+            <span class="method post">POST</span>
+            <span class="path">/api/update/restart</span>
+            <span class="desc">Restart the proxy service</span>
+        </div>
+        <div class="endpoint-body">
+            <pre>curl -X POST http://pi:3000/api/update/restart</pre>
+            <p class="note">Service will restart via systemctl. Connection will be lost temporarily.</p>
+        </div>
+    </div>
+    
+    <div class="endpoint">
+        <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+            <span class="method post">POST</span>
+            <span class="path">/api/update/frontend</span>
+            <span class="desc">Upload new frontend files</span>
+        </div>
+        <div class="endpoint-body">
+            <pre>curl -X POST -F "files=@index.html" -F "files=@routines.html" \
+     http://pi:3000/api/update/frontend</pre>
+            <p>Files are saved to the frontend directory. Supports multiple files.</p>
+        </div>
+    </div>
+    
+    <div class="endpoint">
+        <div class="endpoint-header" onclick="this.parentElement.classList.toggle('open')">
+            <span class="method post">POST</span>
+            <span class="path">/api/update/config</span>
+            <span class="desc">Update config and restart</span>
+        </div>
+        <div class="endpoint-body">
+            <pre>curl -X POST -H "Content-Type: application/json" \
+     -d '{"esp32":{"ip":"10.0.0.200"}}' \
+     http://pi:3000/api/update/config</pre>
+        </div>
+    </div>
+
+    <h2>ESP32 Direct Access</h2>
+    <p>The ESP32 can be accessed directly for local setup and debugging:</p>
+    <table>
+        <tr><th>URL</th><th>Description</th></tr>
+        <tr><td><code>http://10.0.0.163/</code></td><td>Full dashboard (served from ESP32 LittleFS)</td></tr>
+        <tr><td><code>http://10.0.0.163/setup</code></td><td>Minimal setup page for WiFi/relay testing</td></tr>
+        <tr><td><code>http://10.0.0.163/update</code></td><td>ElegantOTA firmware update</td></tr>
+        <tr><td><code>ws://10.0.0.163/ws</code></td><td>Direct WebSocket connection</td></tr>
+    </table>
+
+    <script>
+        // Check connection status
+        async function checkStatus() {
+            try {
+                const res = await fetch('/api/status');
+                const data = await res.json();
+                const dot = document.getElementById('statusDot');
+                const text = document.getElementById('statusText');
+                
+                if (data.proxy?.esp32_connected) {
+                    dot.className = 'status-dot online';
+                    text.textContent = `Connected to ESP32 (${data.esp32?.ip}) • ${data.proxy?.clients || 0} browser(s)`;
+                } else {
+                    dot.className = 'status-dot offline';
+                    text.textContent = 'ESP32 Disconnected';
+                }
+            } catch (e) {
+                document.getElementById('statusDot').className = 'status-dot offline';
+                document.getElementById('statusText').textContent = 'Proxy Offline';
+            }
+        }
+        
+        checkStatus();
+        setInterval(checkStatus, 5000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,547 @@
+/**
+ * 🐔 Chicken Coop Controller - Main Firmware
+ * 
+ * Copy this to a new PlatformIO project for each coop.
+ * Change COOP_ID, COOP_NAME in CoopConfig.h for each unit.
+ */
+
+#include <Arduino.h>
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <LittleFS.h>
+#include <ArduinoJson.h>
+#include <Preferences.h>
+#include <ESPAsyncWebServer.h>
+#include <AsyncTCP.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
+#include "time.h"
+#include "CoopConfig.h"
+
+// =============================================================================
+// GLOBALS
+// =============================================================================
+
+AsyncWebServer server(80);
+AsyncWebSocket ws("/ws");
+Preferences prefs;
+
+// Temperature sensors
+OneWire oneWireInside(PIN_TEMP_SENSOR);
+DallasTemperature tempSensorInside(&oneWireInside);
+
+// State
+DoorState doorState = DOOR_UNKNOWN;
+bool lightMainOn = false;
+bool lightNestOn = false;
+bool lightRunOn = false;
+float tempInside = 0.0;
+float tempOutside = 0.0;
+int feedLevel = 100;
+int waterLevel = 100;
+
+// Scheduling
+int doorOpenHour = DOOR_OPEN_HOUR;
+int doorCloseHour = DOOR_CLOSE_HOUR;
+int lightOnHour = LIGHT_ON_HOUR;
+int lightOffHour = LIGHT_OFF_HOUR;
+
+// Weather (from Pi gateway)
+int sunriseHour = 6;
+int sunriseMin = 0;
+int sunsetHour = 18;
+int sunsetMin = 0;
+float weatherTemp = 0.0;
+bool weatherValid = false;
+
+// Timers
+unsigned long lastTempRead = 0;
+unsigned long lastWeatherFetch = 0;
+unsigned long lastScheduleCheck = 0;
+
+// =============================================================================
+// DOOR CONTROL
+// =============================================================================
+
+void stopDoor() {
+    digitalWrite(PIN_DOOR_EXTEND, LOW);
+    digitalWrite(PIN_DOOR_RETRACT, LOW);
+}
+
+void openDoor() {
+    if (doorState == DOOR_OPEN || doorState == DOOR_OPENING) return;
+    
+    Serial.println("[DOOR] Opening...");
+    doorState = DOOR_OPENING;
+    
+    stopDoor();
+    digitalWrite(PIN_DOOR_EXTEND, HIGH);
+    
+    // Wait for limit switch or timeout
+    unsigned long start = millis();
+    while (digitalRead(PIN_DOOR_LIMIT_OPEN) == HIGH && (millis() - start) < 30000) {
+        delay(100);
+    }
+    
+    stopDoor();
+    
+    if (digitalRead(PIN_DOOR_LIMIT_OPEN) == LOW) {
+        doorState = DOOR_OPEN;
+        Serial.println("[DOOR] ✓ Open");
+    } else {
+        doorState = DOOR_ERROR;
+        Serial.println("[DOOR] ✗ Error - timeout");
+    }
+    
+    broadcastStatus();
+}
+
+void closeDoor() {
+    if (doorState == DOOR_CLOSED || doorState == DOOR_CLOSING) return;
+    
+    Serial.println("[DOOR] Closing...");
+    doorState = DOOR_CLOSING;
+    
+    stopDoor();
+    digitalWrite(PIN_DOOR_RETRACT, HIGH);
+    
+    // Wait for limit switch or timeout
+    unsigned long start = millis();
+    while (digitalRead(PIN_DOOR_LIMIT_CLOSE) == HIGH && (millis() - start) < 30000) {
+        delay(100);
+    }
+    
+    stopDoor();
+    
+    if (digitalRead(PIN_DOOR_LIMIT_CLOSE) == LOW) {
+        doorState = DOOR_CLOSED;
+        Serial.println("[DOOR] ✓ Closed");
+    } else {
+        doorState = DOOR_ERROR;
+        Serial.println("[DOOR] ✗ Error - timeout");
+    }
+    
+    broadcastStatus();
+}
+
+// =============================================================================
+// LIGHTING CONTROL
+// =============================================================================
+
+void setLight(int pin, bool state) {
+    digitalWrite(pin, state ? HIGH : LOW);
+    
+    if (pin == PIN_LIGHT_MAIN) lightMainOn = state;
+    else if (pin == PIN_LIGHT_NESTING) lightNestOn = state;
+    else if (pin == PIN_LIGHT_RUN) lightRunOn = state;
+    
+    Serial.printf("[LIGHT] Pin %d = %s\n", pin, state ? "ON" : "OFF");
+    broadcastStatus();
+}
+
+void setAllLights(bool state) {
+    setLight(PIN_LIGHT_MAIN, state);
+    setLight(PIN_LIGHT_NESTING, state);
+    setLight(PIN_LIGHT_RUN, state);
+}
+
+// =============================================================================
+// FEEDER CONTROL
+// =============================================================================
+
+void dispenseFeed(int durationSec = FEED_DURATION_SEC) {
+    Serial.printf("[FEEDER] Dispensing for %d seconds\n", durationSec);
+    
+    digitalWrite(PIN_FEEDER_MOTOR, HIGH);
+    delay(durationSec * 1000);
+    digitalWrite(PIN_FEEDER_MOTOR, LOW);
+    
+    Serial.println("[FEEDER] ✓ Done");
+    broadcastStatus();
+}
+
+// =============================================================================
+// SENSORS
+// =============================================================================
+
+void readSensors() {
+    // Temperature
+    tempSensorInside.requestTemperatures();
+    tempInside = tempSensorInside.getTempCByIndex(0);
+    
+    if (tempInside < -50) tempInside = 0; // Invalid reading
+    
+    // Feed level (analog 0-4095 -> 0-100%)
+    int feedRaw = analogRead(PIN_FEEDER_LEVEL);
+    feedLevel = map(feedRaw, 0, 4095, 0, 100);
+    
+    // Water level
+    int waterRaw = analogRead(PIN_WATER_LEVEL);
+    waterLevel = map(waterRaw, 0, 4095, 0, 100);
+    
+    // Check for alerts
+    if (tempInside < TEMP_MIN_SAFE || tempInside > TEMP_MAX_SAFE) {
+        Serial.printf("[ALERT] Temperature out of range: %.1f°C\n", tempInside);
+    }
+    if (feedLevel < FEED_MIN_LEVEL) {
+        Serial.printf("[ALERT] Feed level low: %d%%\n", feedLevel);
+    }
+    if (waterLevel < WATER_MIN_LEVEL) {
+        Serial.printf("[ALERT] Water level low: %d%%\n", waterLevel);
+    }
+}
+
+// =============================================================================
+// WEATHER (FROM PI GATEWAY)
+// =============================================================================
+
+void fetchWeatherFromPi() {
+    if (WiFi.status() != WL_CONNECTED) return;
+    
+#if USE_PI_WEATHER
+    HTTPClient http;
+    String url = String("http://") + PI_GATEWAY_IP + ":" + PI_GATEWAY_PORT + "/api/weather";
+    
+    // Add coordinates from preferences if available
+    prefs.begin("coop-config", true);
+    String lat = prefs.getString("lat", "");
+    String lon = prefs.getString("lon", "");
+    prefs.end();
+    
+    if (lat.length() > 0 && lon.length() > 0) {
+        url += "?lat=" + lat + "&lon=" + lon;
+    }
+    
+    http.begin(url);
+    http.setTimeout(5000);
+    
+    int httpCode = http.GET();
+    
+    if (httpCode == HTTP_CODE_OK) {
+        String payload = http.getString();
+        DynamicJsonDocument doc(4096);
+        
+        if (deserializeJson(doc, payload) == DeserializationError::Ok) {
+            if (doc.containsKey("current")) {
+                weatherTemp = doc["current"]["temperature_2m"];
+                weatherValid = true;
+                Serial.printf("[WEATHER] From Pi: %.1f°C\n", weatherTemp);
+            }
+            
+            // Parse daily sunrise/sunset if available
+            if (doc.containsKey("daily")) {
+                // Open-Meteo provides sunrise/sunset as ISO strings
+                // Parse to extract hour/minute
+                String sunrise = doc["daily"]["sunrise"][0];
+                String sunset = doc["daily"]["sunset"][0];
+                
+                // Extract HH:MM from "2026-01-28T06:45"
+                int tIdx = sunrise.indexOf('T');
+                if (tIdx > 0) {
+                    sunriseHour = sunrise.substring(tIdx + 1, tIdx + 3).toInt();
+                    sunriseMin = sunrise.substring(tIdx + 4, tIdx + 6).toInt();
+                }
+                tIdx = sunset.indexOf('T');
+                if (tIdx > 0) {
+                    sunsetHour = sunset.substring(tIdx + 1, tIdx + 3).toInt();
+                    sunsetMin = sunset.substring(tIdx + 4, tIdx + 6).toInt();
+                }
+                
+                Serial.printf("[WEATHER] Sunrise: %02d:%02d, Sunset: %02d:%02d\n", 
+                             sunriseHour, sunriseMin, sunsetHour, sunsetMin);
+            }
+        }
+    } else {
+        Serial.printf("[WEATHER] Pi request failed: %d\n", httpCode);
+        weatherValid = false;
+    }
+    
+    http.end();
+#endif
+}
+
+// =============================================================================
+// SCHEDULING
+// =============================================================================
+
+void checkSchedules() {
+    struct tm timeinfo;
+    if (!getLocalTime(&timeinfo)) return;
+    
+    int hour = timeinfo.tm_hour;
+    int minute = timeinfo.tm_min;
+    int currentMinutes = hour * 60 + minute;
+    
+    // Door scheduling
+    int openMinutes = (doorOpenHour == -1) ? 
+        (sunriseHour * 60 + sunriseMin + DOOR_SUNRISE_OFFSET) : 
+        (doorOpenHour * 60);
+    int closeMinutes = (doorCloseHour == -1) ? 
+        (sunsetHour * 60 + sunsetMin + DOOR_SUNSET_OFFSET) : 
+        (doorCloseHour * 60);
+    
+    // Open door at scheduled time
+    if (currentMinutes == openMinutes && doorState == DOOR_CLOSED) {
+        Serial.println("[SCHEDULE] Opening door (scheduled)");
+        openDoor();
+    }
+    
+    // Close door at scheduled time
+    if (currentMinutes == closeMinutes && doorState == DOOR_OPEN) {
+        Serial.println("[SCHEDULE] Closing door (scheduled)");
+        closeDoor();
+    }
+    
+    // Lighting schedule (extend daylight for egg production)
+    int lightOnMinutes = lightOnHour * 60;
+    int lightOffMinutes = lightOffHour * 60;
+    
+    bool shouldLightBeOn = (currentMinutes >= lightOnMinutes && currentMinutes < lightOffMinutes);
+    
+    if (shouldLightBeOn && !lightMainOn) {
+        Serial.println("[SCHEDULE] Lights on (scheduled)");
+        setAllLights(true);
+    } else if (!shouldLightBeOn && lightMainOn) {
+        Serial.println("[SCHEDULE] Lights off (scheduled)");
+        setAllLights(false);
+    }
+    
+    // Feeding schedule
+    int feed1Minutes = FEED_TIME_1_HOUR * 60 + FEED_TIME_1_MIN;
+    int feed2Minutes = FEED_TIME_2_HOUR * 60 + FEED_TIME_2_MIN;
+    
+    if (currentMinutes == feed1Minutes || currentMinutes == feed2Minutes) {
+        Serial.println("[SCHEDULE] Feeding time!");
+        dispenseFeed();
+    }
+}
+
+// =============================================================================
+// WEBSOCKET
+// =============================================================================
+
+void broadcastStatus() {
+    DynamicJsonDocument doc(1024);
+    
+    doc["type"] = "sync";
+    doc["coop_id"] = COOP_ID;
+    doc["coop_name"] = COOP_NAME;
+    
+    JsonObject status = doc.createNestedObject("status");
+    status["door"] = (int)doorState;
+    status["door_text"] = doorState == DOOR_OPEN ? "open" : 
+                         doorState == DOOR_CLOSED ? "closed" :
+                         doorState == DOOR_OPENING ? "opening" :
+                         doorState == DOOR_CLOSING ? "closing" : "unknown";
+    status["light_main"] = lightMainOn;
+    status["light_nest"] = lightNestOn;
+    status["light_run"] = lightRunOn;
+    status["temp_inside"] = tempInside;
+    status["temp_outside"] = tempOutside;
+    status["feed_level"] = feedLevel;
+    status["water_level"] = waterLevel;
+    status["weather_temp"] = weatherTemp;
+    status["weather_valid"] = weatherValid;
+    
+    // Time info
+    struct tm timeinfo;
+    if (getLocalTime(&timeinfo)) {
+        char timeStr[20];
+        strftime(timeStr, sizeof(timeStr), "%H:%M:%S", &timeinfo);
+        status["time"] = String(timeStr);
+    }
+    
+    // Network info
+    status["ip"] = WiFi.localIP().toString();
+    status["rssi"] = WiFi.RSSI();
+    
+    String out;
+    serializeJson(doc, out);
+    ws.textAll(out);
+}
+
+void handleWebSocketMessage(AsyncWebSocketClient *client, uint8_t *data) {
+    DynamicJsonDocument doc(512);
+    if (deserializeJson(doc, (char*)data)) return;
+    
+    String type = doc["type"];
+    
+    if (type == "door_open") {
+        openDoor();
+    }
+    else if (type == "door_close") {
+        closeDoor();
+    }
+    else if (type == "light") {
+        String target = doc["target"];
+        bool state = doc["state"];
+        
+        if (target == "main") setLight(PIN_LIGHT_MAIN, state);
+        else if (target == "nest") setLight(PIN_LIGHT_NESTING, state);
+        else if (target == "run") setLight(PIN_LIGHT_RUN, state);
+        else if (target == "all") setAllLights(state);
+    }
+    else if (type == "feed") {
+        int duration = doc["duration"] | FEED_DURATION_SEC;
+        dispenseFeed(duration);
+    }
+    else if (type == "get_status") {
+        broadcastStatus();
+    }
+}
+
+void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, 
+               AwsEventType type, void *arg, uint8_t *data, size_t len) {
+    if (type == WS_EVT_CONNECT) {
+        Serial.printf("[WS] Client connected: %u\n", client->id());
+        broadcastStatus();
+    }
+    else if (type == WS_EVT_DISCONNECT) {
+        Serial.printf("[WS] Client disconnected: %u\n", client->id());
+    }
+    else if (type == WS_EVT_DATA) {
+        handleWebSocketMessage(client, data);
+    }
+}
+
+// =============================================================================
+// WEB SERVER
+// =============================================================================
+
+void setupWebServer() {
+    // Serve static files from LittleFS
+    server.serveStatic("/", LittleFS, "/").setDefaultFile("index.html");
+    
+    // API endpoint for Pi to query status
+    server.on("/api/status", HTTP_GET, [](AsyncWebServerRequest *request) {
+        DynamicJsonDocument doc(512);
+        doc["coop_id"] = COOP_ID;
+        doc["coop_name"] = COOP_NAME;
+        doc["online"] = true;
+        doc["temperature"] = tempInside;
+        doc["humidity"] = 0; // Add if you have humidity sensor
+        doc["door"] = doorState == DOOR_OPEN ? "open" : "closed";
+        doc["active_devices"] = (lightMainOn ? 1 : 0) + (lightNestOn ? 1 : 0) + (lightRunOn ? 1 : 0);
+        doc["feed_level"] = feedLevel;
+        doc["water_level"] = waterLevel;
+        
+        String out;
+        serializeJson(doc, out);
+        request->send(200, "application/json", out);
+    });
+    
+    ws.onEvent(onWsEvent);
+    server.addHandler(&ws);
+    
+    server.begin();
+    Serial.println("[WEB] Server started on port 80");
+}
+
+// =============================================================================
+// SETUP
+// =============================================================================
+
+void setup() {
+    Serial.begin(115200);
+    Serial.printf("\n\n🐔 %s (%s) Starting...\n\n", COOP_NAME, COOP_ID);
+    
+    // Initialize LittleFS
+    if (!LittleFS.begin(true)) {
+        Serial.println("[FS] LittleFS mount failed!");
+    }
+    
+    // Initialize pins
+    pinMode(PIN_LIGHT_MAIN, OUTPUT);
+    pinMode(PIN_LIGHT_NESTING, OUTPUT);
+    pinMode(PIN_LIGHT_RUN, OUTPUT);
+    pinMode(PIN_DOOR_EXTEND, OUTPUT);
+    pinMode(PIN_DOOR_RETRACT, OUTPUT);
+    pinMode(PIN_FEEDER_MOTOR, OUTPUT);
+    
+    pinMode(PIN_DOOR_LIMIT_OPEN, INPUT_PULLUP);
+    pinMode(PIN_DOOR_LIMIT_CLOSE, INPUT_PULLUP);
+    
+    // All outputs off
+    digitalWrite(PIN_LIGHT_MAIN, LOW);
+    digitalWrite(PIN_LIGHT_NESTING, LOW);
+    digitalWrite(PIN_LIGHT_RUN, LOW);
+    digitalWrite(PIN_DOOR_EXTEND, LOW);
+    digitalWrite(PIN_DOOR_RETRACT, LOW);
+    digitalWrite(PIN_FEEDER_MOTOR, LOW);
+    
+    // Initialize temperature sensor
+    tempSensorInside.begin();
+    
+    // Detect initial door state
+    if (digitalRead(PIN_DOOR_LIMIT_OPEN) == LOW) {
+        doorState = DOOR_OPEN;
+    } else if (digitalRead(PIN_DOOR_LIMIT_CLOSE) == LOW) {
+        doorState = DOOR_CLOSED;
+    }
+    
+    // Connect to WiFi
+    WiFi.begin(COOP_SSID, COOP_PASS);
+    Serial.printf("[WIFI] Connecting to %s", COOP_SSID);
+    
+    int attempts = 0;
+    while (WiFi.status() != WL_CONNECTED && attempts < 30) {
+        delay(500);
+        Serial.print(".");
+        attempts++;
+    }
+    
+    if (WiFi.status() == WL_CONNECTED) {
+        Serial.printf("\n[WIFI] Connected! IP: %s\n", WiFi.localIP().toString().c_str());
+        
+        // Configure NTP
+        configTime(0, 0, "pool.ntp.org");
+    } else {
+        Serial.println("\n[WIFI] Connection failed, starting AP mode");
+        WiFi.softAP(COOP_AP_SSID, COOP_AP_PASS);
+    }
+    
+    // Setup web server
+    setupWebServer();
+    
+    // Initial sensor read
+    readSensors();
+    
+    // Fetch weather from Pi
+    fetchWeatherFromPi();
+    
+    Serial.printf("\n🐔 %s Ready!\n", COOP_NAME);
+    Serial.printf("   Door: %s\n", doorState == DOOR_OPEN ? "OPEN" : "CLOSED");
+    Serial.printf("   Temp: %.1f°C\n", tempInside);
+}
+
+// =============================================================================
+// LOOP
+// =============================================================================
+
+void loop() {
+    unsigned long now = millis();
+    
+    // Read sensors every 10 seconds
+    if (now - lastTempRead > 10000) {
+        lastTempRead = now;
+        readSensors();
+    }
+    
+    // Fetch weather every 10 minutes
+    if (now - lastWeatherFetch > 600000) {
+        lastWeatherFetch = now;
+        fetchWeatherFromPi();
+    }
+    
+    // Check schedules every minute
+    if (now - lastScheduleCheck > 60000) {
+        lastScheduleCheck = now;
+        checkSchedules();
+        broadcastStatus();
+    }
+    
+    // WebSocket cleanup
+    ws.cleanupClients();
+    
+    delay(100);
+}

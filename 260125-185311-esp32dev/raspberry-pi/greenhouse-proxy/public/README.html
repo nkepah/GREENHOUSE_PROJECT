@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greenhouse System - Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+        
+        .back-link {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+        
+        .back-link:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        nav {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            overflow-x: auto;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        nav a {
+            flex: 1;
+            padding: 15px 20px;
+            text-decoration: none;
+            color: #667eea;
+            font-weight: 600;
+            text-align: center;
+            border-right: 1px solid #e9ecef;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 150px;
+        }
+        
+        nav a:hover {
+            background: #e7f0ff;
+            color: #764ba2;
+        }
+        
+        nav a.active {
+            background: #667eea;
+            color: white;
+            border-bottom: 3px solid #764ba2;
+        }
+        
+        .content {
+            padding: 40px 30px;
+        }
+        
+        section {
+            display: none;
+        }
+        
+        section.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+            font-size: 1.8em;
+        }
+        
+        h3 {
+            color: #764ba2;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        h4 {
+            color: #667eea;
+            margin-top: 15px;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        p, li {
+            margin-bottom: 12px;
+            line-height: 1.8;
+        }
+        
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        .info-box {
+            background: #e7f0ff;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .success-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        code {
+            background: #f5f5f5;
+            border-radius: 3px;
+            padding: 2px 6px;
+            font-family: 'Courier New', monospace;
+            color: #d73a49;
+            font-size: 0.9em;
+        }
+        
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+        }
+        
+        table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            header h1 {
+                font-size: 1.8em;
+            }
+            nav a {
+                min-width: 120px;
+                font-size: 0.9em;
+            }
+        }
+        
+        .endpoint-card {
+            background: #f8f9fa;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        
+        .method {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.85em;
+            margin-right: 10px;
+            color: white;
+        }
+        
+        .method.get {
+            background: #28a745;
+        }
+        
+        .method.post {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .method.put {
+            background: #17a2b8;
+        }
+        
+        footer {
+            background: #f8f9fa;
+            border-top: 2px solid #e9ecef;
+            padding: 20px 30px;
+            text-align: center;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="/" class="back-link">← Back to Dashboard</a>
+            <h1>🌿 Greenhouse System Documentation</h1>
+            <p>Complete guide for hardware, firmware, and backend management</p>
+        </header>
+        
+        <nav>
+            <a class="nav-link active" onclick="showSection('overview')">Overview</a>
+            <a class="nav-link" onclick="showSection('frontend')">Frontend UI</a>
+            <a class="nav-link" onclick="showSection('esp32')">ESP32 Firmware</a>
+            <a class="nav-link" onclick="showSection('pi-proxy')">Pi Proxy</a>
+            <a class="nav-link" onclick="showSection('weather')">Weather System</a>
+            <a class="nav-link" onclick="showSection('api')">API Reference</a>
+            <a class="nav-link" onclick="showSection('setup')">Setup Guide</a>
+        </nav>
+        
+        <div class="content">
+            <!-- OVERVIEW -->
+            <section id="overview" class="active">
+                <h2>🎯 System Overview</h2>
+                
+                <p>The Greenhouse Control System is a distributed IoT solution consisting of three main components:</p>
+                
+                <div class="grid-2">
+                    <div class="endpoint-card">
+                        <h4>🔧 ESP32 Greenhouse Controller</h4>
+                        <p>Embedded device managing sensors, relays, and real-time automation:</p>
+                        <ul>
+                            <li>Temperature sensors (DS18B20)</li>
+                            <li>Current monitoring (ACS712)</li>
+                            <li>Relay control (up to 15 channels)</li>
+                            <li>Routine automation engine</li>
+                            <li>Alert system (WhatsApp/Telegram)</li>
+                        </ul>
+                    </div>
+                    <div class="endpoint-card">
+                        <h4>🌐 Raspberry Pi Proxy</h4>
+                        <p>Central hub for web UI, weather caching, and device management:</p>
+                        <ul>
+                            <li>Express.js web server</li>
+                            <li>WebSocket fan-out (one ESP32 → many browsers)</li>
+                            <li>Weather API caching (OpenMeteo)</li>
+                            <li>Device configuration management</li>
+                            <li>OTA firmware updates</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h3>Architecture Flow</h3>
+                <pre>
+┌─────────────────┐
+│   Web Browsers  │
+│  (Multiple)     │
+└────────┬────────┘
+         │ WebSocket
+         ↓
+    ┌────────────┐
+    │ Nginx      │ (Port 80, Reverse Proxy)
+    └─────┬──────┘
+          │
+    ┌─────↓──────────────┐
+    │ Pi Proxy (3000)    │
+    │ - Weather API      │
+    │ - Device Sync      │
+    └─────┬──────────────┘
+          │ WebSocket
+          ↓
+    ┌──────────────────┐
+    │ ESP32 Device     │
+    │ - Sensors        │
+    │ - Relays         │
+    │ - Automation     │
+    └──────────────────┘
+                </pre>
+                
+                <h3>Key Features</h3>
+                <ul>
+                    <li><strong>Distributed Architecture:</strong> Pi proxy offloads UI serving from ESP32</li>
+                    <li><strong>Real-time Updates:</strong> 500ms WebSocket sync for live feedback</li>
+                    <li><strong>Weather Management:</strong> Pi handles weather caching; ESP32 pauses weather when Pi connected</li>
+                    <li><strong>Automatic Failover:</strong> Falls back to ESP32 UI when Pi is down</li>
+                    <li><strong>Resource Optimization:</strong> ESP32 focuses on backend tasks when Pi is active</li>
+                </ul>
+            </section>
+            
+            <!-- FRONTEND UI -->
+            <section id="frontend">
+                <h2>🖥️ Frontend User Interface</h2>
+                
+                <p>The web-based UI is served by the Raspberry Pi proxy and communicates with the ESP32 via WebSocket.</p>
+                
+                <h3>Accessing the Dashboard</h3>
+                <div class="info-box">
+                    <strong>When Pi is online:</strong><br>
+                    <code>http://100.92.151.67/</code> (via Nginx reverse proxy on port 80)<br><br>
+                    <strong>When Pi is offline:</strong><br>
+                    <code>http://{esp32-ip}/</code> (direct ESP32 UI)<br><br>
+                    <strong>Direct access (always available):</strong><br>
+                    <code>http://{esp32-ip}:80/</code> (ESP32 local mode)
+                </div>
+                
+                <h3>Main Pages</h3>
+                <h4>🏠 Dashboard (index.html)</h4>
+                <ul>
+                    <li>Real-time device status</li>
+                    <li>Live temperature readings</li>
+                    <li>Weather forecast (2-day)</li>
+                    <li>Quick relay controls</li>
+                    <li>Current usage monitoring</li>
+                </ul>
+                
+                <h4>⏰ Routines (routines.html)</h4>
+                <ul>
+                    <li>Create/edit/delete automation routines</li>
+                    <li>Set trigger conditions (temperature, time, current)</li>
+                    <li>Define relay actions</li>
+                    <li>View routine execution history</li>
+                </ul>
+                
+                <h4>🚨 Alerts (alerts.html)</h4>
+                <ul>
+                    <li>Configure alert recipients (WhatsApp/Telegram)</li>
+                    <li>Set alert conditions (temperature threshold, relay changes, errors)</li>
+                    <li>Test alert delivery</li>
+                    <li>View alert log</li>
+                </ul>
+                
+                <h3>Navigation Tips</h3>
+                <ul>
+                    <li><strong>Red indicator:</strong> Device offline or error condition</li>
+                    <li><strong>Green indicator:</strong> Active/healthy status</li>
+                    <li><strong>Real-time refresh:</strong> Updates automatically every 500ms</li>
+                    <li><strong>Manual sync:</strong> Click refresh button to force update</li>
+                </ul>
+            </section>
+            
+            <!-- ESP32 FIRMWARE -->
+            <section id="esp32">
+                <h2>⚙️ ESP32 Firmware Architecture</h2>
+                
+                <h3>Core Systems</h3>
+                
+                <h4>1. Device Manager</h4>
+                <p>Manages all connected sensors and relays with persistent storage.</p>
+                <ul>
+                    <li>DS18B20 temperature sensors (OneWire bus)</li>
+                    <li>ACS712 current sensor (ADC)</li>
+                    <li>Digital relay control outputs</li>
+                    <li>Configuration saved to NVS (Non-Volatile Storage)</li>
+                </ul>
+                
+                <h4>2. Routine Engine</h4>
+                <p>Autonomous automation based on triggers:</p>
+                <pre>Trigger Types:
+- TIME: Execute at specific time or interval
+- TEMPERATURE: When temp crosses threshold
+- CURRENT: When device current changes
+- MANUAL: User-triggered via UI</pre>
+                
+                <h4>3. Weather System</h4>
+                <div class="info-box">
+                    <strong>🔄 Dynamic Behavior:</strong>
+                    <ul>
+                        <li><strong>When Pi connected:</strong> Weather checking PAUSED ⏸️</li>
+                        <li><strong>When Pi disconnected:</strong> Weather checking RESUMED ⏯️</li>
+                        <li><strong>Update interval:</strong> 30 minutes (when active)</li>
+                        <li><strong>API source:</strong> OpenMeteo (free, no auth required)</li>
+                    </ul>
+                </div>
+                
+                <h4>4. Alert System</h4>
+                <p>Sends notifications via WhatsApp/Telegram when conditions are met:</p>
+                <ul>
+                    <li>Relay state changes with confirmation</li>
+                    <li>Temperature threshold violations</li>
+                    <li>System errors and warnings</li>
+                    <li>Daily status reports (optional)</li>
+                </ul>
+                
+                <h3>Task Structure (FreeRTOS)</h3>
+                <table>
+                    <tr>
+                        <th>Task Name</th>
+                        <th>Core</th>
+                        <th>Priority</th>
+                        <th>Interval</th>
+                        <th>Purpose</th>
+                    </tr>
+                    <tr>
+                        <td>SyncTask</td>
+                        <td>0</td>
+                        <td>1</td>
+                        <td>500ms</td>
+                        <td>WebSocket broadcast of telemetry</td>
+                    </tr>
+                    <tr>
+                        <td>TempTask</td>
+                        <td>0</td>
+                        <td>2</td>
+                        <td>10s</td>
+                        <td>DS18B20 sensor reading</td>
+                    </tr>
+                    <tr>
+                        <td>CurrentTask</td>
+                        <td>0</td>
+                        <td>2</td>
+                        <td>1s</td>
+                        <td>ACS712 current sampling</td>
+                    </tr>
+                    <tr>
+                        <td>ProxyConnCheck</td>
+                        <td>1</td>
+                        <td>1</td>
+                        <td>1s</td>
+                        <td>Monitor Pi connection (ping timeout)</td>
+                    </tr>
+                </table>
+                
+                <h3>Memory Management</h3>
+                <ul>
+                    <li>Static buffers for fixed-size data (IP addresses, coordinates)</li>
+                    <li>JSON documents auto-sized (ArduinoJson 7)</li>
+                    <li>Heap fragmentation minimized with careful allocation</li>
+                    <li>Watchdog timer prevents freezing</li>
+                </ul>
+            </section>
+            
+            <!-- PI PROXY -->
+            <section id="pi-proxy">
+                <h2>🌐 Raspberry Pi Proxy Server</h2>
+                
+                <p>Node.js Express application that acts as the central hub for the system.</p>
+                
+                <h3>Key Features</h3>
+                <ul>
+                    <li><strong>WebSocket Proxy:</strong> Maintains single connection to ESP32, fans out to multiple browsers</li>
+                    <li><strong>Weather Caching:</strong> Fetches from OpenMeteo, caches for 10 minutes</li>
+                    <li><strong>Static File Serving:</strong> Serves HTML/CSS/JS files (faster than ESP32 LittleFS)</li>
+                    <li><strong>Device Management:</strong> Configuration UI and REST API</li>
+                    <li><strong>OTA Updates:</strong> Upload new firmware for ESP32 and Pi</li>
+                </ul>
+                
+                <h3>Installation</h3>
+                <h4>Quick Deploy</h4>
+                <pre>cd raspberry-pi/greenhouse-proxy
+./deploy.sh nkepah@100.92.151.67</pre>
+                
+                <h4>Manual Setup</h4>
+                <pre>ssh nkepah@100.92.151.67
+cd ~/greenhouse-proxy
+npm install
+sudo systemctl start greenhouse-proxy</pre>
+                
+                <h3>Configuration (config.json)</h3>
+                <pre>{
+  "port": 3000,
+  "esp32": {
+    "ip": "10.0.0.163",
+    "wsPort": 80,
+    "reconnectInterval": 5000
+  },
+  "weather": {
+    "enabled": true,
+    "cacheMinutes": 10,
+    "location": {
+      "lat": "-17.8292",
+      "lon": "31.0522"
+    },
+    "timezone": "Africa/Harare"
+  }
+}</pre>
+                
+                <h3>Service Management</h3>
+                <pre>sudo systemctl start greenhouse-proxy      # Start service
+sudo systemctl stop greenhouse-proxy       # Stop service
+sudo systemctl restart greenhouse-proxy    # Restart
+sudo systemctl status greenhouse-proxy     # Check status
+sudo journalctl -u greenhouse-proxy -f     # View logs</pre>
+                
+                <h3>Nginx Reverse Proxy</h3>
+                <p>Serves dashboard on port 80 (no port number needed)</p>
+                <div class="success-box">
+                    <strong>✓ Setup Complete</strong><br>
+                    Access: <code>http://100.92.151.67/</code><br>
+                    (Nginx redirects to Pi proxy on port 3000 internally)
+                </div>
+            </section>
+            
+            <!-- WEATHER SYSTEM -->
+            <section id="weather">
+                <h2>🌦️ Weather Management System</h2>
+                
+                <h3>Architecture</h3>
+                <p>The weather system dynamically switches between local ESP32 fetching and Pi-based caching based on connectivity:</p>
+                
+                <h4>When Pi Proxy is CONNECTED (⏸️ Paused)</h4>
+                <ul>
+                    <li>ESP32 pauses ALL local weather fetching</li>
+                    <li>ESP32 saves CPU cycles and HTTP quota</li>
+                    <li>Pi proxy caches weather every 10 minutes</li>
+                    <li>UI requests weather from <code>/api/weather</code> on Pi</li>
+                </ul>
+                
+                <h4>When Pi Proxy is DISCONNECTED (⏯️ Resumed)</h4>
+                <ul>
+                    <li>ESP32 automatically resumes weather fetching</li>
+                    <li>Updates every 30 minutes from OpenMeteo</li>
+                    <li>UI displays weather from local ESP32 cache</li>
+                    <li>No external dependencies needed</li>
+                </ul>
+                
+                <h3>Weather Data Sources</h3>
+                <table>
+                    <tr>
+                        <th>Source</th>
+                        <th>Provider</th>
+                        <th>Auth Required</th>
+                        <th>Coverage</th>
+                    </tr>
+                    <tr>
+                        <td>OpenMeteo API</td>
+                        <td>Open-Meteo (Free)</td>
+                        <td>No</td>
+                        <td>Global, free tier</td>
+                    </tr>
+                    <tr>
+                        <td>Data Points</td>
+                        <td>48-hour forecast (hourly)</td>
+                        <td>N/A</td>
+                        <td>2-day daily + hourly</td>
+                    </tr>
+                </table>
+                
+                <h3>API Endpoints</h3>
+                <div class="endpoint-card">
+                    <span class="method get">GET</span> <code>/api/weather</code>
+                    <p><strong>Full weather data (current + forecast)</strong></p>
+                    <pre>Response: {
+  "type": "weather",
+  "data": {
+    "valid": true,
+    "temp": 24.5,
+    "humi": 65,
+    "max": 28.0,
+    "min": 18.5,
+    "hourly": [...],
+    "daily": [...]
+  }
+}</pre>
+                </div>
+                
+                <div class="endpoint-card">
+                    <span class="method get">GET</span> <code>/api/weather?type=current</code>
+                    <p><strong>Current conditions only</strong></p>
+                    <pre>Response: {
+  "type": "weather",
+  "data": {
+    "valid": true,
+    "temp": 24.5,
+    "humi": 65,
+    "feels": 25.2
+  }
+}</pre>
+                </div>
+                
+                <div class="endpoint-card">
+                    <span class="method get">GET</span> <code>/api/weather?type=hourly</code>
+                    <p><strong>12-hour forecast</strong></p>
+                </div>
+                
+                <div class="endpoint-card">
+                    <span class="method get">GET</span> <code>/api/weather?type=daily</code>
+                    <p><strong>2-day daily forecast</strong></p>
+                </div>
+            </section>
+            
+            <!-- API REFERENCE -->
+            <section id="api">
+                <h2>📡 API Reference</h2>
+                
+                <p>All endpoints are accessible via WebSocket (for real-time updates) or HTTP REST (for one-off requests).</p>
+                
+                <h3>Device Management</h3>
+                <div class="endpoint-card">
+                    <span class="method get">GET</span> <code>/api/status</code>
+                    <p><strong>Get current system status and device states</strong></p>
+                </div>
+                
+                <div class="endpoint-card">
+                    <span class="method get">GET</span> <code>/api/config</code>
+                    <p><strong>Get device configuration</strong></p>
+                </div>
+                
+                <div class="endpoint-card">
+                    <span class="method post">POST</span> <code>/api/config</code>
+                    <p><strong>Update configuration</strong></p>
+                </div>
+                
+                <h3>Relay Control</h3>
+                <div class="endpoint-card">
+                    <span class="method post">POST</span> <code>/api/relay</code>
+                    <p><strong>Control a relay output</strong></p>
+                    <pre>Body: {
+  "action": "toggle|on|off",
+  "id": "{device-id}"
+}</pre>
+                </div>
+                
+                <h3>Routines</h3>
+                <div class="endpoint-card">
+                    <span class="method get">GET</span> <code>/api/routines</code>
+                    <p><strong>List all automation routines</strong></p>
+                </div>
+                
+                <div class="endpoint-card">
+                    <span class="method post">POST</span> <code>/api/routines/start</code>
+                    <p><strong>Start a routine immediately</strong></p>
+                    <pre>Body: { "id": "{routine-id}" }</pre>
+                </div>
+                
+                <h3>Time Synchronization</h3>
+                <div class="endpoint-card">
+                    <span class="method get">GET</span> <code>/api/time</code>
+                    <p><strong>Get current time (Pi's time, synced to ESP32 every 60s)</strong></p>
+                </div>
+                
+                <h3>OTA Updates</h3>
+                <div class="endpoint-card">
+                    <span class="method post">POST</span> <code>/api/update/frontend</code>
+                    <p><strong>Upload new frontend files to Pi</strong></p>
+                </div>
+                
+                <div class="endpoint-card">
+                    <span class="method post">POST</span> <code>/api/update/config</code>
+                    <p><strong>Update Pi proxy configuration</strong></p>
+                </div>
+            </section>
+            
+            <!-- SETUP GUIDE -->
+            <section id="setup">
+                <h2>🔧 Complete Setup Guide</h2>
+                
+                <h3>Prerequisites</h3>
+                <ul>
+                    <li>ESP32 with PlatformIO installed</li>
+                    <li>Raspberry Pi (any model with Node.js support)</li>
+                    <li>WiFi network accessible from both devices</li>
+                    <li>SSH access to Pi</li>
+                </ul>
+                
+                <h3>Step 1: Configure ESP32</h3>
+                <ol>
+                    <li>Update <code>include/Secrets.h</code>:
+                        <pre>const char DEFAULT_SSID[] = "YourWiFi";
+const char DEFAULT_PASS[] = "password";</pre>
+                    </li>
+                    <li>Build and upload:
+                        <pre>cd 260125-185311-esp32dev
+platformio run --target upload</pre>
+                    </li>
+                    <li>Note ESP32 IP address from serial output</li>
+                </ol>
+                
+                <h3>Step 2: Deploy Pi Proxy</h3>
+                <ol>
+                    <li>Navigate to deploy script:
+                        <pre>cd raspberry-pi/greenhouse-proxy</pre>
+                    </li>
+                    <li>Run deployment:
+                        <pre>./deploy.sh nkepah@100.92.151.67 --esp32-ip=10.0.0.163</pre>
+                    </li>
+                    <li>Service starts automatically</li>
+                </ol>
+                
+                <h3>Step 3: Install Nginx Reverse Proxy</h3>
+                <ol>
+                    <li>SSH to Pi:
+                        <pre>ssh nkepah@100.92.151.67</pre>
+                    </li>
+                    <li>Install and enable Nginx:
+                        <pre>sudo apt update && sudo apt install -y nginx</pre>
+                    </li>
+                    <li>Copy config:
+                        <pre>sudo cp /tmp/nginx-greenhouse.conf /etc/nginx/sites-available/greenhouse-proxy
+sudo ln -sf /etc/nginx/sites-available/greenhouse-proxy /etc/nginx/sites-enabled/
+sudo rm -f /etc/nginx/sites-enabled/default
+sudo systemctl restart nginx</pre>
+                    </li>
+                    <li>Verify:
+                        <pre>curl http://100.92.151.67/</pre>
+                    </li>
+                </ol>
+                
+                <h3>Step 4: Configure Location & Weather</h3>
+                <ol>
+                    <li>Visit ESP32 setup page: <code>http://{esp32-ip}/setup</code></li>
+                    <li>Enter location coordinates (latitude/longitude)</li>
+                    <li>Set timezone (GMT offset)</li>
+                    <li>Test weather fetch</li>
+                </ol>
+                
+                <h3>Step 5: First Run Verification</h3>
+                <div class="success-box">
+                    <strong>✓ Checklist</strong>
+                    <ul>
+                        <li>[ ] ESP32 connected to WiFi (check serial output)</li>
+                        <li>[ ] Pi proxy running (<code>sudo systemctl status greenhouse-proxy</code>)</li>
+                        <li>[ ] WebSocket connection established (green indicator in UI)</li>
+                        <li>[ ] Weather data loading (visible in dashboard)</li>
+                        <li>[ ] Nginx serving on port 80 (<code>curl http://100.92.151.67/</code>)</li>
+                    </ul>
+                </div>
+                
+                <h3>Troubleshooting</h3>
+                <div class="warning-box">
+                    <strong>🔍 Common Issues</strong>
+                    <h4>No WebSocket Connection</h4>
+                    <ul>
+                        <li>Check firewall allows port 3000</li>
+                        <li>Verify ESP32 can reach Pi on configured IP</li>
+                        <li>Check Pi proxy logs: <code>sudo journalctl -u greenhouse-proxy</code></li>
+                    </ul>
+                    
+                    <h4>Weather Not Updating</h4>
+                    <ul>
+                        <li>Check location coordinates are set</li>
+                        <li>Verify internet connectivity on Pi</li>
+                        <li>Check weather cache in Pi proxy logs</li>
+                    </ul>
+                    
+                    <h4>UI Shows Old Data</h4>
+                    <ul>
+                        <li>Clear browser cache (Ctrl+Shift+Del)</li>
+                        <li>Check WebSocket connection status</li>
+                        <li>Reload page and check network tab</li>
+                    </ul>
+                </div>
+            </section>
+        </div>
+        
+        <footer>
+            <p>🌿 Greenhouse Control System v2.0 | Documentation Last Updated: January 2026</p>
+            <p style="font-size: 0.9em; margin-top: 10px;">
+                For updates and support, visit the project repository
+            </p>
+        </footer>
+    </div>
+    
+    <script>
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            event.target.classList.add('active');
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            const sections = ['overview', 'frontend', 'esp32', 'pi-proxy', 'weather', 'api', 'setup'];
+            const active = document.querySelector('section.active').id;
+            const index = sections.indexOf(active);
+            
+            if (e.key === 'ArrowRight' && index < sections.length - 1) {
+                showSection(sections[index + 1]);
+            } else if (e.key === 'ArrowLeft' && index > 0) {
+                showSection(sections[index - 1]);
+            }
+        });
+    </script>
+</body>
+</html>

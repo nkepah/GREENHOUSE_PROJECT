@@ -1,0 +1,28 @@
+{
+    "port": 3000,
+    
+    "esp32": {
+        "ip": "10.0.0.163",
+        "wsPort": 80,
+        "httpPort": 80,
+        "reconnectInterval": 5000,
+        "pingInterval": 30000,
+        "name": "Greenhouse"
+    },
+    
+    "weather": {
+        "enabled": true,
+        "cacheMinutes": 10,
+        "location": {
+            "lat": "-17.8292",
+            "lon": "31.0522"
+        },
+        "timezone": "Africa/Harare",
+        "unit": "celsius"
+    },
+    
+    "logging": {
+        "level": "info",
+        "timestamps": true
+    }
+}

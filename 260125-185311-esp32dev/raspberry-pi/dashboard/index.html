@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farm Hub - Organic Farm Dashboard</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌾</text></svg>">
+    <style>
+        :root {
+            --primary: #2d5a27;
+            --primary-light: #4a8c3f;
+            --secondary: #8b4513;
+            --accent: #f4a460;
+            --bg: #f5f5dc;
+            --card-bg: #ffffff;
+            --text: #333333;
+            --text-light: #666666;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #e8f5e9 0%, #f5f5dc 50%, #fff8e1 100%);
+            min-height: 100vh;
+            color: var(--text);
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-icon {
+            font-size: 2.5rem;
+            animation: sway 3s ease-in-out infinite;
+        }
+
+        @keyframes sway {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .logo-tagline {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-top: 0.25rem;
+        }
+
+        .header-info {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .weather-mini {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255,255,255,0.15);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+        }
+
+        .weather-mini .temp {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .time-display {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        /* Main Content */
+        .main {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        /* Farm Info Banner */
+        .farm-banner {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .farm-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .feature-tag {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .farm-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 1rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Device Grid */
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .device-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .device-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .device-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .device-header {
+            padding: 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .device-header.greenhouse {
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            color: white;
+        }
+
+        .device-header.chicken_coop {
+            background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%);
+            color: white;
+        }
+
+        .device-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .device-icon {
+            font-size: 2rem;
+        }
+
+        .device-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .device-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.online {
+            background: #00ff00;
+            box-shadow: 0 0 8px #00ff00;
+        }
+
+        .status-dot.offline {
+            background: #ff4444;
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .device-body {
+            padding: 1.25rem;
+        }
+
+        .device-desc {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .device-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+        }
+
+        .metric {
+            background: #f8f9fa;
+            padding: 0.75rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .metric-label {
+            font-size: 0.7rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+        }
+
+        .device-actions {
+            padding: 1rem 1.25rem;
+            background: #f8f9fa;
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-light);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text);
+            border: 1px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background: #f0f0f0;
+        }
+
+        /* Weather Section */
+        .weather-section {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .weather-current {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .weather-main {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .weather-icon {
+            font-size: 4rem;
+        }
+
+        .weather-temp {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .weather-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+
+        .weather-detail {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .weather-detail-icon {
+            font-size: 1.25rem;
+        }
+
+        .hourly-forecast {
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+            padding: 0.5rem 0;
+        }
+
+        .hourly-item {
+            flex: 0 0 auto;
+            text-align: center;
+            padding: 0.75rem 1rem;
+            background: #f8f9fa;
+            border-radius: 12px;
+            min-width: 70px;
+        }
+
+        .hourly-time {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .hourly-icon {
+            font-size: 1.5rem;
+            margin: 0.5rem 0;
+        }
+
+        .hourly-temp {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--primary);
+            color: white;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .footer p {
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .farm-banner {
+                grid-template-columns: 1fr;
+            }
+
+            .device-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .weather-current {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        /* Loading States */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 4px;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 1rem;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <span class="logo-icon">🌾</span>
+                <div>
+                    <h1 id="farm-name">Farm Hub</h1>
+                    <div class="logo-tagline">Sustainable Organic Farming</div>
+                </div>
+            </div>
+            <div class="header-info">
+                <div class="weather-mini" id="weather-mini">
+                    <span id="mini-weather-icon">🌤️</span>
+                    <span class="temp" id="mini-temp">--°C</span>
+                </div>
+                <div class="time-display" id="time-display">--:--</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Farm Info Banner -->
+        <section class="farm-banner">
+            <div>
+                <h2>🏡 Welcome to Our Organic Farm</h2>
+                <p style="color: var(--text-light); margin-top: 0.5rem;">
+                    Committed to sustainable agriculture and animal welfare
+                </p>
+                <div class="farm-features" id="farm-features">
+                    <span class="feature-tag">🐄 Grass-fed Beef</span>
+                    <span class="feature-tag">🐔 Free-range Chickens</span>
+                    <span class="feature-tag">🥚 Farm Fresh Eggs</span>
+                    <span class="feature-tag">🐐 Grass-fed Goats</span>
+                    <span class="feature-tag">🌱 Organic Produce</span>
+                </div>
+            </div>
+            <div class="farm-stats">
+                <div class="stat-box">
+                    <div class="stat-value" id="devices-online">0</div>
+                    <div class="stat-label">Devices Online</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="total-devices">4</div>
+                    <div class="stat-label">Total Devices</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="active-routines">0</div>
+                    <div class="stat-label">Active Routines</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="alerts-count">0</div>
+                    <div class="stat-label">Alerts</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Weather Section -->
+        <section class="weather-section">
+            <h2 class="section-title">🌤️ Weather Conditions</h2>
+            <div class="weather-current">
+                <div class="weather-main">
+                    <span class="weather-icon" id="weather-icon">☀️</span>
+                    <span class="weather-temp" id="weather-temp">--°C</span>
+                </div>
+                <div class="weather-details">
+                    <div class="weather-detail">
+                        <span class="weather-detail-icon">🌡️</span>
+                        <span>Feels like <strong id="feels-like">--°C</strong></span>
+                    </div>
+                    <div class="weather-detail">
+                        <span class="weather-detail-icon">💧</span>
+                        <span>Humidity <strong id="humidity">--%</strong></span>
+                    </div>
+                    <div class="weather-detail">
+                        <span class="weather-detail-icon">💨</span>
+                        <span>Wind <strong id="wind">-- km/h</strong></span>
+                    </div>
+                    <div class="weather-detail">
+                        <span class="weather-detail-icon">📍</span>
+                        <span id="location">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hourly-forecast" id="hourly-forecast">
+                <!-- Populated by JS -->
+            </div>
+        </section>
+
+        <!-- Device Grid -->
+        <h2 class="section-title">📡 Connected Devices</h2>
+        <div class="device-grid" id="device-grid">
+            <!-- Devices populated by JS -->
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p><strong id="footer-farm-name">Farm Hub</strong> - IoT Farm Management System</p>
+            <p>🌱 Proudly Organic | 🐄 Grass-fed | 🐔 Free-range | 🌾 Sustainable</p>
+            <p style="opacity: 0.7; font-size: 0.85rem; margin-top: 1rem;">
+                Powered by ESP32 & Raspberry Pi | © 2026
+            </p>
+        </div>
+    </footer>
+
+    <!-- Device Modal -->
+    <div class="modal-overlay" id="device-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modal-title">Device Details</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const CONFIG = {
+            refreshInterval: 30000,  // 30 seconds
+            weatherRefresh: 600000,  // 10 minutes
+        };
+
+        // State
+        let devices = {};
+        let weatherData = null;
+
+        // Weather icon mapping
+        function getWeatherIcon(code, isDay = 1) {
+            const icons = {
+                0: isDay ? '☀️' : '🌙',
+                1: isDay ? '🌤️' : '🌙',
+                2: '⛅',
+                3: '☁️',
+                45: '🌫️',
+                48: '🌫️',
+                51: '🌦️',
+                53: '🌧️',
+                55: '🌧️',
+                61: '🌧️',
+                63: '🌧️',
+                65: '🌧️',
+                71: '🌨️',
+                73: '🌨️',
+                75: '❄️',
+                77: '🌨️',
+                80: '🌦️',
+                81: '🌧️',
+                82: '⛈️',
+                85: '🌨️',
+                86: '❄️',
+                95: '⛈️',
+                96: '⛈️',
+                99: '⛈️'
+            };
+            return icons[code] || '🌤️';
+        }
+
+        // Fetch farm info (config)
+        async function fetchFarmInfo() {
+            try {
+                const response = await fetch('/api/config');
+                const data = await response.json();
+                
+                // Store location for weather API
+                if (data.weather?.location) {
+                    window.farmConfig = {
+                        lat: parseFloat(data.weather.location.lat),
+                        lon: parseFloat(data.weather.location.lon),
+                        location: `${data.weather.location.city}, ${data.weather.location.region}`
+                    };
+                }
+                
+                document.getElementById('farm-name').textContent = 'Farm Hub';
+                document.getElementById('footer-farm-name').textContent = 'Farm Hub';
+            } catch (error) {
+                console.error('Failed to fetch farm config:', error);
+                // Fallback to Virginia coordinates
+                window.farmConfig = {
+                    lat: 38.130254613092,
+                    lon: -77.73829202505,
+                    location: 'Spotsylvania County, Virginia'
+                };
+            }
+        }
+
+        // Fetch devices
+        async function fetchDevices() {
+            try {
+                const response = await fetch('/api/devices');
+                devices = await response.json();
+                renderDevices();
+                updateStats();
+            } catch (error) {
+                console.error('Failed to fetch devices:', error);
+            }
+        }
+
+        // Render device cards
+        function renderDevices() {
+            const grid = document.getElementById('device-grid');
+            grid.innerHTML = '';
+
+            for (const [id, device] of Object.entries(devices)) {
+                const card = document.createElement('div');
+                card.className = 'device-card';
+                card.onclick = () => openDevicePage(id, device);
+
+                const isOnline = device.status?.online ?? false;
+                const temp = device.status?.temperature ?? '--';
+                const humidity = device.status?.humidity ?? '--';
+                const activeDevices = device.status?.active_devices ?? 0;
+
+                card.innerHTML = `
+                    <div class="device-header ${device.type}">
+                        <div class="device-title">
+                            <span class="device-icon">${device.icon}</span>
+                            <span class="device-name">${device.name}</span>
+                        </div>
+                        <div class="device-status">
+                            <span class="status-dot ${isOnline ? 'online' : 'offline'}"></span>
+                            ${isOnline ? 'Online' : 'Offline'}
+                        </div>
+                    </div>
+                    <div class="device-body">
+                        <p class="device-desc">${device.description}</p>
+                        <div class="device-metrics">
+                            <div class="metric">
+                                <div class="metric-value">${temp}°</div>
+                                <div class="metric-label">Temp</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-value">${humidity}%</div>
+                                <div class="metric-label">Humidity</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-value">${activeDevices}</div>
+                                <div class="metric-label">Active</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="device-actions">
+                        <button class="btn btn-primary" onclick="event.stopPropagation(); openDevicePage('${id}', devices['${id}'])">
+                            📊 Dashboard
+                        </button>
+                        <button class="btn btn-secondary" onclick="event.stopPropagation(); showDeviceDetails('${id}')">
+                            ⚙️ Details
+                        </button>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            }
+        }
+
+        // Open device's native dashboard
+        function openDevicePage(id, device) {
+            const paths = {
+                'greenhouse': '/greenhouse/',
+                'coop1': '/coop1/',
+                'coop2': '/coop2/',
+                'coop3': '/coop3/'
+            };
+            window.open(paths[id] || `/${id}/`, '_blank');
+        }
+
+        // Show device details modal
+        function showDeviceDetails(id) {
+            const device = devices[id];
+            if (!device) return;
+
+            document.getElementById('modal-title').textContent = device.name;
+            document.getElementById('modal-body').innerHTML = `
+                <p><strong>Type:</strong> ${device.type}</p>
+                <p><strong>IP Address:</strong> ${device.ip}:${device.port}</p>
+                <p><strong>Status:</strong> ${device.status?.online ? '🟢 Online' : '🔴 Offline'}</p>
+                <p><strong>Description:</strong> ${device.description}</p>
+                ${device.status?.online ? `
+                    <hr style="margin: 1rem 0; border: none; border-top: 1px solid #eee;">
+                    <h4>Live Status</h4>
+                    <pre style="background: #f5f5f5; padding: 1rem; border-radius: 8px; overflow-x: auto;">
+${JSON.stringify(device.status, null, 2)}
+                    </pre>
+                ` : ''}
+            `;
+
+            document.getElementById('device-modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('device-modal').classList.remove('active');
+        }
+
+        // Update stats
+        function updateStats() {
+            const online = Object.values(devices).filter(d => d.status?.online).length;
+            const total = Object.keys(devices).length;
+            
+            document.getElementById('devices-online').textContent = online;
+            document.getElementById('total-devices').textContent = total;
+        }
+
+        // Fetch weather
+        async function fetchWeather() {
+            try {
+                // Get coordinates from config or use defaults
+                const response = await fetch('/api/weather?lat=-33.8&lon=151.2');
+                weatherData = await response.json();
+                renderWeather();
+            } catch (error) {
+                console.error('Failed to fetch weather:', error);
+            }
+        }
+
+        // Render weather
+        function renderWeather() {
+            if (!weatherData || !weatherData.current) return;
+
+            const current = weatherData.current;
+            const isDay = current.is_day ?? 1;
+            const code = current.weather_code ?? 0;
+
+            document.getElementById('weather-icon').textContent = getWeatherIcon(code, isDay);
+            document.getElementById('weather-temp').textContent = `${Math.round(current.temperature_2m)}°C`;
+            document.getElementById('feels-like').textContent = `${Math.round(current.apparent_temperature)}°C`;
+            document.getElementById('humidity').textContent = `${current.relative_humidity_2m}%`;
+            document.getElementById('wind').textContent = `${Math.round(current.wind_speed_10m)} km/h`;
+            document.getElementById('location').textContent = weatherData.timezone?.replace('_', ' ').split('/').pop() || 'Unknown';
+
+            // Mini weather
+            document.getElementById('mini-weather-icon').textContent = getWeatherIcon(code, isDay);
+            document.getElementById('mini-temp').textContent = `${Math.round(current.temperature_2m)}°C`;
+
+            // Hourly forecast
+            if (weatherData.hourly) {
+                const hourlyContainer = document.getElementById('hourly-forecast');
+                hourlyContainer.innerHTML = '';
+
+                const now = new Date();
+                const currentHour = now.getHours();
+
+                for (let i = currentHour; i < Math.min(currentHour + 12, 24); i++) {
+                    const hourItem = document.createElement('div');
+                    hourItem.className = 'hourly-item';
+                    hourItem.innerHTML = `
+                        <div class="hourly-time">${i.toString().padStart(2, '0')}:00</div>
+                        <div class="hourly-icon">${getWeatherIcon(weatherData.hourly.weather_code[i], weatherData.hourly.is_day?.[i] ?? 1)}</div>
+                        <div class="hourly-temp">${Math.round(weatherData.hourly.temperature_2m[i])}°</div>
+                    `;
+                    hourlyContainer.appendChild(hourItem);
+                }
+            }
+        }
+
+        // Update time
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: true 
+            });
+            document.getElementById('time-display').textContent = timeStr;
+        }
+
+        // Close modal on overlay click
+        document.getElementById('device-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'device-modal') {
+                closeModal();
+            }
+        });
+
+        // Initialize
+        async function init() {
+            updateTime();
+            setInterval(updateTime, 1000);
+
+            await fetchFarmInfo();
+            await fetchDevices();
+            await fetchWeather();
+
+            // Refresh intervals
+            setInterval(fetchDevices, CONFIG.refreshInterval);
+            setInterval(fetchWeather, CONFIG.weatherRefresh);
+        }
+
+        init();
+    </script>
+</body>
+</html>

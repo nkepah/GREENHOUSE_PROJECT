@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Layout Restore Tool</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #0a0e1a; color: #fff; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #00d9a5; color: #000; }
+        .error { background: #ff4757; }
+        .info { background: #4f7cff; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; margin: 10px 5px; }
+    </style>
+</head>
+<body>
+    <h1>🌱 Greenhouse Layout Restore</h1>
+    <p>ESP32 IP: <input type="text" id="esp-ip" value="192.168.1.100" placeholder="Enter ESP32 IP"></p>
+    <button onclick="startRestore()">🚀 Start Restore</button>
+    <button onclick="clearAll()">🗑️ Clear All Devices First</button>
+    <div id="log"></div>
+
+    <script>
+        let socket;
+        let currentDevices = [];
+        let syncReceived = false;
+        
+        const layoutData = {
+  "version": "1.0",
+  "timestamp": "2026-01-28T08:45:55.954Z",
+  "devices": [
+    {"id": "light9501", "type": "light", "name": "LAMP3", "x": 96, "y": 49, "x_mobile": 52, "y_mobile": 98, "rotation": 0, "rotation_mobile": 0, "ch": 10, "enabled": true, "phys_type": 1, "phys_addr": "", "phys_pin": -1},
+    {"id": "fan_cool1444", "type": "fan_cool", "name": "Cooling Fan3", "x": 90, "y": 37, "x_mobile": 70, "y_mobile": 88, "rotation": 0, "rotation_mobile": 0, "ch": 13, "enabled": true, "phys_type": 1, "phys_addr": "", "phys_pin": -1},
+    {"id": "fan_cool5764", "type": "fan_cool", "name": "Cooling Fan2", "x": 90, "y": 49, "x_mobile": 51, "y_mobile": 86, "rotation": 0, "rotation_mobile": 0, "ch": 13, "enabled": true, "phys_type": 1, "phys_addr": "", "phys_pin": -1},
+    {"id": "fan_cool4505", "type": "fan_cool", "name": "Cooling Fan1", "x": 90, "y": 61, "x_mobile": 32, "y_mobile": 88, "rotation": 0, "rotation_mobile": 0, "ch": 12, "enabled": true, "phys_type": 1, "phys_addr": "", "phys_pin": -1},
+    {"id": "heater2344", "type": "heater", "name": "heater", "x": 84, "y": 49, "x_mobile": 51, "y_mobile": 74, "rotation": 0, "rotation_mobile": 0, "ch": 7, "enabled": true, "phys_type": 1, "phys_addr": "", "phys_pin": -1},
+    {"id": "light4377", "type": "light", "name": "LAMP1", "x": 78, "y": 49, "x_mobile": 85, "y_mobile": 80, "rotation": 0, "rotation_mobile": 0, "ch": 8, "enabled": true, "phys_type": 1, "phys_addr": "", "phys_pin": -1},
+    {"id": "fan_circ1977", "type": "fan_circ", "name": "Circulation Fan5", "x": 72, "y": 26, "x_mobile": 87, "y_mobile": 64, "rotation": 0, "rotation_mobile": 0, "ch": 5, "enabled": true, "phys_type": 1, "phys_addr": "", "phys_pin": -1},
+    {"id": "fan_circ1091", "type": "fan_circ", "name": "Circulation Fan3", "x": 50, "y": 25, "x_mobile": 87, "y_mobile": 45, "rotation": 0, "rotation_mobile": 0, "ch": 3, "enabled": true, "phys_type": 1, "phys_addr": "", "phys_pin": -1},
+    {"id": "fan_circ9452", "type": "fan_circ", "name": "Circulation Fan1", "x": 27, "y": 25, "x_mobile": 87, "y_mobile": 27, "rotation": 0, "rotation_mobile": 0, "ch": 1, "enabled": true, "phys_type": 1, "phys_addr": "", "phys_pin": -1},
+    {"id": "fan_circ7730", "type": "fan_circ", "name": "Circulation Fan2", "x": 27, "y": 77, "x_mobile": 12, "y_mobile": 27, "rotation": 0, "rotation_mobile": 0, "ch": 2, "enabled": true, "phys_type": 1, "phys_addr": "", "phys_pin": -1},
+    {"id": "fan_circ7348", "type": "fan_circ", "name": "Circulation Fan4", "x": 50, "y": 77, "x_mobile": 13, "y_mobile": 46, "rotation": 0, "rotation_mobile": 0, "ch": 4, "enabled": true, "phys_type": 1, "phys_addr": "", "phys_pin": -1},
+    {"id": "fan_circ9883", "type": "fan_circ", "name": "Circulation Fan6", "x": 72, "y": 76, "x_mobile": 13, "y_mobile": 64, "rotation": 0, "rotation_mobile": 0, "ch": 6, "enabled": true, "phys_type": 1, "phys_addr": "", "phys_pin": -1},
+    {"id": "sensor3049", "type": "sensor", "name": "New Device", "x": 27, "y": 42, "x_mobile": 62, "y_mobile": 30, "rotation": 0, "rotation_mobile": 0, "ch": 0, "enabled": true, "phys_type": 0, "phys_addr": "", "phys_pin": -1},
+    {"id": "sensor8081", "type": "sensor", "name": "New Device", "x": 27, "y": 61, "x_mobile": 38, "y_mobile": 30, "rotation": 0, "rotation_mobile": 0, "ch": 0, "enabled": true, "phys_type": 0, "phys_addr": "", "phys_pin": -1},
+    {"id": "sensor5406", "type": "sensor", "name": "New Device", "x": 50, "y": 42, "x_mobile": 64, "y_mobile": 45, "rotation": 0, "rotation_mobile": 0, "ch": 0, "enabled": true, "phys_type": 0, "phys_addr": "", "phys_pin": -1},
+    {"id": "sensor4368", "type": "sensor", "name": "New Device", "x": 50, "y": 61, "x_mobile": 37, "y_mobile": 44, "rotation": 0, "rotation_mobile": 0, "ch": 0, "enabled": true, "phys_type": 0, "phys_addr": "", "phys_pin": -1},
+    {"id": "sensor5412", "type": "sensor", "name": "New Device", "x": 72, "y": 41, "x_mobile": 63, "y_mobile": 59, "rotation": 0, "rotation_mobile": 0, "ch": 0, "enabled": true, "phys_type": 0, "phys_addr": "", "phys_pin": -1},
+    {"id": "sensor3121", "type": "sensor", "name": "New Device", "x": 72, "y": 62, "x_mobile": 37, "y_mobile": 58, "rotation": 0, "rotation_mobile": 0, "ch": 0, "enabled": true, "phys_type": 0, "phys_addr": "", "phys_pin": -1},
+    {"id": "light3341", "type": "light", "name": "LAMP4", "x": 3, "y": 50, "x_mobile": 54, "y_mobile": 3, "rotation": 0, "rotation_mobile": 0, "ch": 11, "enabled": true, "phys_type": 1, "phys_addr": "", "phys_pin": -1},
+    {"id": "vent6313", "type": "vent", "name": "Cooling Vent Actuator1", "x": 9, "y": 31, "x_mobile": 77, "y_mobile": 8, "rotation": 0, "rotation_mobile": 0, "ch": 14, "enabled": true, "phys_type": 1, "phys_addr": "", "phys_pin": -1},
+    {"id": "vent2333", "type": "vent", "name": "Cooling Vent Actuator2", "x": 9, "y": 69, "x_mobile": 25, "y_mobile": 8, "rotation": 0, "rotation_mobile": 0, "ch": 14, "enabled": true, "phys_type": 1, "phys_addr": "", "phys_pin": -1},
+    {"id": "light8110", "type": "light", "name": "LAMP2", "x": 9, "y": 50, "x_mobile": 54, "y_mobile": 14, "rotation": 0, "rotation_mobile": 0, "ch": 9, "enabled": true, "phys_type": 1, "phys_addr": "", "phys_pin": -1},
+    {"id": "camera9554", "type": "camera", "name": "New Device", "x": 4, "y": 8, "x_mobile": 4, "y_mobile": 3, "rotation": 0, "rotation_mobile": 0, "ch": 0, "enabled": true, "phys_type": 0, "phys_addr": "", "phys_pin": -1},
+    {"id": "camera2520", "type": "camera", "name": "New Device", "x": 96, "y": 91, "x_mobile": 91, "y_mobile": 96, "rotation": 0, "rotation_mobile": 0, "ch": 0, "enabled": true, "phys_type": 0, "phys_addr": "", "phys_pin": -1},
+    {"id": "blower6098", "type": "blower", "name": "Condensation Blower", "x": 83, "y": 96, "x_mobile": 4, "y_mobile": 83, "rotation": 0, "rotation_mobile": 0, "ch": 15, "enabled": true, "phys_type": 1, "phys_addr": "", "phys_pin": -1}
+  ]
+};
+
+        function log(msg, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.textContent = msg;
+            document.getElementById('log').appendChild(div);
+            console.log(msg);
+        }
+
+        function connect(ip) {
+            return new Promise((resolve, reject) => {
+                socket = new WebSocket(`ws://${ip}/ws`);
+                socket.onopen = () => {
+                    log('✓ Connected to ESP32', 'success');
+                    resolve();
+                };
+                socket.onerror = (err) => {
+                    log('✗ Connection failed: ' + err, 'error');
+                    reject(err);
+                };
+                socket.onclose = () => {
+                    log('Connection closed', 'info');
+                };
+                socket.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'sync' && data.devices) {
+                        currentDevices = data.devices;
+                        syncReceived = true;
+                        console.log('Received sync:', currentDevices);
+                        // Log mobile positions to verify backend is saving them
+                        if (currentDevices.length > 0) {
+                            const sample = currentDevices[0];
+                            console.log('Sample device:', {
+                                id: sample.id,
+                                name: sample.name,
+                                x: sample.x,
+                                y: sample.y,
+                                x_mobile: sample.x_mobile,
+                                y_mobile: sample.y_mobile
+                            });
+                        }
+                    }
+                };
+            });
+        }
+
+        function sendWS(data) {
+            return new Promise((resolve) => {
+                socket.send(JSON.stringify(data));
+                setTimeout(resolve, 100);
+            });
+        }
+
+        async function clearAll() {
+            const ip = document.getElementById('esp-ip').value;
+            
+            // SAFETY: Require explicit confirmation
+            const confirmed = confirm('⚠️⚠️⚠️ DANGER ⚠️⚠️⚠️\n\nThis will DELETE ALL devices from the floor plan!\n\nThis action CANNOT be undone!\n\nAre you absolutely sure?');
+            if (!confirmed) {
+                log('Clear cancelled by user', 'info');
+                return;
+            }
+            
+            const password = prompt('Enter confirmation password to proceed:\n(Type: DELETE_ALL_FOREVER)');
+            if (password !== 'DELETE_ALL_FOREVER') {
+                log('Clear cancelled - incorrect password', 'error');
+                return;
+            }
+            
+            document.getElementById('log').innerHTML = '';
+            log('Connecting to ' + ip + '...', 'info');
+            
+            try {
+                await connect(ip);
+                
+                log('⚠️ Clearing all devices...', 'info');
+                await sendWS({type: 'clear_all_devices', confirm: 'DELETE_ALL_FOREVER'});
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                log('✓ All devices cleared! Click Start Restore now.', 'success');
+            } catch (err) {
+                log('Failed: ' + err, 'error');
+            }
+        }
+
+        async function startRestore() {
+            const ip = document.getElementById('esp-ip').value;
+            document.getElementById('log').innerHTML = '';
+            log('Starting restore...', 'info');
+            log('Connecting to ' + ip + '...', 'info');
+            
+            try {
+                await connect(ip);
+                
+                // Wait a bit for connection to stabilize
+                await new Promise(resolve => setTimeout(resolve, 300));
+                
+                // Get initial device count
+                log('Requesting current device list...', 'info');
+                syncReceived = false;
+                await sendWS({type: 'get_sync'});
+                
+                // Wait for sync response
+                let waitAttempts = 0;
+                while (!syncReceived && waitAttempts < 50) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    waitAttempts++;
+                }
+                
+                if (!syncReceived) {
+                    log('⚠ Warning: No sync response received, continuing anyway...', 'error');
+                    currentDevices = [];
+                }
+                
+                log(`Current devices: ${currentDevices.length}`, 'info');
+                log(`Will restore ${layoutData.devices.length} devices...`, 'info');
+                
+                for (let i = 0; i < layoutData.devices.length; i++) {
+                    const d = layoutData.devices[i];
+                    
+                    // Remember count before creating
+                    const countBefore = currentDevices.length;
+                    
+                    // Create device
+                    log(`[${i+1}/${layoutData.devices.length}] Creating ${d.name} (${d.type})...`, 'info');
+                    syncReceived = false;
+                    await sendWS({
+                        type: 'create_device',
+                        type_id: d.type,
+                        x: d.x || 50,
+                        y: d.y || 50
+                    });
+                    
+                    // Wait for sync to get new device ID
+                    let attempts = 0;
+                    while ((!syncReceived || currentDevices.length <= countBefore) && attempts < 50) {
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        attempts++;
+                    }
+                    
+                    if (attempts >= 50) {
+                        log(`  ⚠ Timeout waiting for sync, retrying request...`, 'error');
+                        syncReceived = false;
+                        await sendWS({type: 'get_sync'});
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                    }
+                    
+                    // Find the newly created device (should be the last one)
+                    if (currentDevices.length > countBefore) {
+                        const newDevice = currentDevices[currentDevices.length - 1];
+                        const actualId = newDevice.id;
+                        
+                        log(`  → Device ID: ${actualId}, updating settings...`, 'info');
+                        
+                        // Update hardware settings and rotations
+                        syncReceived = false;
+                        await sendWS({
+                            type: 'update_device_physical',
+                            id: actualId,
+                            name: d.name,
+                            rotation: d.rotation || 0,
+                            rotation_mobile: d.rotation_mobile || d.rotation || 0,
+                            channel: d.ch || 0,
+                            phys_type: d.phys_type || 0,
+                            phys_addr: d.phys_addr || '',
+                            phys_pin: d.phys_pin || -1,
+                            enabled: d.enabled !== false
+                        });
+                        
+                        await new Promise(resolve => setTimeout(resolve, 150));
+                        
+                        // Update desktop position
+                        log(`  → Setting desktop pos (${d.x}, ${d.y})`, 'info');
+                        syncReceived = false;
+                        await sendWS({
+                            type: 'move_device',
+                            id: actualId,
+                            x: d.x,
+                            y: d.y
+                        });
+                        
+                        await new Promise(resolve => setTimeout(resolve, 150));
+                        
+                        // Update mobile position
+                        const mobX = d.x_mobile || d.x;
+                        const mobY = d.y_mobile || d.y;
+                        log(`  → Setting mobile pos (${mobX}, ${mobY})`, 'info');
+                        syncReceived = false;
+                        await sendWS({
+                            type: 'move_device',
+                            id: actualId,
+                            x_mobile: mobX,
+                            y_mobile: mobY
+                        });
+                        
+                        // Wait for final update to complete
+                        attempts = 0;
+                        while (!syncReceived && attempts < 20) {
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                            attempts++;
+                        }
+                        
+                        log(`  ✓ ${d.name} restored`, 'success');
+                    } else {
+                        log(`  ⚠ Warning: Could not find newly created device`, 'error');
+                    }
+                    
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                }
+                
+                log('✓ Restore complete! Verifying...', 'success');
+                
+                // **CRITICAL: Force save to NVS!**
+                log('💾 Saving to NVS...', 'info');
+                await sendWS({type: 'force_save_layout'});
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // Final sync to verify all data
+                await sendWS({type: 'get_sync'});
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Check if mobile positions were saved
+                let missingMobile = 0;
+                for (const dev of currentDevices) {
+                    if (dev.x_mobile === undefined || dev.x_mobile === null) {
+                        missingMobile++;
+                        log(`⚠ ${dev.name} missing mobile position!`, 'error');
+                    }
+                }
+                
+                if (missingMobile > 0) {
+                    log(`⚠ ${missingMobile} devices missing mobile positions - check backend`, 'error');
+                } else {
+                    log('✓ All mobile positions verified!', 'success');
+                }
+                
+                log('✓ Layout saved to NVS - will persist after reboot!', 'success');
+                log('Refreshing ESP32 page in 3 seconds...', 'info');
+                setTimeout(() => {
+                    window.location.href = `http://${ip}/`;
+                }, 3000);
+                
+            } catch (err) {
+                log('✗ Restore failed: ' + err, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Alerts Backup & Restore Tool</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #0a0e1a; color: #fff; max-width: 900px; margin: 0 auto; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #00d9a5; color: #000; }
+        .error { background: #ff4757; }
+        .info { background: #4f7cff; }
+        .warning { background: #ffa502; color: #000; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; margin: 10px 5px; border: none; border-radius: 5px; }
+        button.primary { background: #00d9a5; color: #000; }
+        button.danger { background: #ff4757; color: #fff; }
+        button.secondary { background: #4f7cff; color: #fff; }
+        input[type="text"] { padding: 10px; font-size: 16px; width: 200px; border-radius: 5px; border: 1px solid #333; background: #1a1e2a; color: #fff; }
+        textarea { width: 100%; height: 300px; font-family: monospace; font-size: 12px; background: #1a1e2a; color: #00d9a5; border: 1px solid #333; border-radius: 5px; padding: 10px; }
+        .section { margin: 20px 0; padding: 20px; background: #141824; border-radius: 10px; }
+        h2 { color: #00d9a5; margin-top: 0; }
+        .bot-list { margin: 10px 0; }
+        .bot-item { background: #1a1e2a; padding: 10px; margin: 5px 0; border-radius: 5px; display: flex; justify-content: space-between; }
+    </style>
+</head>
+<body>
+    <h1>🔔 Greenhouse Alerts Backup & Restore</h1>
+    <p>ESP32 IP: <input type="text" id="esp-ip" value="192.168.1.100" placeholder="Enter ESP32 IP"></p>
+    
+    <div class="section">
+        <h2>📥 Backup Current Alerts</h2>
+        <p>Fetch current alert settings from ESP32 and save locally.</p>
+        <button class="primary" onclick="fetchAlerts()">🔄 Fetch Current Alerts</button>
+        <button class="secondary" onclick="downloadBackup()">💾 Download Backup File</button>
+        <div id="current-alerts"></div>
+    </div>
+    
+    <div class="section">
+        <h2>📤 Restore Alerts</h2>
+        <p>Restore alerts from the saved configuration below (edit if needed):</p>
+        <textarea id="alerts-json" placeholder="Paste alerts JSON here or use Fetch to load current..."></textarea>
+        <br>
+        <button class="primary" onclick="restoreAlerts()">🚀 Restore to ESP32</button>
+        <button class="secondary" onclick="loadFromFile()">📂 Load from File</button>
+        <input type="file" id="file-input" accept=".json" style="display:none" onchange="handleFileLoad(event)">
+    </div>
+    
+    <div id="log"></div>
+
+    <script>
+        let socket;
+        let currentConfig = null;
+        
+        // ==========================================
+        // DEFAULT ALERTS CONFIG - EDIT THIS SECTION
+        // ==========================================
+        const defaultAlertsConfig = {
+            "contacts": [
+                // WhatsApp contacts (CallMeBot)
+                // {
+                //     "phone": "+1234567890",
+                //     "apiKey": "YOUR_CALLMEBOT_API_KEY",
+                //     "name": "John",
+                //     "enabled": true,
+                //     "minPriority": 1
+                // }
+            ],
+            "telegram": [
+                // Telegram bots
+                // {
+                //     "botToken": "YOUR_BOT_TOKEN",
+                //     "chatId": "YOUR_CHAT_ID", 
+                //     "name": "Greenhouse Bot",
+                //     "enabled": true,
+                //     "minPriority": 0
+                // }
+            ],
+            "configs": [
+                // Alert type configurations (type 0-12)
+                {"type": 0, "enabled": true, "cooldown": 30, "maxHr": 5, "thresh": 0, "routine": "", "hour": 8},   // DEVICE_OFFLINE
+                {"type": 1, "enabled": true, "cooldown": 30, "maxHr": 5, "thresh": 0, "routine": "", "hour": 8},   // DEVICE_UNRESPONSIVE
+                {"type": 2, "enabled": true, "cooldown": 30, "maxHr": 5, "thresh": 0, "routine": "", "hour": 8},   // ROUTINE_FAILED
+                {"type": 3, "enabled": true, "cooldown": 30, "maxHr": 5, "thresh": 0, "routine": "", "hour": 8},   // ROUTINE_TIMEOUT
+                {"type": 4, "enabled": true, "cooldown": 30, "maxHr": 5, "thresh": 35, "routine": "", "hour": 8},  // TEMP_HIGH (35°C threshold)
+                {"type": 5, "enabled": true, "cooldown": 30, "maxHr": 5, "thresh": 10, "routine": "", "hour": 8},  // TEMP_LOW (10°C threshold)
+                {"type": 6, "enabled": true, "cooldown": 30, "maxHr": 5, "thresh": 5, "routine": "", "hour": 8},   // TEMP_RAPID_RISE (5°C in 10 min)
+                {"type": 7, "enabled": true, "cooldown": 10, "maxHr": 5, "thresh": 5, "routine": "", "hour": 8},   // TEMP_RAPID_DROP (5°C in 10 min)
+                {"type": 8, "enabled": true, "cooldown": 30, "maxHr": 5, "thresh": 0, "routine": "", "hour": 8},   // TEMP_SENSOR_ERRATIC
+                {"type": 9, "enabled": true, "cooldown": 30, "maxHr": 5, "thresh": 10, "routine": "", "hour": 8},  // TEMP_ZONE_IMBALANCE (10°C diff)
+                {"type": 10, "enabled": true, "cooldown": 0, "maxHr": 100, "thresh": 0, "routine": "", "hour": 8}, // SYSTEM_REBOOT
+                {"type": 11, "enabled": true, "cooldown": 0, "maxHr": 100, "thresh": 0, "routine": "", "hour": 8}, // WIFI_RECONNECT
+                {"type": 12, "enabled": true, "cooldown": 1440, "maxHr": 1, "thresh": 0, "routine": "", "hour": 8} // DAILY_REPORT
+            ]
+        };
+
+        function log(msg, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.textContent = `${new Date().toLocaleTimeString()} - ${msg}`;
+            document.getElementById('log').prepend(div);
+            console.log(msg);
+        }
+
+        function connect(ip) {
+            return new Promise((resolve, reject) => {
+                socket = new WebSocket(`ws://${ip}/ws`);
+                const timeout = setTimeout(() => {
+                    socket.close();
+                    reject(new Error('Connection timeout'));
+                }, 5000);
+                
+                socket.onopen = () => {
+                    clearTimeout(timeout);
+                    log('✓ Connected to ESP32', 'success');
+                    resolve();
+                };
+                socket.onerror = (err) => {
+                    clearTimeout(timeout);
+                    log('✗ Connection failed', 'error');
+                    reject(err);
+                };
+                socket.onclose = () => {
+                    log('Connection closed', 'info');
+                };
+                socket.onmessage = (event) => {
+                    try {
+                        const data = JSON.parse(event.data);
+                        console.log('Received:', data);
+                        
+                        if (data.type === 'alerts_config') {
+                            currentConfig = data;
+                            displayCurrentAlerts(data);
+                            // Also populate textarea
+                            document.getElementById('alerts-json').value = JSON.stringify(data, null, 2);
+                            log('✓ Received alerts config', 'success');
+                        } else if (data.type === 'alerts_config_updated' || data.type === 'telegram_added' || data.type === 'contact_added') {
+                            log('✓ Alerts saved successfully!', 'success');
+                            // Re-fetch to confirm
+                            socket.send(JSON.stringify({type: 'get_alerts_config'}));
+                        } else if (data.type === 'sync') {
+                            // Request alerts config after sync
+                            socket.send(JSON.stringify({type: 'get_alerts_config'}));
+                        }
+                    } catch(e) {
+                        console.error('Parse error:', e);
+                    }
+                };
+            });
+        }
+
+        function displayCurrentAlerts(data) {
+            let html = '<div class="bot-list">';
+            
+            // WhatsApp contacts
+            html += '<h3>📱 WhatsApp Contacts</h3>';
+            if (data.contacts && data.contacts.length > 0) {
+                data.contacts.forEach(c => {
+                    html += `<div class="bot-item">
+                        <span><strong>${c.name}</strong> (${c.phone})</span>
+                        <span>${c.enabled ? '✅ Enabled' : '❌ Disabled'}</span>
+                    </div>`;
+                });
+            } else {
+                html += '<div class="bot-item">No WhatsApp contacts configured</div>';
+            }
+            
+            // Telegram bots
+            html += '<h3>🤖 Telegram Bots</h3>';
+            if (data.telegram && data.telegram.length > 0) {
+                data.telegram.forEach(t => {
+                    html += `<div class="bot-item">
+                        <span><strong>${t.name}</strong> (Chat: ${t.chatId})</span>
+                        <span>${t.enabled ? '✅ Enabled' : '❌ Disabled'}</span>
+                    </div>`;
+                });
+            } else {
+                html += '<div class="bot-item">No Telegram bots configured</div>';
+            }
+            
+            html += '</div>';
+            document.getElementById('current-alerts').innerHTML = html;
+        }
+
+        async function fetchAlerts() {
+            const ip = document.getElementById('esp-ip').value;
+            log(`Connecting to ${ip}...`, 'info');
+            
+            try {
+                await connect(ip);
+                // Request alerts config
+                setTimeout(() => {
+                    socket.send(JSON.stringify({type: 'get_alerts_config'}));
+                    log('Requested alerts config...', 'info');
+                }, 500);
+            } catch(e) {
+                log('Failed to connect: ' + e.message, 'error');
+            }
+        }
+
+        async function restoreAlerts() {
+            const ip = document.getElementById('esp-ip').value;
+            const jsonText = document.getElementById('alerts-json').value;
+            
+            if (!jsonText.trim()) {
+                log('No alerts data to restore!', 'error');
+                return;
+            }
+            
+            let alertsData;
+            try {
+                alertsData = JSON.parse(jsonText);
+            } catch(e) {
+                log('Invalid JSON: ' + e.message, 'error');
+                return;
+            }
+            
+            log(`Connecting to ${ip}...`, 'info');
+            
+            try {
+                if (!socket || socket.readyState !== WebSocket.OPEN) {
+                    await connect(ip);
+                    await new Promise(r => setTimeout(r, 500));
+                }
+                
+                // Add each Telegram bot
+                if (alertsData.telegram && alertsData.telegram.length > 0) {
+                    for (const bot of alertsData.telegram) {
+                        if (bot.botToken && bot.chatId) {
+                            const msg = {
+                                type: 'add_telegram_bot',
+                                botToken: bot.botToken || bot.token,
+                                chatId: bot.chatId,
+                                name: bot.name || 'Restored Bot',
+                                minPriority: bot.minPriority || bot.minPri || 0
+                            };
+                            socket.send(JSON.stringify(msg));
+                            log(`Adding Telegram bot: ${bot.name}`, 'info');
+                            await new Promise(r => setTimeout(r, 300));
+                        }
+                    }
+                }
+                
+                // Add each WhatsApp contact
+                if (alertsData.contacts && alertsData.contacts.length > 0) {
+                    for (const contact of alertsData.contacts) {
+                        if (contact.phone && contact.apiKey) {
+                            const msg = {
+                                type: 'add_alert_contact',
+                                phone: contact.phone,
+                                apiKey: contact.apiKey || contact.key,
+                                name: contact.name || 'Restored Contact',
+                                minPriority: contact.minPriority || contact.minPri || 1
+                            };
+                            socket.send(JSON.stringify(msg));
+                            log(`Adding WhatsApp contact: ${contact.name}`, 'info');
+                            await new Promise(r => setTimeout(r, 300));
+                        }
+                    }
+                }
+                
+                log('✓ Restore complete! Refreshing...', 'success');
+                
+                // Refresh display
+                setTimeout(() => {
+                    socket.send(JSON.stringify({type: 'get_alerts_config'}));
+                }, 500);
+                
+            } catch(e) {
+                log('Failed to restore: ' + e.message, 'error');
+            }
+        }
+
+        function downloadBackup() {
+            const jsonText = document.getElementById('alerts-json').value;
+            if (!jsonText.trim()) {
+                log('No data to download. Fetch alerts first!', 'warning');
+                return;
+            }
+            
+            const blob = new Blob([jsonText], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `greenhouse_alerts_backup_${new Date().toISOString().slice(0,10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            log('Backup file downloaded!', 'success');
+        }
+
+        function loadFromFile() {
+            document.getElementById('file-input').click();
+        }
+
+        function handleFileLoad(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('alerts-json').value = e.target.result;
+                    log('Loaded file: ' + file.name, 'success');
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        // Initialize with default config in textarea
+        document.getElementById('alerts-json').value = JSON.stringify(defaultAlertsConfig, null, 2);
+    </script>
+</body>
+</html>

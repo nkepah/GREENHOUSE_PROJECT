@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🌿 ESP32 Setup</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh;padding:20px}
+.container{max-width:500px;margin:0 auto}
+h1{text-align:center;margin-bottom:30px;font-size:1.5rem}
+.card{background:#1e293b;border-radius:12px;padding:20px;margin-bottom:20px}
+.card h2{font-size:1rem;margin-bottom:15px;color:#94a3b8;border-bottom:1px solid #334155;padding-bottom:10px}
+.status-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #334155}
+.status-row:last-child{border-bottom:none}
+.status-label{color:#94a3b8}
+.status-value{font-weight:500}
+.status-value.online{color:#22c55e}
+.status-value.offline{color:#ef4444}
+.form-group{margin-bottom:15px}
+.form-group label{display:block;margin-bottom:5px;color:#94a3b8;font-size:0.9rem}
+.form-group input{width:100%;padding:12px;border:1px solid #334155;border-radius:8px;background:#0f172a;color:#e2e8f0;font-size:1rem}
+.form-group input:focus{outline:none;border-color:#3b82f6}
+.btn{width:100%;padding:14px;border:none;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;margin-top:10px}
+.btn-primary{background:#3b82f6;color:white}
+.btn-primary:hover{background:#2563eb}
+.btn-secondary{background:#334155;color:#e2e8f0}
+.btn-secondary:hover{background:#475569}
+.btn-danger{background:#dc2626;color:white}
+.btn-danger:hover{background:#b91c1c}
+.alert{padding:12px;border-radius:8px;margin-bottom:15px;font-size:0.9rem}
+.alert-success{background:#166534;color:#bbf7d0}
+.alert-error{background:#991b1b;color:#fecaca}
+.hidden{display:none}
+.relay-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:10px}
+.relay-btn{padding:8px;border-radius:6px;border:1px solid #334155;background:#0f172a;color:#94a3b8;font-size:0.8rem;cursor:pointer}
+.relay-btn.on{background:#166534;color:#22c55e;border-color:#22c55e}
+.relay-btn:hover{border-color:#3b82f6}
+.link{color:#3b82f6;text-decoration:none}
+.link:hover{text-decoration:underline}
+.center{text-align:center}
+</style>
+</head>
+<body>
+<nav style="background:rgba(30,41,59,0.95);padding:12px 20px;margin:-20px -20px 20px -20px;display:flex;align-items:center;gap:20px;border-bottom:1px solid rgba(148,163,184,0.12);position:sticky;top:-20px;z-index:1000;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);"><div class="brand" onclick="window.location.href='/'" title="Back to Home" style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;font-size:1.1rem;color:#00d9a5;">🌱 Greenhouse OS</div><div style="flex:1;"></div></nav>
+<div class="container">
+<h1>🌿 ESP32 Greenhouse Setup</h1>
+
+<div id="alert" class="alert hidden"></div>
+
+<!-- Status Card -->
+<div class="card">
+<h2>📊 System Status</h2>
+<div class="status-row"><span class="status-label">WiFi</span><span id="wifi-status" class="status-value">--</span></div>
+<div class="status-row"><span class="status-label">IP Address</span><span id="ip-addr" class="status-value">--</span></div>
+<div class="status-row"><span class="status-label">RSSI</span><span id="rssi" class="status-value">--</span></div>
+<div class="status-row"><span class="status-label">Uptime</span><span id="uptime" class="status-value">--</span></div>
+<div class="status-row"><span class="status-label">Free Heap</span><span id="heap" class="status-value">--</span></div>
+<div class="status-row"><span class="status-label">Total Amps</span><span id="amps" class="status-value">--</span></div>
+</div>
+
+<!-- WiFi Config Card -->
+<div class="card">
+<h2>📶 WiFi Configuration</h2>
+<div class="form-group">
+<label>SSID</label>
+<input type="text" id="ssid" placeholder="Your WiFi network">
+</div>
+<div class="form-group">
+<label>Password</label>
+<input type="password" id="pass" placeholder="WiFi password">
+</div>
+<button class="btn btn-primary" onclick="saveWifi()">Save WiFi & Reboot</button>
+</div>
+
+<!-- Pi Proxy Config -->
+<div class="card">
+<h2>🥧 Raspberry Pi Proxy</h2>
+<p style="color:#94a3b8;font-size:0.85rem;margin-bottom:15px">
+Connect to your Pi proxy server for the full dashboard experience.
+</p>
+<div class="form-group">
+<label>Pi IP Address</label>
+<input type="text" id="piIp" placeholder="e.g., 192.168.1.50">
+</div>
+<div class="form-group">
+<label>Pi Port</label>
+<input type="number" id="piPort" value="3000" placeholder="3000">
+</div>
+<button class="btn btn-secondary" onclick="savePiConfig()">Save Pi Config</button>
+<button class="btn btn-primary" onclick="goToPi()" style="margin-top:10px">Open Pi Dashboard →</button>
+</div>
+
+<!-- Quick Relay Control -->
+<div class="card">
+<h2>⚡ Quick Relay Test</h2>
+<p style="color:#94a3b8;font-size:0.85rem;margin-bottom:10px">Direct relay control for testing</p>
+<div class="relay-grid" id="relay-grid"></div>
+</div>
+
+<!-- Advanced -->
+<div class="card">
+<h2>🔧 Advanced</h2>
+<button class="btn btn-secondary" onclick="reboot()">Reboot ESP32</button>
+<button class="btn btn-danger" onclick="factoryReset()">Factory Reset</button>
+</div>
+
+<p class="center" style="margin-top:20px;color:#64748b;font-size:0.8rem">
+ESP32 Greenhouse Controller v2.0<br>
+<a class="link" href="/">Full Local UI</a> (slower)
+</p>
+</div>
+
+<script>
+let socket;
+let config = {};
+let relayStates = {};
+
+function connectWebSocket() {
+    socket = new WebSocket(`ws://${window.location.host}/ws`);
+    socket.onopen = () => console.log('WS connected');
+    socket.onclose = () => setTimeout(connectWebSocket, 3000);
+    socket.onmessage = handleMessage;
+}
+
+function handleMessage(event) {
+    const data = JSON.parse(event.data);
+    if (data.type === 'sync') {
+        // Update status
+        if (data.net) {
+            document.getElementById('wifi-status').textContent = data.net.connected ? 'Connected' : 'Disconnected';
+            document.getElementById('wifi-status').className = 'status-value ' + (data.net.connected ? 'online' : 'offline');
+            document.getElementById('ip-addr').textContent = data.net.ip || '--';
+            document.getElementById('rssi').textContent = data.net.rssi ? data.net.rssi + ' dBm' : '--';
+        }
+        if (data.sys) {
+            document.getElementById('uptime').textContent = formatUptime(data.ts);
+        }
+        if (data.power) {
+            document.getElementById('amps').textContent = data.power.total_amps?.toFixed(2) + ' A' || '--';
+        }
+        // Update relay states
+        if (data.power?.devices) {
+            data.power.devices.forEach(d => {
+                relayStates[d.ch] = d.on;
+                const btn = document.getElementById('relay-' + d.ch);
+                if (btn) {
+                    btn.className = 'relay-btn' + (d.on ? ' on' : '');
+                }
+            });
+        }
+        // Load config
+        if (data.config) {
+            config = data.config;
+            document.getElementById('ssid').value = config.ssid || '';
+            document.getElementById('piIp').value = config.piIp || '';
+        }
+    }
+    if (data.type === 'heap') {
+        document.getElementById('heap').textContent = Math.round(data.free / 1024) + ' KB';
+    }
+}
+
+function formatUptime(ms) {
+    const s = Math.floor(ms / 1000);
+    const m = Math.floor(s / 60);
+    const h = Math.floor(m / 60);
+    if (h > 0) return h + 'h ' + (m % 60) + 'm';
+    if (m > 0) return m + 'm ' + (s % 60) + 's';
+    return s + 's';
+}
+
+function sendWS(data) {
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify(data));
+        return true;
+    }
+    return false;
+}
+
+function showAlert(msg, type) {
+    const alert = document.getElementById('alert');
+    alert.textContent = msg;
+    alert.className = 'alert alert-' + type;
+    setTimeout(() => alert.className = 'alert hidden', 5000);
+}
+
+function saveWifi() {
+    const ssid = document.getElementById('ssid').value.trim();
+    const pass = document.getElementById('pass').value;
+    if (!ssid) {
+        showAlert('SSID is required', 'error');
+        return;
+    }
+    if (sendWS({ type: 'config_update', ssid: ssid, pass: pass })) {
+        showAlert('WiFi config saved. Rebooting...', 'success');
+        setTimeout(() => sendWS({ type: 'reboot' }), 1000);
+    } else {
+        showAlert('WebSocket not connected', 'error');
+    }
+}
+
+function savePiConfig() {
+    const piIp = document.getElementById('piIp').value.trim();
+    if (!piIp) {
+        showAlert('Pi IP is required', 'error');
+        return;
+    }
+    if (sendWS({ type: 'config_update', piIp: piIp, proxy: true })) {
+        showAlert('Pi config saved', 'success');
+    }
+}
+
+function goToPi() {
+    const piIp = document.getElementById('piIp').value.trim();
+    const piPort = document.getElementById('piPort').value || '3000';
+    if (piIp) {
+        window.location.href = 'http://' + piIp + ':' + piPort;
+    } else {
+        showAlert('Enter Pi IP address first', 'error');
+    }
+}
+
+function toggleRelay(ch) {
+    const newState = !relayStates[ch];
+    sendWS({ type: 'relay', channel: ch, state: newState });
+}
+
+function reboot() {
+    if (confirm('Reboot ESP32?')) {
+        sendWS({ type: 'reboot' });
+        showAlert('Rebooting...', 'success');
+    }
+}
+
+function factoryReset() {
+    if (confirm('Factory reset? This will erase all settings!')) {
+        if (confirm('Are you absolutely sure?')) {
+            sendWS({ type: 'factory_reset' });
+            showAlert('Factory reset in progress...', 'success');
+        }
+    }
+}
+
+// Initialize relay buttons
+function initRelayGrid() {
+    const grid = document.getElementById('relay-grid');
+    for (let i = 1; i <= 15; i++) {
+        const btn = document.createElement('button');
+        btn.id = 'relay-' + i;
+        btn.className = 'relay-btn';
+        btn.textContent = i;
+        btn.onclick = () => toggleRelay(i);
+        grid.appendChild(btn);
+    }
+}
+
+// Request heap info periodically
+function requestHeap() {
+    sendWS({ type: 'get_heap' });
+}
+
+initRelayGrid();
+connectWebSocket();
+setInterval(requestHeap, 5000);
+</script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+[Unit]
+Description=Greenhouse Proxy Server
+Documentation=https://github.com/your-repo/greenhouse-proxy
+After=network.target
+
+[Service]
+Type=simple
+User=nkepah
+WorkingDirectory=/opt/greenhouse-proxy
+ExecStart=/usr/bin/node /opt/greenhouse-proxy/server.js
+Restart=always
+RestartSec=10
+
+# Environment
+Environment=NODE_ENV=production
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=greenhouse-proxy
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/opt/greenhouse-proxy
+
+[Install]
+WantedBy=multi-user.target

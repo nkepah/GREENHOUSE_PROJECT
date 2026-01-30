@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐔 Chicken Coop Controller</title>
+    <style>
+        :root {
+            --bg-primary: #1a1a2e;
+            --bg-secondary: #16213e;
+            --bg-card: #0f3460;
+            --accent: #e94560;
+            --accent-green: #4ecca3;
+            --accent-orange: #f39c12;
+            --text-primary: #eee;
+            --text-secondary: #aaa;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary));
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 16px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 16px 0 24px;
+        }
+        
+        header h1 {
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        
+        .status-bar {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-green);
+        }
+        
+        .status-dot.offline { background: var(--accent); }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .card-header h2 {
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* Door Control */
+        .door-control {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .door-visual {
+            width: 120px;
+            height: 150px;
+            background: #2d3a4a;
+            border-radius: 8px 8px 0 0;
+            position: relative;
+            overflow: hidden;
+            border: 3px solid #5a6a7a;
+        }
+        
+        .door-panel {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 0%;
+            background: linear-gradient(180deg, #8b5a2b, #654321);
+            transition: height 0.5s ease;
+        }
+        
+        .door-panel.closed { height: 100%; }
+        .door-panel.opening, .door-panel.closing { height: 50%; }
+        
+        .door-buttons {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .door-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .door-btn.open {
+            background: var(--accent-green);
+            color: #111;
+        }
+        
+        .door-btn.close {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .door-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        
+        .door-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .door-status {
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        /* Lights */
+        .lights-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+        
+        .light-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 8px;
+            background: #2a3a4a;
+            border: none;
+            border-radius: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .light-btn.on {
+            background: var(--accent-orange);
+            color: #111;
+        }
+        
+        .light-btn .icon {
+            font-size: 2rem;
+        }
+        
+        .light-btn .label {
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .all-lights-btn {
+            margin-top: 12px;
+            width: 100%;
+            padding: 12px;
+            background: #3a4a5a;
+            border: none;
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .all-lights-btn:hover {
+            background: #4a5a6a;
+        }
+        
+        /* Sensors */
+        .sensors-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        
+        .sensor-item {
+            background: #2a3a4a;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+        
+        .sensor-icon {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+        
+        .sensor-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .sensor-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+        
+        /* Levels (Feed & Water) */
+        .level-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .level-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .level-icon {
+            font-size: 1.5rem;
+            width: 40px;
+            text-align: center;
+        }
+        
+        .level-bar-container {
+            flex: 1;
+            height: 20px;
+            background: #2a3a4a;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .level-bar {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+        
+        .level-bar.feed { background: linear-gradient(90deg, #f39c12, #e67e22); }
+        .level-bar.water { background: linear-gradient(90deg, #3498db, #2980b9); }
+        
+        .level-bar.low { background: var(--accent); }
+        
+        .level-value {
+            width: 50px;
+            text-align: right;
+            font-weight: 600;
+        }
+        
+        /* Feeder Control */
+        .feeder-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--accent-green);
+            border: none;
+            border-radius: 12px;
+            color: #111;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s;
+            margin-top: 16px;
+        }
+        
+        .feeder-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        
+        /* Schedule */
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .schedule-item {
+            background: #2a3a4a;
+            border-radius: 8px;
+            padding: 12px;
+        }
+        
+        .schedule-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        
+        .schedule-time {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        /* Alerts */
+        .alert {
+            background: var(--accent);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .alert.warning { background: var(--accent-orange); color: #111; }
+        .alert.hidden { display: none; }
+        
+        /* Responsive */
+        @media (max-width: 400px) {
+            .lights-grid { grid-template-columns: repeat(3, 1fr); }
+            .sensors-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🐔 <span id="coopName">Chicken Coop</span></h1>
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">Connected</span>
+            </div>
+            <div class="status-item">
+                <span id="currentTime">--:--</span>
+            </div>
+            <div class="status-item">
+                <span>📶 <span id="rssi">--</span> dBm</span>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Alerts -->
+    <div id="alertContainer" style="max-width: 1200px; margin: 0 auto 16px;"></div>
+    
+    <div class="grid">
+        <!-- Door Control -->
+        <div class="card">
+            <div class="card-header">
+                <h2>🚪 Door Control</h2>
+                <span class="door-status" id="doorStatus">--</span>
+            </div>
+            <div class="door-control">
+                <div class="door-visual">
+                    <div class="door-panel" id="doorPanel"></div>
+                </div>
+                <div class="door-buttons">
+                    <button class="door-btn open" onclick="doorOpen()">▲ Open</button>
+                    <button class="door-btn close" onclick="doorClose()">▼ Close</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Lighting -->
+        <div class="card">
+            <div class="card-header">
+                <h2>💡 Lighting</h2>
+            </div>
+            <div class="lights-grid">
+                <button class="light-btn" id="lightMain" onclick="toggleLight('main')">
+                    <span class="icon">💡</span>
+                    <span class="label">Main</span>
+                </button>
+                <button class="light-btn" id="lightNest" onclick="toggleLight('nest')">
+                    <span class="icon">🪺</span>
+                    <span class="label">Nesting</span>
+                </button>
+                <button class="light-btn" id="lightRun" onclick="toggleLight('run')">
+                    <span class="icon">☀️</span>
+                    <span class="label">Run</span>
+                </button>
+            </div>
+            <button class="all-lights-btn" onclick="toggleAllLights()">Toggle All Lights</button>
+        </div>
+        
+        <!-- Temperature & Weather -->
+        <div class="card">
+            <div class="card-header">
+                <h2>🌡️ Environment</h2>
+            </div>
+            <div class="sensors-grid">
+                <div class="sensor-item">
+                    <div class="sensor-icon">🏠</div>
+                    <div class="sensor-value"><span id="tempInside">--</span>°C</div>
+                    <div class="sensor-label">Inside Temp</div>
+                </div>
+                <div class="sensor-item">
+                    <div class="sensor-icon">🌤️</div>
+                    <div class="sensor-value"><span id="tempOutside">--</span>°C</div>
+                    <div class="sensor-label">Outside Temp</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Feed & Water Levels -->
+        <div class="card">
+            <div class="card-header">
+                <h2>📊 Supply Levels</h2>
+            </div>
+            <div class="level-bars">
+                <div class="level-item">
+                    <div class="level-icon">🌾</div>
+                    <div class="level-bar-container">
+                        <div class="level-bar feed" id="feedBar" style="width: 0%"></div>
+                    </div>
+                    <div class="level-value"><span id="feedLevel">--</span>%</div>
+                </div>
+                <div class="level-item">
+                    <div class="level-icon">💧</div>
+                    <div class="level-bar-container">
+                        <div class="level-bar water" id="waterBar" style="width: 0%"></div>
+                    </div>
+                    <div class="level-value"><span id="waterLevel">--</span>%</div>
+                </div>
+            </div>
+            <button class="feeder-btn" onclick="dispenseFeed()">
+                🌾 Dispense Feed
+            </button>
+        </div>
+        
+        <!-- Schedule -->
+        <div class="card">
+            <div class="card-header">
+                <h2>⏰ Daily Schedule</h2>
+            </div>
+            <div class="schedule-grid">
+                <div class="schedule-item">
+                    <div class="schedule-label">🌅 Door Opens</div>
+                    <div class="schedule-time" id="doorOpenTime">06:00</div>
+                </div>
+                <div class="schedule-item">
+                    <div class="schedule-label">🌙 Door Closes</div>
+                    <div class="schedule-time" id="doorCloseTime">18:00</div>
+                </div>
+                <div class="schedule-item">
+                    <div class="schedule-label">💡 Lights On</div>
+                    <div class="schedule-time" id="lightOnTime">05:00</div>
+                </div>
+                <div class="schedule-item">
+                    <div class="schedule-label">🌑 Lights Off</div>
+                    <div class="schedule-time" id="lightOffTime">21:00</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let ws;
+        let state = {
+            door: 'unknown',
+            lightMain: false,
+            lightNest: false,
+            lightRun: false
+        };
+        
+        function connect() {
+            const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            ws = new WebSocket(`${protocol}//${location.host}/ws`);
+            
+            ws.onopen = () => {
+                document.getElementById('statusDot').classList.remove('offline');
+                document.getElementById('statusText').textContent = 'Connected';
+                ws.send(JSON.stringify({ type: 'get_status' }));
+            };
+            
+            ws.onclose = () => {
+                document.getElementById('statusDot').classList.add('offline');
+                document.getElementById('statusText').textContent = 'Disconnected';
+                setTimeout(connect, 3000);
+            };
+            
+            ws.onmessage = (e) => {
+                try {
+                    const data = JSON.parse(e.data);
+                    if (data.type === 'sync') {
+                        updateUI(data);
+                    }
+                } catch (err) {
+                    console.error('WS parse error:', err);
+                }
+            };
+        }
+        
+        function updateUI(data) {
+            if (data.coop_name) {
+                document.getElementById('coopName').textContent = data.coop_name;
+                document.title = `🐔 ${data.coop_name}`;
+            }
+            
+            const s = data.status || {};
+            
+            // Door
+            if (s.door_text) {
+                state.door = s.door_text;
+                document.getElementById('doorStatus').textContent = s.door_text.toUpperCase();
+                const panel = document.getElementById('doorPanel');
+                panel.className = 'door-panel ' + s.door_text;
+            }
+            
+            // Lights
+            state.lightMain = s.light_main;
+            state.lightNest = s.light_nest;
+            state.lightRun = s.light_run;
+            document.getElementById('lightMain').classList.toggle('on', s.light_main);
+            document.getElementById('lightNest').classList.toggle('on', s.light_nest);
+            document.getElementById('lightRun').classList.toggle('on', s.light_run);
+            
+            // Temperatures
+            if (s.temp_inside !== undefined) {
+                document.getElementById('tempInside').textContent = s.temp_inside.toFixed(1);
+            }
+            if (s.weather_temp !== undefined && s.weather_valid) {
+                document.getElementById('tempOutside').textContent = s.weather_temp.toFixed(1);
+            }
+            
+            // Levels
+            if (s.feed_level !== undefined) {
+                document.getElementById('feedLevel').textContent = s.feed_level;
+                const feedBar = document.getElementById('feedBar');
+                feedBar.style.width = s.feed_level + '%';
+                feedBar.classList.toggle('low', s.feed_level < 20);
+            }
+            if (s.water_level !== undefined) {
+                document.getElementById('waterLevel').textContent = s.water_level;
+                const waterBar = document.getElementById('waterBar');
+                waterBar.style.width = s.water_level + '%';
+                waterBar.classList.toggle('low', s.water_level < 20);
+            }
+            
+            // Time & Network
+            if (s.time) document.getElementById('currentTime').textContent = s.time;
+            if (s.rssi) document.getElementById('rssi').textContent = s.rssi;
+            
+            // Alerts
+            checkAlerts(s);
+        }
+        
+        function checkAlerts(s) {
+            const container = document.getElementById('alertContainer');
+            container.innerHTML = '';
+            
+            if (s.feed_level !== undefined && s.feed_level < 20) {
+                addAlert('warning', '⚠️ Feed level low! Please refill.');
+            }
+            if (s.water_level !== undefined && s.water_level < 20) {
+                addAlert('warning', '⚠️ Water level low! Please refill.');
+            }
+            if (s.temp_inside !== undefined && s.temp_inside < 5) {
+                addAlert('error', '❄️ Temperature too cold! Consider adding heat.');
+            }
+            if (s.temp_inside !== undefined && s.temp_inside > 35) {
+                addAlert('error', '🔥 Temperature too hot! Ensure ventilation.');
+            }
+        }
+        
+        function addAlert(type, message) {
+            const container = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = 'alert ' + (type === 'warning' ? 'warning' : '');
+            alert.innerHTML = message;
+            container.appendChild(alert);
+        }
+        
+        function send(obj) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify(obj));
+            }
+        }
+        
+        function doorOpen() {
+            send({ type: 'door_open' });
+        }
+        
+        function doorClose() {
+            send({ type: 'door_close' });
+        }
+        
+        function toggleLight(target) {
+            const currentState = target === 'main' ? state.lightMain :
+                                target === 'nest' ? state.lightNest :
+                                state.lightRun;
+            send({ type: 'light', target, state: !currentState });
+        }
+        
+        function toggleAllLights() {
+            const anyOn = state.lightMain || state.lightNest || state.lightRun;
+            send({ type: 'light', target: 'all', state: !anyOn });
+        }
+        
+        function dispenseFeed() {
+            if (confirm('Dispense feed now?')) {
+                send({ type: 'feed' });
+            }
+        }
+        
+        // Initialize
+        connect();
+    </script>
+</body>
+</html>
