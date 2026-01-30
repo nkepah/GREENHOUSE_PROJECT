@@ -3374,24 +3374,31 @@ ${JSON.stringify(device.status, null, 2)}
 
         // Initialize
         async function init() {
+            // Start clock immediately
             updateTime();
             setInterval(updateTime, 1000);
 
-            await fetchFarmInfo();
-            await fetchDevices();
-            await fetchWeather();
+            // Add event listener for settings button - duplicate safeguard
+            const settingsBtn = document.getElementById('settingsBtn');
+            if (settingsBtn) {
+                // Remove old listeners to be safe
+                const newBtn = settingsBtn.cloneNode(true);
+                settingsBtn.parentNode.replaceChild(newBtn, settingsBtn);
+                newBtn.addEventListener('click', toggleSettings);
+            }
+
+            console.log("Dashboard initializing...");
+
+            // Fetch data with error handling so UI doesn't freeze
+            try { await fetchFarmInfo(); } catch(e) { console.error("Farm info failed", e); }
+            try { await fetchDevices(); } catch(e) { console.error("Devices failed", e); }
+            try { await fetchWeather(); } catch(e) { console.error("Weather failed", e); }
 
             // Refresh intervals
             setInterval(fetchDevices, CONFIG.refreshInterval);
             setInterval(fetchWeather, CONFIG.weatherRefresh);
             
-            // Add event listener for settings button
-            const settingsBtn = document.getElementById('settingsBtn');
-            if (settingsBtn) {
-                settingsBtn.addEventListener('click', toggleSettings);
-            }
-            
-            console.log("Dashboard initialized - v2.1.1");
+            console.log("Dashboard initialized - v2.1.2");
         }
 
         // Settings functionality - SIMPLE VERSION
