@@ -3439,12 +3439,6 @@ ${JSON.stringify(device.status, null, 2)}
                     break;
             }
         }
-                        console.error('Unknown settings type:', type);
-                }
-            } catch (error) {
-                console.error('Error in openSettings:', error);
-            }
-        }
 
         function openUnitsSettings() {
             showModal('Units & Time Format Configuration', `
