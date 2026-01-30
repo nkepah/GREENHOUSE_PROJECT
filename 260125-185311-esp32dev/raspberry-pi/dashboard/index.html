@@ -1663,25 +1663,26 @@
     <!-- Navigation -->
     <nav class="navbar">
         <div class="navbar-content">
-            <a href="/" class="navbar-brand">
-                <span class="navbar-icon">🌿</span>
-                <span>Smart Farm Hub</span>
-            </a>
-            <div class="navbar-menu">
-                <a href="/" class="navbar-link active" title="Main Dashboard">📊 Dashboard</a>
-                <a href="/greenhouse/" class="navbar-link" title="Greenhouse Controls">🌱 Greenhouse</a>
-                <a href="/routines.html" class="navbar-link" title="Automation">⚡ Routines</a>
-                <a href="/alerts.html" class="navbar-link" title="Alerts">🔔 Alerts</a>
-                <button class="navbar-link" id="settingsBtn" onclick="toggleSettings()" title="Settings" style="border:none;background:none;">⚙️ Settings</button>
+            <div class="navbar-left">
+                <a href="/" class="navbar-brand">
+                    <span class="navbar-icon">🌿</span>
+                    <span>Smart Farm Hub</span>
+                </a>
             </div>
-            <div class="status-time-container">
-                <div class="time-display" id="time-display">
-                    <div class="time-main" id="time-main">--:--:--</div>
-                    <div class="date-sub" id="date-sub">--- -- ----</div>
+            <div class="navbar-right">
+                <div class="status-time-container">
+                    <div class="time-display" id="time-display">
+                        <div class="time-main" id="time-main">--:--:--</div>
+                        <div class="date-sub" id="date-sub">--- -- ----</div>
+                    </div>
+                    <div class="status-indicator">
+                        <span class="status-dot" id="status-dot"></span>
+                    </div>
                 </div>
-                <div class="status-indicator">
-                    <span class="status-dot" id="status-dot"></span>
-                </div>
+                <button class="settings-btn" id="settingsBtn" onclick="toggleSettings()" title="Settings">
+                    <span class="settings-icon">⚙️</span>
+                    <span class="settings-text">Settings</span>
+                </button>
             </div>
         </div>
     </nav>
