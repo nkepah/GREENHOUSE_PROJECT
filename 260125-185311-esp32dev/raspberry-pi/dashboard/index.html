@@ -3453,6 +3453,71 @@ ${JSON.stringify(device.status, null, 2)}
                     console.log('Applied inline styles. New display value:', dropdown.style.display);
                     console.log('Dropdown should now be visible');
                     
+                    // Style the dropdown content
+                    const dropdownItems = dropdown.querySelectorAll('.dropdown-item');
+                    const dropdownHeader = dropdown.querySelector('.dropdown-header');
+                    const dropdownSections = dropdown.querySelectorAll('.dropdown-section');
+                    
+                    // Style header
+                    if (dropdownHeader) {
+                        dropdownHeader.style.cssText = `
+                            padding: 1.5rem !important;
+                            border-bottom: 1px solid #e5e7eb !important;
+                            background: #f9fafb !important;
+                        `;
+                        const title = dropdownHeader.querySelector('.dropdown-title');
+                        const subtitle = dropdownHeader.querySelector('.dropdown-subtitle');
+                        if (title) title.style.cssText = 'font-size: 1.1rem !important; font-weight: 600 !important; color: #1f2937 !important; margin: 0 !important;';
+                        if (subtitle) subtitle.style.cssText = 'font-size: 0.9rem !important; color: #6b7280 !important; margin: 0.25rem 0 0 0 !important;';
+                    }
+                    
+                    // Style sections
+                    dropdownSections.forEach(section => {
+                        section.style.cssText = 'padding: 1rem 0 !important;';
+                        const sectionTitle = section.querySelector('.dropdown-section-title');
+                        if (sectionTitle) {
+                            sectionTitle.style.cssText = 'padding: 0.75rem 1.5rem !important; font-size: 0.85rem !important; font-weight: 600 !important; color: #6b7280 !important; text-transform: uppercase !important; letter-spacing: 0.05em !important;';
+                        }
+                    });
+                    
+                    // Style dropdown items
+                    dropdownItems.forEach(item => {
+                        item.style.cssText = `
+                            display: flex !important;
+                            align-items: center !important;
+                            gap: 0.75rem !important;
+                            padding: 1rem 1.5rem !important;
+                            background: transparent !important;
+                            border: none !important;
+                            width: 100% !important;
+                            text-align: left !important;
+                            cursor: pointer !important;
+                            font-size: 1rem !important;
+                            color: #374151 !important;
+                            transition: background-color 0.2s ease !important;
+                        `;
+                        
+                        // Add hover effect
+                        item.addEventListener('mouseenter', () => {
+                            item.style.backgroundColor = '#f3f4f6';
+                        });
+                        item.addEventListener('mouseleave', () => {
+                            item.style.backgroundColor = 'transparent';
+                        });
+                        
+                        // Style icons and text
+                        const icon = item.querySelector('.dropdown-icon');
+                        const text = item.querySelector('span:not(.dropdown-icon)');
+                        if (icon) icon.style.cssText = 'font-size: 1.1rem !important;';
+                        if (text) text.style.cssText = 'font-weight: 500 !important;';
+                    });
+                    
+                    // Style divider
+                    const divider = dropdown.querySelector('.dropdown-divider');
+                    if (divider) {
+                        divider.style.cssText = 'height: 1px !important; background: #e5e7eb !important; margin: 0.5rem 0 !important;';
+                    }
+                    
                     // Verify the dropdown is actually visible
                     setTimeout(() => {
                         const rect = dropdown.getBoundingClientRect();
