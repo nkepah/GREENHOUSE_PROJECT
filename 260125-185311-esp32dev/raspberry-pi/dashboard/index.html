@@ -1905,13 +1905,9 @@
                 <span class="dropdown-icon">📍</span>
                 <span>Location Settings</span>
             </button>
-            <button class="dropdown-item" onclick="openSettings('network')">
-                <span class="dropdown-icon">🌐</span>
-                <span>Network Setup</span>
-            </button>
             <button class="dropdown-item" onclick="openSettings('ota')">
                 <span class="dropdown-icon">🚀</span>
-                <span>OTA Updates</span>
+                <span>ESP32 OTA Manager</span>
             </button>
         </div>
         <div class="dropdown-divider"></div>
@@ -2341,9 +2337,6 @@ ${JSON.stringify(device.status, null, 2)}
                 case 'location':
                     openLocationSettings();
                     break;
-                case 'network':
-                    openNetworkSettings();
-                    break;
                 case 'ota':
                     openOTASettings();
                     break;
@@ -2356,6 +2349,7 @@ ${JSON.stringify(device.status, null, 2)}
         function openUnitsSettings() {
             showModal('Units & Time Format', `
                 <div class="settings-section">
+                    <h4>🕐 Time & Date Preferences</h4>
                     <label class="settings-label">
                         <span class="label-text">Time Format</span>
                         <select class="settings-select" id="timeFormat">
@@ -2367,14 +2361,15 @@ ${JSON.stringify(device.status, null, 2)}
                     <label class="settings-label">
                         <span class="label-text">Date Format</span>
                         <select class="settings-select" id="dateFormat">
-                            <option value="US">MM/DD/YYYY (US)</option>
-                            <option value="EU">DD/MM/YYYY (EU)</option>
-                            <option value="ISO">YYYY-MM-DD (ISO)</option>
+                            <option value="US">MM/DD/YYYY (American)</option>
+                            <option value="EU">DD/MM/YYYY (European)</option>
+                            <option value="ISO">YYYY-MM-DD (ISO Standard)</option>
                         </select>
                     </label>
                     
+                    <h4>🌡️ Measurement Units</h4>
                     <label class="settings-label">
-                        <span class="label-text">Temperature Unit</span>
+                        <span class="label-text">Temperature</span>
                         <select class="settings-select" id="tempUnit">
                             <option value="C">Celsius (°C)</option>
                             <option value="F">Fahrenheit (°F)</option>
@@ -2382,11 +2377,29 @@ ${JSON.stringify(device.status, null, 2)}
                     </label>
                     
                     <label class="settings-label">
-                        <span class="label-text">Wind Speed Unit</span>
+                        <span class="label-text">Humidity Display</span>
+                        <select class="settings-select" id="humidityUnit">
+                            <option value="percent">Percentage (%)</option>
+                            <option value="dewpoint">Dew Point (°)</option>
+                        </select>
+                    </label>
+                    
+                    <label class="settings-label">
+                        <span class="label-text">Pressure</span>
+                        <select class="settings-select" id="pressureUnit">
+                            <option value="hPa">Hectopascal (hPa)</option>
+                            <option value="inHg">Inches Mercury (inHg)</option>
+                            <option value="mmHg">Millimeters Mercury (mmHg)</option>
+                        </select>
+                    </label>
+                    
+                    <label class="settings-label">
+                        <span class="label-text">Wind Speed</span>
                         <select class="settings-select" id="windUnit">
-                            <option value="kmh">km/h</option>
-                            <option value="mph">mph</option>
-                            <option value="ms">m/s</option>
+                            <option value="kmh">Kilometers per Hour (km/h)</option>
+                            <option value="mph">Miles per Hour (mph)</option>
+                            <option value="ms">Meters per Second (m/s)</option>
+                            <option value="knots">Knots (kn)</option>
                         </select>
                     </label>
                 </div>
@@ -2395,42 +2408,68 @@ ${JSON.stringify(device.status, null, 2)}
         }
 
         function openLocationSettings() {
-            showModal('Location Settings', `
+            showModal('Farm Location Settings', `
                 <div class="settings-section">
+                    <h4>🗺️ Location Setup</h4>
                     <div class="location-method">
                         <label class="radio-label">
                             <input type="radio" name="locationMethod" value="auto" checked>
-                            <span class="radio-text">📍 Use Device Location</span>
+                            <span class="radio-text">📍 Auto-detect Location</span>
                         </label>
                         <label class="radio-label">
-                            <input type="radio" name="locationMethod" value="manual">
-                            <span class="radio-text">📝 Enter Coordinates Manually</span>
+                            <input type="radio" name="locationMethod" value="coordinates">
+                            <span class="radio-text">📐 Enter GPS Coordinates</span>
                         </label>
                     </div>
                     
-                    <div class="manual-location" id="manualLocation" style="display: none;">
-                        <label class="settings-label">
-                            <span class="label-text">Latitude</span>
-                            <input type="number" class="settings-input" id="latitude" 
-                                   step="0.000001" placeholder="e.g., 40.7128">
-                        </label>
+                    <div class="coordinates-input" id="coordinatesInput" style="display: none;">
+                        <div class="coordinate-row">
+                            <label class="settings-label">
+                                <span class="label-text">Latitude</span>
+                                <input type="number" class="settings-input" id="latitude" 
+                                       step="0.000001" placeholder="40.7128" onchange="translateCoordinates()">
+                            </label>
+                            
+                            <label class="settings-label">
+                                <span class="label-text">Longitude</span>
+                                <input type="number" class="settings-input" id="longitude" 
+                                       step="0.000001" placeholder="-74.0060" onchange="translateCoordinates()">
+                            </label>
+                        </div>
                         
-                        <label class="settings-label">
-                            <span class="label-text">Longitude</span>
-                            <input type="number" class="settings-input" id="longitude" 
-                                   step="0.000001" placeholder="e.g., -74.0060">
-                        </label>
-                        
-                        <label class="settings-label">
-                            <span class="label-text">Location Name</span>
-                            <input type="text" class="settings-input" id="locationName" 
-                                   placeholder="e.g., My Farm">
-                        </label>
+                        <div class="location-lookup">
+                            <button type="button" class="lookup-btn" onclick="translateCoordinates()">🔍 Lookup Address</button>
+                        </div>
                     </div>
                     
-                    <div class="current-location" id="currentLocation">
-                        <h4>Current Location</h4>
-                        <p id="locationDisplay">Getting location...</p>
+                    <div class="location-display" id="locationDisplay">
+                        <h4>📍 Current Farm Location</h4>
+                        <div class="location-info">
+                            <div class="info-row">
+                                <span class="info-label">Address:</span>
+                                <span id="currentAddress">Loading...</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">City:</span>
+                                <span id="currentCity">--</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">State/Region:</span>
+                                <span id="currentState">--</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Coordinates:</span>
+                                <span id="currentCoords">--</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="timezone-info">
+                        <h4>🕐 Time Zone Information</h4>
+                        <div class="info-row">
+                            <span class="info-label">Time Zone:</span>
+                            <span id="currentTimezone">Auto-detecting...</span>
+                        </div>
                     </div>
                 </div>
             `, 'saveLocationSettings');
@@ -2471,31 +2510,92 @@ ${JSON.stringify(device.status, null, 2)}
         }
 
         function openOTASettings() {
-            showModal('OTA Updates', `
+            showModal('ESP32 OTA Manager', `
                 <div class="settings-section">
-                    <div class="ota-warning">
-                        <h4>⚠️ Important Notice</h4>
-                        <p>Over-The-Air updates are brick-proof. If an update fails, devices automatically revert to the previous working version.</p>
+                    <div class="ota-header">
+                        <h4>🚀 ESP32 Over-The-Air Updates</h4>
+                        <p class="ota-description">Remotely update your connected ESP32 devices. Updates are failsafe - devices automatically rollback on failure.</p>
                     </div>
                     
-                    <div class="device-ota-list" id="deviceOTAList">
-                        <h4>🔄 Available Devices for Update</h4>
-                        <div class="loading-spinner">Loading devices...</div>
+                    <div class="connected-esp32s" id="connectedESP32s">
+                        <h4>🔌 Connected ESP32 Devices</h4>
+                        <div class="esp32-grid">
+                            <div class="esp32-card">
+                                <div class="device-header">
+                                    <span class="device-name">🌱 Greenhouse Controller</span>
+                                    <span class="device-status online">Online</span>
+                                </div>
+                                <div class="device-info">
+                                    <div class="info-item">
+                                        <span>IP:</span> <span>192.168.1.100</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span>Firmware:</span> <span>v2.1.0</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span>Uptime:</span> <span>5d 12h</span>
+                                    </div>
+                                </div>
+                                <div class="device-actions">
+                                    <button class="ota-btn primary" onclick="startOTAUpdate('greenhouse')">📤 Update Firmware</button>
+                                    <button class="ota-btn secondary" onclick="restartDevice('greenhouse')">🔄 Restart</button>
+                                </div>
+                            </div>
+                            
+                            <div class="esp32-card">
+                                <div class="device-header">
+                                    <span class="device-name">🐔 Coop Monitor</span>
+                                    <span class="device-status offline">Offline</span>
+                                </div>
+                                <div class="device-info">
+                                    <div class="info-item">
+                                        <span>Last Seen:</span> <span>2h ago</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span>Firmware:</span> <span>v1.9.2</span>
+                                    </div>
+                                </div>
+                                <div class="device-actions">
+                                    <button class="ota-btn disabled" disabled>⏸️ Device Offline</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="firmware-upload" id="firmwareUpload">
+                        <h4>📁 Upload New Firmware</h4>
+                        <div class="upload-area">
+                            <input type="file" id="firmwareFile" accept=".bin" style="display: none;" onchange="handleFirmwareSelect(this)">
+                            <button class="upload-btn" onclick="document.getElementById('firmwareFile').click()">
+                                📂 Select .bin Firmware File
+                            </button>
+                            <div class="upload-info" id="uploadInfo"></div>
+                        </div>
                     </div>
                     
                     <div class="ota-logs" id="otaLogs">
                         <h4>📋 Update History</h4>
                         <div class="log-container">
-                            <div class="log-entry">
-                                <span class="log-time">2025-01-30 14:30</span>
+                            <div class="log-entry success">
+                                <span class="log-time">Jan 30, 15:42</span>
                                 <span class="log-device">Greenhouse ESP32</span>
-                                <span class="log-status success">✅ Update Successful (v2.1.0)</span>
+                                <span class="log-status">✅ Updated to v2.1.0</span>
+                            </div>
+                            <div class="log-entry failed">
+                                <span class="log-time">Jan 29, 09:15</span>
+                                <span class="log-device">Coop Monitor</span>
+                                <span class="log-status">⚠️ Update failed - Rolled back</span>
+                            </div>
+                            <div class="log-entry success">
+                                <span class="log-time">Jan 28, 14:30</span>
+                                <span class="log-device">Coop Monitor</span>
+                                <span class="log-status">✅ Updated to v1.9.2</span>
                             </div>
                         </div>
                     </div>
                 </div>
             `, null, true);
-            loadOTADevices();
+            loadESP32Devices();
         }
 
         function openAboutDialog() {
