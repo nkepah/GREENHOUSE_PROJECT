@@ -3434,36 +3434,21 @@ ${JSON.stringify(device.status, null, 2)}
         });
 
         function openSettings(type) {
-            try {
-                console.log('Opening settings:', type);
-                // Close the dropdown first
-                const dropdown = document.getElementById('settingsDropdown');
-                if (dropdown) {
-                    dropdown.classList.remove('show');
-                }
-                
-                switch(type) {
-                    case 'units':
-                        console.log('Calling openUnitsSettings...');
-                        openUnitsSettings();
-                        break;
-                    case 'location':
-                        console.log('Calling openLocationSettings...');
-                        openLocationSettings();
-                        break;
-                    case 'ota':
-                        console.log('Calling openOTASettings...');
-                        openOTASettings();
-                        break;
-                    case 'about':
-                        console.log('Calling openAboutDialog...');
-                        openAboutDialog();
-                        break;
-                    default:
-                        console.error('Unknown settings type:', type);
-                }
-            } catch (error) {
-                console.error('Error in openSettings:', error);
+            document.getElementById('settingsDropdown').classList.remove('show');
+            
+            switch(type) {
+                case 'units':
+                    openUnitsSettings();
+                    break;
+                case 'location':
+                    openLocationSettings();
+                    break;
+                case 'ota':
+                    openOTASettings();
+                    break;
+                case 'about':
+                    openAboutDialog();
+                    break;
             }
         }
                         console.error('Unknown settings type:', type);
