@@ -908,74 +908,39 @@
             }
             
             .settings-btn {
-                all: unset;
-                background: none !important;
+                background: rgba(255, 255, 255, 0.1);
                 color: white;
-                border: 0 !important;
-                border-radius: 0 !important;
+                border: 2px solid rgba(255, 255, 255, 0.4);
+                border-radius: 50%;
                 padding: 1rem;
+                width: 3.5rem;
+                height: 3.5rem;
                 font-size: 1.2rem;
                 font-weight: 800;
                 text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-                filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
-                outline: none !important;
-                box-shadow: none !important;
                 cursor: pointer;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                -webkit-appearance: none;
-                -moz-appearance: none;
-                appearance: none;
+                transition: all 0.3s ease;
             }
             
             .settings-btn:hover {
-                all: unset;
-                background: none !important;
-                color: white;
-                border: 0 !important;
-                padding: 1rem;
-                font-size: 1.2rem;
-                font-weight: 800;
-                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+                background: rgba(255, 255, 255, 0.2);
+                border-color: rgba(255, 255, 255, 0.6);
                 transform: scale(1.1);
-                filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.8));
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
+                box-shadow: 0 4px 16px rgba(255, 255, 255, 0.3);
             }
             
             .settings-btn:focus {
-                all: unset;
-                background: none !important;
-                color: white;
-                border: 0 !important;
-                padding: 1rem;
-                font-size: 1.2rem;
-                font-weight: 800;
-                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-                filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
+                background: rgba(255, 255, 255, 0.15);
+                border-color: rgba(255, 255, 255, 0.5);
+                outline: none;
             }
             
             .settings-btn:active {
-                all: unset;
-                background: none !important;
-                color: white;
-                border: 0 !important;
-                padding: 1rem;
-                font-size: 1.2rem;
-                font-weight: 800;
-                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-                filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
+                background: rgba(255, 255, 255, 0.1);
+                transform: scale(0.95);
             }
             
             .settings-text {
