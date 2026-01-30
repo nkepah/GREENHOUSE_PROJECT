@@ -320,6 +320,17 @@ app.get('/api/health', (req, res) => {
     });
 });
 
+// System status endpoint for settings
+app.get('/api/status', (req, res) => {
+    res.json({
+        status: 'online',
+        timestamp: Date.now(),
+        uptime: Math.floor(process.uptime()),
+        pi_ip: req.ip,
+        version: '2.1.0'
+    });
+});
+
 // =============================================================================
 // OTA LOGGING ENDPOINTS
 // =============================================================================
