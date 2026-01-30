@@ -3416,9 +3416,8 @@ ${JSON.stringify(device.status, null, 2)}
             const dropdown = document.getElementById('settingsDropdown');
             const settingsBtn = event.target.closest('.settings-btn');
             
-            if (dropdown && !settingsBtn && !dropdown.contains(event.target)) {
+            if (!settingsBtn && !dropdown.contains(event.target)) {
                 dropdown.classList.remove('show');
-                console.log('Settings dropdown closed by outside click');
             }
         });
 
