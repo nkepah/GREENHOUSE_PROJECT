@@ -3089,12 +3089,21 @@ ${JSON.stringify(device.status, null, 2)}
                     return;
                 }
                 
-                const currentCoords = document.getElementById('currentCoords');
-                if (currentCoords) {
-                    currentCoords.textContent = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-                }
+                // Update coordinate display elements
+                const results = {
+                    address: document.getElementById('resolvedAddress'),
+                    city: document.getElementById('resolvedCity'),
+                    state: document.getElementById('resolvedState'),
+                    country: document.getElementById('resolvedCountry'),
+                    timezone: document.getElementById('resolvedTimezone')
+                };
                 
-                // Use reverse geocoding API (OpenStreetMap Nominatim)
+                // Show loading state
+                Object.values(results).forEach(el => {
+                    if (el) el.textContent = 'Loading...';
+                });
+                
+                // Use OpenStreetMap Nominatim for reverse geocoding
                 const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`;
                 
                 fetch(url)
@@ -3105,36 +3114,32 @@ ${JSON.stringify(device.status, null, 2)}
                             const fullAddress = data.display_name || 'Address not found';
                             const city = addr.city || addr.town || addr.village || addr.municipality || 'Unknown';
                             const state = addr.state || addr.province || addr.region || 'Unknown';
+                            const country = addr.country || 'Unknown';
                             
-                            const currentAddress = document.getElementById('currentAddress');
-                            const currentCity = document.getElementById('currentCity');
-                            const currentState = document.getElementById('currentState');
+                            if (results.address) results.address.textContent = fullAddress;
+                            if (results.city) results.city.textContent = city;
+                            if (results.state) results.state.textContent = state;
+                            if (results.country) results.country.textContent = country;
                             
-                            if (currentAddress) currentAddress.textContent = fullAddress;
-                            if (currentCity) currentCity.textContent = city;
-                            if (currentState) currentState.textContent = state;
+                            // Calculate timezone
+                            const timezoneOffset = Math.round(lng / 15);
+                            const timezone = `UTC${timezoneOffset >= 0 ? '+' : ''}${timezoneOffset}`;
+                            if (results.timezone) results.timezone.textContent = timezone;
                             
-                            // Update timezone based on coordinates
-                            updateTimezone(lat, lng);
+                            showToast('✅ Location resolved successfully!');
                         } else {
-                            const currentAddress = document.getElementById('currentAddress');
-                            const currentCity = document.getElementById('currentCity');
-                            const currentState = document.getElementById('currentState');
-                            
-                            if (currentAddress) currentAddress.textContent = 'Address not found';
-                            if (currentCity) currentCity.textContent = 'Unknown';
-                            if (currentState) currentState.textContent = 'Unknown';
+                            Object.values(results).forEach(el => {
+                                if (el) el.textContent = 'Not found';
+                            });
+                            showToast('⚠️ Address not found for these coordinates', 'warning');
                         }
                     })
                     .catch(error => {
                         console.error('Geocoding error:', error);
-                        const currentAddress = document.getElementById('currentAddress');
-                        const currentCity = document.getElementById('currentCity');
-                        const currentState = document.getElementById('currentState');
-                        
-                        if (currentAddress) currentAddress.textContent = 'Geocoding service unavailable';
-                        if (currentCity) currentCity.textContent = '--';
-                        if (currentState) currentState.textContent = '--';
+                        Object.values(results).forEach(el => {
+                            if (el) el.textContent = 'Service unavailable';
+                        });
+                        showToast('❌ Geocoding service unavailable', 'error');
                     });
             } catch (error) {
                 console.error('Error in translateCoordinates:', error);
@@ -3213,21 +3218,36 @@ ${JSON.stringify(device.status, null, 2)}
                 });
         }
 
-        // ESP32 OTA Management Functions
-        function loadESP32Devices() {
-            // Simulate loading ESP32 devices
-            // In real implementation, this would fetch from /api/esp32/devices
-            console.log('Loading ESP32 devices for OTA management...');
+        // ESP32 Device Management Functions
+        function scanForDevices() {
+            const statusEl = document.getElementById('scanStatus');
+            if (statusEl) {
+                statusEl.textContent = 'Scanning...';
+            }
+            
+            showToast('🔍 Scanning for ESP32 devices...', 'info');
+            
+            // Simulate device scan
+            setTimeout(() => {
+                if (statusEl) {
+                    statusEl.textContent = `Last scan: ${new Date().toLocaleTimeString()}`;
+                }
+                showToast('✅ Device scan completed!', 'success');
+            }, 2000);
         }
         
-        function startOTAUpdate(deviceId) {
-            if (confirm(`🚀 Start OTA update for ${deviceId}? This will temporarily interrupt device operation.`)) {
-                showToast(`🔄 Starting OTA update for ${deviceId}...`, 'info');
+        function loadESP32DeviceList() {
+            // This would typically fetch from /api/esp32/devices
+            console.log('Loading ESP32 device list...');
+        }
+        
+        function updateFirmware(deviceId) {
+            if (confirm(`🚀 Start firmware update for ${deviceId}?\n\nThis will temporarily interrupt device operation but will automatically rollback on failure.`)) {
+                showToast(`📤 Starting firmware update for ${deviceId}...`, 'info');
                 
-                // Simulate OTA process
+                // Simulate OTA update process
                 setTimeout(() => {
-                    showToast(`✅ OTA update completed successfully for ${deviceId}!`, 'success');
-                    loadESP32Devices(); // Refresh device list
+                    showToast(`✅ Firmware update completed for ${deviceId}!`, 'success');
                 }, 3000);
             }
         }
@@ -3238,35 +3258,47 @@ ${JSON.stringify(device.status, null, 2)}
                 
                 setTimeout(() => {
                     showToast(`✅ ${deviceId} restarted successfully!`, 'success');
-                    loadESP32Devices();
                 }, 2000);
             }
         }
         
-        function handleFirmwareSelect(input) {
+        function showDeviceInfo(deviceId) {
+            showToast(`📊 Loading detailed information for ${deviceId}...`, 'info');
+            // This would show detailed device information
+        }
+        
+        function handleFirmwareFile(input) {
             const file = input.files[0];
-            if (file) {
-                const uploadInfo = document.getElementById('uploadInfo');
+            const infoEl = document.getElementById('firmwareInfo');
+            
+            if (file && infoEl) {
                 if (file.name.endsWith('.bin')) {
-                    uploadInfo.innerHTML = `
-                        <div class="file-selected">
-                            📁 <strong>Selected:</strong> ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)
-                            <button class="upload-firmware-btn" onclick="uploadFirmware('${file.name}')">🚀 Upload to Selected Device</button>
+                    infoEl.innerHTML = `
+                        <div class="firmware-file-info">
+                            <h5>✅ Firmware File Ready</h5>
+                            <p><strong>File:</strong> ${file.name}</p>
+                            <p><strong>Size:</strong> ${(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                            <p><strong>Modified:</strong> ${new Date(file.lastModified).toLocaleString()}</p>
+                            <div class="firmware-actions">
+                                <button class="action-btn primary" onclick="uploadToDevice()">
+                                    📤 Upload to Selected Device
+                                </button>
+                            </div>
                         </div>
                     `;
                 } else {
-                    uploadInfo.innerHTML = '<div class="error">❌ Please select a .bin firmware file</div>';
+                    infoEl.innerHTML = '<div class="error">❌ Please select a .bin firmware file</div>';
                 }
             }
         }
         
-        function uploadFirmware(filename) {
-            showToast(`📤 Uploading ${filename}...`, 'info');
+        function uploadToDevice() {
+            showToast('📤 Uploading firmware to device...', 'info');
             
             // Simulate firmware upload
             setTimeout(() => {
-                showToast(`✅ Firmware ${filename} uploaded successfully!`, 'success');
-            }, 2000);
+                showToast('✅ Firmware uploaded successfully!', 'success');
+            }, 2500);
         }
 
         function loadOTADevices() {
