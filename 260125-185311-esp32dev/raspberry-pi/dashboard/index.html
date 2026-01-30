@@ -2,2876 +2,415 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <title>Farm Hub - Organic Farm Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌾 Farm Hub - Unified Dashboard</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌾</text></svg>">
     <style>
-        /* Global Mobile Optimizations */
-        * {
-            -webkit-tap-highlight-color: transparent;
-            -webkit-touch-callout: none;
-        }
-        
-        html {
-            scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        body {
-            -webkit-text-size-adjust: 100%;
-            -ms-text-size-adjust: 100%;
-            touch-action: manipulation;
-        }
-
         :root {
-            --primary: #2d5a27;
-            --primary-light: #4a8c3f;
-            --secondary: #8b4513;
-            --accent: #f4a460;
-            --bg: #f5f5dc;
-            --card-bg: #ffffff;
-            --text: #333333;
-            --text-light: #666666;
-            --success: #28a745;
-            --warning: #ffc107;
-            --danger: #dc3545;
-            --shadow: 0 4px 6px rgba(0,0,0,0.1);
-            --accent-green: #00d9a5;
-            --accent-blue: #4f7cff;
-            --navbar-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-card: #21262d;
+            --bg-card-hover: #30363d;
+            --accent: #4ecca3;
+            --accent-blue: #58a6ff;
+            --accent-orange: #f39c12;
+            --accent-red: #f85149;
+            --accent-yellow: #d29922;
+            --text-primary: #f0f6fc;
+            --text-secondary: #8b949e;
+            --border: #30363d;
         }
-
+        
         * {
-            margin: 0;
-            padding: 0;
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
-
+        
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: linear-gradient(135deg, #e8f5e9 0%, #f5f5dc 50%, #fff8e1 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             min-height: 100vh;
-            color: var(--text);
-        }
-
-        /* Navigation Bar */
-        .navbar {
-            background: linear-gradient(90deg, var(--accent-green) 0%, var(--accent-blue) 100%);
-            color: white;
-            padding: 0;
-            box-shadow: var(--navbar-shadow);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .navbar-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 2rem;
-        }
-
-        .navbar-left {
-            display: flex;
-            align-items: center;
-        }
-
-        .navbar-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-        }
-
-        .navbar-right {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-        }
-
-        .navbar-brand {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            cursor: pointer;
-            text-decoration: none;
-            color: white;
-            font-weight: 700;
-            font-size: 1.3rem;
-            white-space: nowrap;
-        }
-
-        .navbar-brand:hover {
-            opacity: 0.9;
-        }
-
-        .navbar-icon {
-            font-size: 1.8rem;
-            animation: sway 3s ease-in-out infinite;
-        }
-
-        @keyframes sway {
-            0%, 100% { transform: rotate(-5deg); }
-            50% { transform: rotate(5deg); }
-        }
-
-        .settings-btn {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 12px;
-            padding: 0.8rem 1.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-weight: 600;
-            font-size: 1rem;
-            position: relative;
-        }
-
-        .settings-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            border-color: rgba(255, 255, 255, 0.5);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-
-        .settings-icon {
-            font-size: 1.2rem;
-        }
-
-        .settings-text {
-            font-size: 0.95rem;
-            font-weight: 600;
-        }
-
-        .status-time-container {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 0.5rem 1rem;
-        }
-
-        .time-display {
-            font-family: 'SF Mono', 'Monaco', 'Consolas', 'Roboto Mono', monospace;
-            text-align: right;
-            min-width: 100px;
-            white-space: nowrap;
-            line-height: 1.1;
-        }
-        
-        .time-main {
-            font-size: 0.95rem;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            margin-bottom: 1px;
-            color: white;
-        }
-        
-        .date-sub {
-            font-size: 0.6rem;
-            font-weight: 500;
-            opacity: 0.85;
-            letter-spacing: 0.3px;
-            color: rgba(255, 255, 255, 0.75);
-            text-transform: uppercase;
-        }
-
-        .status-indicator {
-            display: none;
-        }
-
-        .status-dot {
-            display: none;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.1); opacity: 0.8; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        /* Settings Dropdown - Desktop Only */
-        .settings-dropdown {
-            position: absolute;
-            top: calc(100% + 10px);
-            right: 0;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-            min-width: 280px;
-            padding: 0.5rem 0;
-            z-index: 2000;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        }
-
-        /* Desktop show state */
-        @media (min-width: 769px) {
-            .settings-dropdown.show {
-                opacity: 1;
-                visibility: visible;
-                transform: translateY(0);
-            }
-        }
-
-        .dropdown-section {
-            padding: 0.5rem 0;
-        }
-
-        .dropdown-section-title {
-            padding: 0.5rem 1rem;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            color: #6b7280;
-            letter-spacing: 0.05em;
-        }
-
-        .dropdown-item {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: none;
-            background: none;
-            text-align: left;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            font-size: 0.9rem;
-            color: #374151;
-            text-decoration: none;
-        }
-
-        .dropdown-item:hover {
-            background: #f3f4f6;
-            color: #111827;
-        }
-
-        .dropdown-item.active {
-            background: #dbeafe;
-            color: #1d4ed8;
-            font-weight: 600;
-        }
-
-        .dropdown-icon {
-            width: 1.25rem;
-            text-align: center;
-            font-size: 1rem;
-        }
-
-        /* Settings Button in Header */
-        .settings-btn {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            padding: 0.7rem 1.2rem;
-            background: rgba(255, 255, 255, 0.95);
-            color: var(--primary);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 25px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            backdrop-filter: blur(10px);
-        }
-
-        .settings-btn:hover {
-            background: white;
-            color: var(--primary);
-            border-color: rgba(45, 90, 39, 0.2);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-        }
-
-        /* Status Indicators */
-        .status-indicator {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            padding: 0.4rem;
-            background: rgba(40, 167, 69, 0.9);
-            border: 1px solid rgba(40, 167, 69, 0.3);
-            border-radius: 50%;
-            font-size: 0.8rem;
-            color: white;
-            font-weight: 600;
-            backdrop-filter: blur(10px);
-            width: 32px;
-            height: 32px;
-            justify-content: center;
-        }
-        
-        .status-indicator span {
-            display: none;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #4ade80;
-            animation: pulse-glow 2s infinite;
-        }
-
-        /* Settings Navigation Item */
-        .navbar-item {
-            position: relative;
-        }
-
-        @keyframes pulse-glow {
-            0%, 100% { opacity: 1; box-shadow: 0 0 8px rgba(40, 167, 69, 0.4); }
-            50% { opacity: 0.7; box-shadow: 0 0 12px rgba(40, 167, 69, 0.6); }
-        }
-
-        /* REMOVED - Duplicate settings dropdown CSS that conflicts with mobile */
-
-        .dropdown-header {
-            padding: 1rem 1.25rem 0.5rem;
-            border-bottom: 1px solid #f3f4f6;
-        }
-
-        .dropdown-title {
-            font-weight: 600;
-            color: var(--text);
-            font-size: 1.1rem;
-        }
-
-        .dropdown-subtitle {
-            color: var(--text-light);
-            font-size: 0.85rem;
-            margin-top: 0.25rem;
-        }
-
-        .dropdown-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem 1.25rem;
-            color: var(--text);
-            text-decoration: none;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border: none;
-            background: none;
-            width: 100%;
-            text-align: left;
-            font-size: 0.95rem;
-        }
-
-        .dropdown-item:hover {
-            background: #f8f9fa;
-            color: var(--primary);
-        }
-
-        .dropdown-item:last-child {
-            border-radius: 0 0 16px 16px;
-        }
-
-        .dropdown-icon {
-            font-size: 1.1rem;
-            width: 20px;
-            text-align: center;
-        }
-
-        .dropdown-divider {
-            height: 1px;
-            background: #f3f4f6;
-            margin: 0.5rem 0;
-        }
-
-        /* Modal System */
-        .modal-overlay {
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            bottom: 0 !important;
-            width: 100vw !important;
-            height: 100vh !important;
-            background: rgba(0, 0, 0, 0.8) !important;
-            backdrop-filter: blur(8px);
-            z-index: 999999 !important;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            padding: 2rem;
-        }
-
-        .modal-overlay.show {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 20px;
-            max-width: 600px;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
-            transform: scale(0.9) translateY(20px);
-            transition: all 0.3s ease;
-            width: 100%;
-        }
-
-        .modal-overlay.show .modal-content {
-            transform: scale(1) translateY(0);
-        }
-
-        .modal-header {
-            padding: 2rem 2rem 1rem;
-            border-bottom: 1px solid #f3f4f6;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-header h3 {
-            margin: 0;
-            color: var(--text);
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 2rem;
-            cursor: pointer;
-            color: #666;
-            padding: 0;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-        }
-
-        .close-btn:hover {
-            background: #f3f4f6;
-            color: #333;
-        }
-
-        .modal-body {
-            padding: 1rem 2rem 2rem;
-        }
-
-        .modal-footer {
-            padding: 1rem 2rem 2rem;
-            display: flex;
-            gap: 1rem;
-            justify-content: flex-end;
-            border-top: 1px solid #f3f4f6;
-            margin-top: 1rem;
-        }
-
-        .btn-primary, .btn-secondary {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 0.95rem;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(45, 90, 39, 0.3);
-        }
-
-        .btn-secondary {
-            background: #f8f9fa;
-            color: var(--text);
-            border: 1px solid #e9ecef;
-        }
-
-        .btn-secondary:hover {
-            background: #e9ecef;
-        }
-
-        /* Settings Form Elements */
-        .settings-section {
-            margin-bottom: 2rem;
-            padding: 1.5rem;
-            background: #f9fafb;
-            border-radius: 16px;
-            border: 1px solid #e5e7eb;
-        }
-        
-        .settings-section h4 {
-            color: #1f2937;
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-bottom: 1.25rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .settings-label {
-            display: block;
-            margin-bottom: 1.25rem;
-        }
-
-        .label-text {
-            display: block;
-            font-weight: 500;
-            color: #374151;
-            margin-bottom: 0.75rem;
-            font-size: 0.95rem;
-        }
-
-        .settings-select, .settings-input {
-            width: 100%;
-            padding: 0.875rem;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            font-size: 1rem;
-            transition: all 0.2s ease;
-            background: white;
-            min-height: 44px;
-        }
-
-        .settings-select:focus, .settings-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(45, 90, 39, 0.1);
-        }
-
-        .radio-label {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            margin-bottom: 0.75rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            background: white;
-            min-height: 56px;
-        }
-
-        .radio-label:hover {
-            border-color: var(--primary-light);
-            background: rgba(45, 90, 39, 0.05);
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .radio-label input[type="radio"] {
-            margin: 0;
-            width: 18px;
-            height: 18px;
-            accent-color: var(--primary);
-        }
-
-        .radio-label input[type="radio"]:checked + .radio-text {
-            color: var(--primary);
-            font-weight: 600;
-        }
-        
-        .radio-text {
-            flex: 1;
-            font-size: 1rem;
-            color: #374151;
-        }
-
-        .manual-location {
-            background: #f1f5f9;
-            padding: 1.5rem;
-            border-radius: 16px;
-            margin-top: 1rem;
-            border: 1px solid #e2e8f0;
-        }
-        
-        .location-input-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-        }
-        
-        .device-card {
-            background: white;
-            border: 2px solid #e5e7eb;
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            transition: all 0.2s ease;
-        }
-        
-        .device-card:hover {
-            border-color: var(--primary-light);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        
-        .device-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1rem;
-        }
-        
-        .device-name {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #1f2937;
-            margin-bottom: 0.25rem;
-        }
-        
-        .device-status {
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        
-        .device-actions {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-            margin-top: 1rem;
-        }
-        
-        .device-actions button {
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            min-height: 40px;
-        }
-
-        .current-location {
-            background: linear-gradient(135deg, rgba(45, 90, 39, 0.1), rgba(76, 175, 80, 0.1));
-            padding: 1.5rem;
-            border-radius: 12px;
-            margin-top: 1rem;
-        }
-
-        .current-location h4 {
-            margin: 0 0 0.75rem 0;
-            color: var(--primary);
-        }
-
-        /* Network Settings */
-        .network-status, .network-info, .network-tools {
-            margin-bottom: 2rem;
-        }
-
-        .status-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .status-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.75rem;
-            background: #f8f9fa;
-            border-radius: 8px;
-        }
-
-        .status-online {
-            color: #28a745;
-            font-weight: 600;
-        }
-
-        .status-offline {
-            color: #dc3545;
-            font-weight: 600;
-        }
-
-        .device-network-item, .device-ota-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-            background: #f8f9fa;
-            border-radius: 10px;
-            margin-bottom: 0.75rem;
-        }
-
-        .device-ip {
-            font-family: 'Courier New', monospace;
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        .tool-btn {
-            padding: 0.75rem 1.25rem;
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            margin-right: 0.75rem;
-            margin-bottom: 0.75rem;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
-
-        .tool-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
-        }
-
-        /* OTA Settings */
-        .ota-warning {
-            background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 152, 0, 0.1));
-            padding: 1.5rem;
-            border-radius: 12px;
-            border-left: 4px solid #ffc107;
-            margin-bottom: 2rem;
-        }
-
-        .ota-device-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1.25rem;
-            background: #f8f9fa;
-            border-radius: 12px;
-            margin-bottom: 1rem;
-        }
-
-        .device-version {
-            color: #666;
-            font-size: 0.9rem;
-            margin-left: 0.75rem;
-        }
-
-        .device-status-ota {
-            margin-left: 0.75rem;
-            font-size: 0.85rem;
-        }
-
-        .ota-btn {
-            padding: 0.75rem 1.5rem;
-            background: linear-gradient(135deg, #28a745, #20c997);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s ease;
-        }
-
-        .ota-btn:hover:not(.disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
-        }
-
-        .ota-btn.disabled {
-            background: #6c757d;
-            cursor: not-allowed;
-            opacity: 0.6;
-        }
-
-        .ota-logs {
-            margin-top: 2rem;
-        }
-
-        .log-container {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 1rem;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-
-        .log-entry {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .log-entry:last-child {
-            border-bottom: none;
-        }
-
-        .log-time {
-            font-size: 0.85rem;
-            color: #666;
-            min-width: 120px;
-        }
-
-        .log-device {
-            font-weight: 600;
-            min-width: 150px;
-        }
-
-        .log-status.success {
-            color: #28a745;
-        }
-
-        /* About Section */
-        .about-section {
-            text-align: center;
-        }
-
-        .about-logo {
-            margin-bottom: 2rem;
-        }
-
-        .about-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            display: block;
-        }
-
-        .about-logo h2 {
-            margin: 0.5rem 0;
-            color: var(--primary);
-        }
-
-        .version {
-            color: #666;
-            font-style: italic;
-        }
-
-        .about-info {
-            text-align: left;
-        }
-
-        .info-item {
-            margin-bottom: 1.5rem;
-        }
-
-        .info-item strong {
-            color: var(--primary);
-        }
-
-        .info-item ul {
-            margin: 0.5rem 0;
-            padding-left: 1.5rem;
-        }
-
-        .info-item li {
-            margin-bottom: 0.25rem;
-        }
-
-        /* Toast Notifications */
-        .toast {
-            position: fixed;
-            top: 100px;
-            right: 2rem;
-            padding: 1rem 1.5rem;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-            border-left: 4px solid #28a745;
-            z-index: 3000;
-            transform: translateX(400px);
-            opacity: 0;
-            transition: all 0.3s ease;
-            font-weight: 500;
-            min-width: 250px;
-        }
-
-        .toast.show {
-            transform: translateX(0);
-            opacity: 1;
-        }
-
-        .toast.toast-warning {
-            border-left-color: #ffc107;
-        }
-
-        .toast.toast-error {
-            border-left-color: #dc3545;
-        }
-
-        .toast.toast-info {
-            border-left-color: #17a2b8;
-        }
-
-        /* Location Settings Styles */
-        .coordinate-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-        
-        .location-lookup {
-            text-align: center;
-            margin: 1rem 0;
-        }
-        
-        .lookup-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s ease;
-        }
-        
-        .lookup-btn:hover {
-            background: var(--primary-dark);
-            transform: translateY(-1px);
-        }
-        
-        .location-display {
-            background: linear-gradient(135deg, rgba(45, 90, 39, 0.1), rgba(76, 175, 80, 0.1));
-            padding: 1.5rem;
-            border-radius: 12px;
-            margin: 1rem 0;
-        }
-        
-        .location-info, .timezone-info {
-            margin-top: 1rem;
-        }
-        
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid rgba(0,0,0,0.1);
-        }
-        
-        .info-row:last-child {
-            border-bottom: none;
-        }
-        
-        .info-label {
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        /* ESP32 OTA Styles */
-        .esp32-grid {
-            display: grid;
-            gap: 1rem;
-            margin: 1rem 0;
-        }
-        
-        .esp32-card {
-            border: 2px solid #e9ecef;
-            border-radius: 12px;
-            padding: 1rem;
-            transition: all 0.2s ease;
-        }
-        
-        .esp32-card:hover {
-            border-color: var(--primary-light);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        
-        .device-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-        
-        .device-name {
-            font-weight: 700;
-            font-size: 1.1rem;
-        }
-        
-        .device-status {
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-        
-        .device-status.online {
-            background: #d4edda;
-            color: #155724;
-        }
-        
-        .device-status.offline {
-            background: #f8d7da;
-            color: #721c24;
-        }
-        
-        .device-info {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .info-item {
-            display: flex;
-            flex-direction: column;
-            gap: 0.25rem;
-        }
-        
-        .device-actions {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-        
-        .ota-btn {
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.2s ease;
-        }
-        
-        .ota-btn.primary {
-            background: var(--primary);
-            color: white;
-        }
-        
-        .ota-btn.primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-1px);
-        }
-        
-        .ota-btn.secondary {
-            background: #6c757d;
-            color: white;
-        }
-        
-        .ota-btn.secondary:hover {
-            background: #545b62;
-            transform: translateY(-1px);
-        }
-        
-        .ota-btn.disabled {
-            background: #e9ecef;
-            color: #6c757d;
-            cursor: not-allowed;
-        }
-        
-        .upload-area {
-            border: 2px dashed #dee2e6;
-            border-radius: 12px;
-            padding: 2rem;
-            text-align: center;
-            margin: 1rem 0;
-            transition: all 0.2s ease;
-        }
-        
-        .upload-area:hover {
-            border-color: var(--primary-light);
-            background: rgba(45, 90, 39, 0.05);
-        }
-        
-        .upload-btn {
-            background: var(--primary-light);
-            color: white;
-            border: none;
-            padding: 1rem 2rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 1rem;
-            transition: all 0.2s ease;
-        }
-        
-        .upload-btn:hover {
-            background: var(--primary);
-            transform: translateY(-1px);
-        }
-        
-        .file-selected {
-            background: #d4edda;
-            color: #155724;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-top: 1rem;
-        }
-        
-        .upload-firmware-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            margin-top: 0.5rem;
-        }
-        
-        .log-container {
-            max-height: 200px;
-            overflow-y: auto;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            padding: 0.5rem;
-        }
-        
-        .log-entry {
-            display: grid;
-            grid-template-columns: auto 1fr auto;
-            gap: 1rem;
-            padding: 0.5rem;
-            border-bottom: 1px solid #f1f3f4;
-            font-size: 0.9rem;
-        }
-        
-        .log-entry:last-child {
-            border-bottom: none;
-        }
-        
-        .log-entry.success .log-status {
-            color: #28a745;
-        }
-        
-        .log-entry.failed .log-status {
-            color: #dc3545;
-        }
-        
-        .log-time {
-            font-weight: 600;
-            color: #6c757d;
-        }
-
-        /* New Settings Interface Styles */
-        .settings-description {
-            color: #6c757d;
-            font-size: 0.9rem;
-            margin-bottom: 1.5rem;
             line-height: 1.5;
         }
-
-        .coordinate-input-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .coordinate-actions {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin: 1.5rem 0;
-        }
-
-        .coord-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s ease;
-        }
-
-        .coord-btn:hover {
-            background: var(--primary-dark);
-            transform: translateY(-1px);
-        }
-
-        .coord-btn.secondary {
-            background: #6c757d;
-        }
-
-        .coord-btn.secondary:hover {
-            background: #545b62;
-        }
-
-        .location-results {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-top: 1.5rem;
-        }
-
-        .location-grid {
-            display: grid;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-
-        .location-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid #dee2e6;
-        }
-
-        .location-item:last-child {
-            border-bottom: none;
-        }
-
-        .location-label {
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        .location-value {
-            color: var(--text);
-            font-family: monospace;
-        }
-
-        /* ESP32 Device Management Styles */
-        .device-scan-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            padding: 1rem;
-            background: #f8f9fa;
-            border-radius: 8px;
-        }
-
-        .scan-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s ease;
-        }
-
-        .scan-btn:hover {
-            background: var(--primary-dark);
-            transform: translateY(-1px);
-        }
-
-        .scan-status {
-            color: #6c757d;
-            font-size: 0.9rem;
-        }
-
-        .esp32-device-grid {
-            display: grid;
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .esp32-device-card {
-            border: 2px solid #e9ecef;
-            border-radius: 12px;
-            padding: 1.5rem;
-            transition: all 0.2s ease;
-        }
-
-        .esp32-device-card.online {
-            border-color: #28a745;
-            background: linear-gradient(135deg, rgba(40, 167, 69, 0.05), rgba(255, 255, 255, 1));
-        }
-
-        .esp32-device-card.offline {
-            border-color: #dc3545;
-            background: linear-gradient(135deg, rgba(220, 53, 69, 0.05), rgba(255, 255, 255, 1));
-        }
-
-        .device-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1rem;
-        }
-
-        .device-info h4 {
-            margin: 0 0 0.25rem 0;
-            color: var(--text-dark);
-        }
-
-        .device-ip {
-            font-family: monospace;
-            color: #6c757d;
-            font-size: 0.9rem;
-        }
-
-        .device-status {
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .device-status.online {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .device-status.offline {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .device-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-            padding: 1rem;
-            background: rgba(255, 255, 255, 0.5);
-            border-radius: 8px;
-        }
-
-        .detail-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.9rem;
-        }
-
-        .device-actions {
-            display: flex;
-            gap: 0.75rem;
-            flex-wrap: wrap;
-        }
-
-        .action-btn {
-            padding: 0.6rem 1.2rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.85rem;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .action-btn.primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .action-btn.primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-1px);
-        }
-
-        .action-btn.secondary {
-            background: #6c757d;
-            color: white;
-        }
-
-        .action-btn.secondary:hover {
-            background: #545b62;
-        }
-
-        .action-btn.info {
-            background: #17a2b8;
-            color: white;
-        }
-
-        .action-btn.info:hover {
-            background: #138496;
-        }
-
-        .action-btn.disabled {
-            background: #e9ecef;
-            color: #6c757d;
-            cursor: not-allowed;
-        }
-
-        .firmware-management {
-            margin: 2rem 0;
-            padding: 1.5rem;
-            border: 1px solid #dee2e6;
-            border-radius: 12px;
-        }
-
-        .file-drop-area {
-            border: 2px dashed #dee2e6;
-            border-radius: 12px;
-            padding: 3rem 2rem;
-            text-align: center;
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-
-        .file-drop-area:hover {
-            border-color: var(--primary);
-            background: rgba(45, 90, 39, 0.05);
-        }
-
-        .drop-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .drop-icon {
-            font-size: 3rem;
-            color: #6c757d;
-        }
-
-        .select-file-btn {
-            background: var(--primary-light);
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s ease;
-        }
-
-        .select-file-btn:hover {
-            background: var(--primary);
-        }
-
-        .firmware-file-info {
-            background: #d4edda;
-            border: 1px solid #c3e6cb;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-top: 1rem;
-        }
-
-        .firmware-file-info h5 {
-            margin: 0 0 0.5rem 0;
-            color: #155724;
-        }
-
-        .firmware-actions {
-            margin-top: 1rem;
-        }
-
-        .ota-history {
-            margin-top: 2rem;
-        }
-
-        .history-list {
-            display: grid;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .history-item {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem;
-            border-radius: 8px;
-            background: #f8f9fa;
-        }
-
-        .history-item.success {
-            border-left: 4px solid #28a745;
-        }
-
-        .history-item.failed {
-            border-left: 4px solid #dc3545;
-        }
-
-        .history-icon {
-            font-size: 1.25rem;
-        }
-
-        .history-details {
-            flex: 1;
-        }
-
-        .history-title {
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        .history-time {
-            font-size: 0.85rem;
-            color: #6c757d;
-            margin-top: 0.25rem;
-        }
-
-        .text-warning {
-            color: #856404;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            /* Mobile Navbar - Ultra Compact Design */
-            .navbar-content {
-                padding: 0.6rem 0.8rem 0.4rem 0.8rem;
-                gap: 0.5rem;
-                flex-direction: column;
-                align-items: flex-start;
-                background: linear-gradient(135deg, 
-                    rgba(255, 255, 255, 0.1) 0%, 
-                    rgba(255, 255, 255, 0.05) 100%);
-                backdrop-filter: blur(20px);
-                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            }
-            
-            /* Mobile Modal Improvements */
-            .modal-overlay {
-                padding: 0 !important;
-                align-items: flex-start !important;
-            }
-            
-            .modal-content {
-                width: 100% !important;
-                max-width: 100% !important;
-                height: 100vh !important;
-                max-height: 100vh !important;
-                border-radius: 0 !important;
-                margin: 0 !important;
-                overflow-y: auto !important;
-            }
-            
-            .modal-header {
-                position: sticky;
-                top: 0;
-                background: white;
-                z-index: 10;
-                padding: 1rem 1.5rem;
-                border-bottom: 1px solid #e5e7eb;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            }
-            
-            .modal-header h3 {
-                font-size: 1.25rem;
-                margin: 0;
-                color: #1f2937;
-            }
-            
-            .close-btn {
-                position: absolute !important;
-                right: 1rem !important;
-                top: 50% !important;
-                transform: translateY(-50%) !important;
-                width: 32px !important;
-                height: 32px !important;
-                border-radius: 50% !important;
-                background: #f3f4f6 !important;
-                border: none !important;
-                font-size: 18px !important;
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                cursor: pointer !important;
-            }
-            
-            .modal-body {
-                padding: 1.5rem !important;
-                padding-bottom: 6rem !important;
-            }
-            
-            .modal-footer {
-                position: fixed !important;
-                bottom: 0 !important;
-                left: 0 !important;
-                right: 0 !important;
-                background: white !important;
-                padding: 1rem 1.5rem !important;
-                border-top: 1px solid #e5e7eb !important;
-                box-shadow: 0 -2px 8px rgba(0,0,0,0.1) !important;
-                gap: 0.75rem !important;
-                display: flex !important;
-            }
-            
-            .btn-primary, .btn-secondary {
-                flex: 1 !important;
-                padding: 0.875rem 1rem !important;
-                font-size: 1rem !important;
-                border-radius: 10px !important;
-                font-weight: 600 !important;
-                min-height: 48px !important;
-                border: none !important;
-                cursor: pointer !important;
-                transition: all 0.2s ease !important;
-            }
-            
-            .btn-primary {
-                background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
-                color: white !important;
-            }
-            
-            .btn-secondary {
-                background: #f3f4f6 !important;
-                color: #374151 !important;
-            }
-            
-            /* Mobile Modal Improvements */
-            .modal-overlay {
-                padding: 0 !important;
-                align-items: flex-start !important;
-            }
-            
-            .modal-content {
-                width: 100% !important;
-                max-width: 100% !important;
-                height: 100vh !important;
-                max-height: 100vh !important;
-                border-radius: 0 !important;
-                margin: 0 !important;
-                overflow-y: auto !important;
-            }
-            
-            .modal-header {
-                position: sticky;
-                top: 0;
-                background: white;
-                z-index: 10;
-                padding: 1rem 1.5rem;
-                border-bottom: 1px solid #e5e7eb;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            }
-            
-            .modal-header h3 {
-                font-size: 1.25rem;
-                margin: 0;
-                color: #1f2937;
-            }
-            
-            .close-btn {
-                position: absolute !important;
-                right: 1rem !important;
-                top: 50% !important;
-                transform: translateY(-50%) !important;
-                width: 32px !important;
-                height: 32px !important;
-                border-radius: 50% !important;
-                background: #f3f4f6 !important;
-                border: none !important;
-                font-size: 18px !important;
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                cursor: pointer !important;
-            }
-            
-            .modal-body {
-                padding: 1.5rem !important;
-                padding-bottom: 6rem !important;
-            }
-            
-            .modal-footer {
-                position: fixed !important;
-                bottom: 0 !important;
-                left: 0 !important;
-                right: 0 !important;
-                background: white !important;
-                padding: 1rem 1.5rem !important;
-                border-top: 1px solid #e5e7eb !important;
-                box-shadow: 0 -2px 8px rgba(0,0,0,0.1) !important;
-                gap: 0.75rem !important;
-                display: flex !important;
-            }
-            
-            .btn-primary, .btn-secondary {
-                flex: 1 !important;
-                padding: 0.875rem 1rem !important;
-                font-size: 1rem !important;
-                border-radius: 10px !important;
-                font-weight: 600 !important;
-                min-height: 48px !important;
-                border: none !important;
-                cursor: pointer !important;
-                transition: all 0.2s ease !important;
-            }
-            
-            .btn-primary {
-                background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
-                color: white !important;
-            }
-            
-            .btn-secondary {
-                background: #f3f4f6 !important;
-                color: #374151 !important;
-            }
-            
-            .navbar-top {
-                width: 100%;
-                display: flex;
-                justify-content: space-between;
-                align-items: flex-start;
-            }
-            
-            .navbar-right {
-                gap: 0;
-                justify-content: flex-start;
-                width: 100%;
-                align-self: flex-start;
-                margin-top: 0.3rem;
-                padding-left: 0.2rem;
-            }
-            
-            .navbar-brand {
-                font-size: 1.3rem;
-                font-weight: 800;
-                text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-                letter-spacing: -0.02em;
-                line-height: 1.2;
-            }
-            
-            .navbar-icon {
-                font-size: 1.8rem;
-                filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-                animation: gentleSway 4s ease-in-out infinite;
-            }
-            
-            @keyframes gentleSway {
-                0%, 100% { transform: rotate(-3deg); }
-                50% { transform: rotate(3deg); }
-            }
-            
-            .status-time-container {
-                padding: 0;
-                font-size: 1rem;
-                justify-content: flex-start;
-                align-items: flex-start;
-            }
-            
-            .time-display {
-                min-width: auto;
-                text-align: left;
-                line-height: 1.3;
-                padding: 0.6rem 0.8rem;
-                background: rgba(255, 255, 255, 0.1);
-                border-radius: 12px;
-                backdrop-filter: blur(10px);
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            }
-            
-            .time-main {
-                font-size: 1.5rem;
-                font-weight: 800;
-                display: block;
-                margin-bottom: 0.3rem;
-                color: white;
-                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-                letter-spacing: 0.02em;
-                font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
-            }
-            
-            .date-sub {
-                font-size: 0.85rem;
-                display: block;
-                opacity: 0.9;
-                color: rgba(255, 255, 255, 0.95);
-                font-weight: 600;
-                text-transform: uppercase;
-                letter-spacing: 1px;
-                font-family: 'SF Pro Text', -apple-system, sans-serif;
-            }
-            
-            .settings-btn {
-                background: rgba(255, 255, 255, 0.15);
-                color: white;
-                border: none;
-                border-radius: 16px;
-                padding: 0;
-                width: 2.5rem;
-                height: 2.5rem;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-                position: relative;
-                backdrop-filter: blur(10px);
-                box-shadow: 
-                    0 4px 12px rgba(0, 0, 0, 0.15),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            }
-            
-            .settings-btn:hover {
-                background: rgba(255, 255, 255, 0.25);
-                transform: translateY(-2px) scale(1.05);
-                box-shadow: 
-                    0 8px 20px rgba(0, 0, 0, 0.2),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-            }
-            
-            .settings-btn:focus {
-                background: rgba(255, 255, 255, 0.2);
-                outline: none;
-            }
-            
-            .settings-btn:active {
-                background: rgba(255, 255, 255, 0.1);
-                transform: translateY(0) scale(0.98);
-            }
-            
-            .settings-text {
-                display: none !important;
-            }
-            
-            .settings-icon {
-                display: none !important;
-            }
-            
-            .settings-btn::before {
-                content: '';
-                position: absolute;
-                width: 16px;
-                height: 2px;
-                background: white;
-                box-shadow: 
-                    0 -5px 0 white,
-                    0 5px 0 white;
-                border-radius: 1px;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                transition: all 0.3s ease;
-            }
-            
-            .settings-btn:hover::before {
-                width: 18px;
-                box-shadow: 
-                    0 -6px 0 white,
-                    0 6px 0 white;
-            }
-            
-            .status-time-container {
-                padding: 0.4rem 0.8rem;
-                font-size: 0.8rem;
-            }
-            
-            .time-display {
-                min-width: auto;
-            }
-            
-            .time-main {
-                font-size: 0.85rem;
-            }
-            
-            .date-sub {
-                font-size: 0.6rem;
-            }
-            
-            /* Settings Dropdown Mobile - FIXED */
-            .settings-dropdown {
-                position: fixed !important;
-                bottom: 0 !important;
-                left: 0 !important;
-                right: 0 !important;
-                width: 100% !important;
-                height: auto !important;
-                max-height: 80vh !important;
-                background: white !important;
-                border-radius: 20px 20px 0 0 !important;
-                box-shadow: 0 -4px 20px rgba(0,0,0,0.15) !important;
-                z-index: 99999 !important;
-                overflow-y: auto !important;
-                margin: 0 !important;
-                padding: 1rem 0 !important;
-                
-                /* Hidden by default */
-                transform: translateY(100%) !important;
-                opacity: 0 !important;
-                visibility: hidden !important;
-                transition: all 0.3s ease !important;
-            }
-            
-            .settings-dropdown.show {
-                transform: translateY(0) !important;
-                opacity: 1 !important;
-                visibility: visible !important;
-                display: block !important;
-            }
-            
-            .dropdown-header {
-                padding: 1rem 1.5rem;
-                border-bottom: 1px solid #e5e7eb;
-                margin-bottom: 1rem;
-            }
-            
-            .dropdown-item {
-                padding: 1.25rem 1.5rem !important;
-                font-size: 1rem !important;
-                border-bottom: 1px solid #f3f4f6 !important;
-                cursor: pointer !important;
-                transition: background-color 0.2s ease !important;
-                min-height: 56px !important;
-                display: flex !important;
-                align-items: center !important;
-                gap: 0.75rem !important;
-            }
-            
-            .dropdown-item:hover {
-                background: #f8fafc !important;
-            }
-            
-            .dropdown-item:active {
-                background: #e2e8f0 !important;
-            }
-            
-            .dropdown-section {
-                padding: 1rem 0;
-            }
-            
-            .dropdown-section-title {
-                padding: 0.75rem 1.5rem;
-            }
-            
-            .settings-btn {
-                padding: 0.8rem 1.2rem;
-                font-size: 0.9rem;
-                min-height: 44px;
-                border-radius: 22px;
-                background: rgba(255, 255, 255, 0.2);
-                border: 1px solid rgba(255, 255, 255, 0.3);
-            }
-            
-            .settings-btn:hover {
-                background: rgba(255, 255, 255, 0.25);
-                transform: translateY(-1px);
-            }
-            
-            .status-indicator {
-                width: 36px;
-                height: 36px;
-                padding: 0.5rem;
-                background: rgba(40, 167, 69, 0.2);
-                border: 2px solid rgba(40, 167, 69, 0.4);
-            }
-            
-            .status-dot {
-                width: 8px;
-                height: 8px;
-            }
-            
-            /* REMOVED - Second duplicate settings dropdown CSS that conflicts */
-            
-            /* Mobile Settings Form Improvements */
-            .settings-section {
-                margin-bottom: 2rem;
-                padding-bottom: 1.5rem;
-                border-bottom: 1px solid #f3f4f6;
-            }
-            
-            .settings-section:last-child {
-                border-bottom: none;
-                margin-bottom: 0;
-            }
-            
-            .settings-section h4 {
-                font-size: 1.1rem;
-                color: #1f2937;
-                margin-bottom: 1.25rem;
-                font-weight: 700;
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-            }
-            
-            .settings-label {
-                margin-bottom: 1.5rem;
-            }
-            
-            .label-text {
-                font-size: 0.95rem;
-                color: #374151;
-                margin-bottom: 0.75rem;
-                font-weight: 500;
-            }
-            
-            .settings-select, .settings-input {
-                padding: 1rem;
-                font-size: 1rem;
-                border: 2px solid #e5e7eb;
-                border-radius: 12px;
-                background: #f9fafb;
-                min-height: 48px;
-                -webkit-appearance: none;
-                appearance: none;
-                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-                background-position: right 1rem center;
-                background-repeat: no-repeat;
-                background-size: 1rem;
-                padding-right: 3rem;
-            }
-            
-            .settings-input {
-                background-image: none;
-                padding-right: 1rem;
-                font-size: 16px; /* Prevent iOS zoom */
-            }
-            
-            .radio-label {
-                padding: 1rem;
-                border-radius: 12px;
-                margin-bottom: 0.75rem;
-                font-size: 1rem;
-                min-height: 56px;
-                display: flex;
-                align-items: center;
-                background: white;
-                border: 2px solid #e5e7eb;
-            }
-            
-            .radio-label input[type="radio"] {
-                width: 20px;
-                height: 20px;
-                margin-right: 0.75rem;
-            }
-            
-            /* Additional mobile optimizations */
-            * {
-                -webkit-tap-highlight-color: rgba(0,0,0,0.1);
-            }
-            
-            button, .radio-label, .settings-select, .settings-input {
-                -webkit-tap-highlight-color: rgba(79, 70, 229, 0.2);
-            }
-            
-            .modal-body, .settings-dropdown {
-                -webkit-overflow-scrolling: touch;
-                overscroll-behavior: contain;
-            }
-            
-            /* Mobile Settings Form Improvements */
-            .settings-section {
-                margin-bottom: 2rem;
-                padding-bottom: 1.5rem;
-                border-bottom: 1px solid #f3f4f6;
-            }
-            
-            .settings-section:last-child {
-                border-bottom: none;
-                margin-bottom: 0;
-            }
-            
-            .settings-section h4 {
-                font-size: 1.1rem;
-                color: #1f2937;
-                margin-bottom: 1.25rem;
-                font-weight: 700;
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-            }
-            
-            .settings-label {
-                margin-bottom: 1.5rem;
-            }
-            
-            .label-text {
-                font-size: 0.95rem;
-                color: #374151;
-                margin-bottom: 0.75rem;
-                font-weight: 500;
-            }
-            
-            .settings-select, .settings-input {
-                padding: 1rem;
-                font-size: 1rem;
-                border: 2px solid #e5e7eb;
-                border-radius: 12px;
-                background: #f9fafb;
-                min-height: 48px;
-                -webkit-appearance: none;
-                appearance: none;
-                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-                background-position: right 1rem center;
-                background-repeat: no-repeat;
-                background-size: 1rem;
-                padding-right: 3rem;
-            }
-            
-            .settings-input {
-                background-image: none;
-                padding-right: 1rem;
-            }
-            
-            .radio-label {
-                padding: 1rem;
-                border-radius: 12px;
-                margin-bottom: 0.75rem;
-                font-size: 1rem;
-                min-height: 56px;
-                display: flex;
-                align-items: center;
-            }
-            
-            .radio-label input[type="radio"] {
-                width: 20px;
-                height: 20px;
-                margin-right: 0.75rem;
-            }
-            
-            .manual-location {
-                padding: 1.25rem;
-                border-radius: 15px;
-                margin-top: 1rem;
-            }
-            
-            .location-input-group {
-                display: flex;
-                gap: 0.75rem;
-                margin-bottom: 1rem;
-            }
-            
-            .location-input-group .settings-input {
-                flex: 1;
-            }
-            
-            .device-card {
-                padding: 1.25rem;
-                border-radius: 15px;
-                margin-bottom: 1rem;
-            }
-            
-            .device-actions {
-                gap: 0.5rem;
-                flex-wrap: wrap;
-            }
-            
-            .device-actions button {
-                flex: 1;
-                min-width: 120px;
-                padding: 0.75rem 1rem;
-                font-size: 0.9rem;
-                border-radius: 10px;
-                min-height: 44px;
-            }
-        }
-
+        
         /* Header */
-        .header {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-            color: white;
-            padding: 1.5rem 2rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
-
+        
         .header-content {
             max-width: 1400px;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
         }
-
+        
         .logo {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 12px;
         }
-
+        
         .logo-icon {
-            font-size: 2.5rem;
-            animation: sway 3s ease-in-out infinite;
+            font-size: 2rem;
         }
-
-        @keyframes sway {
-            0%, 100% { transform: rotate(-5deg); }
-            50% { transform: rotate(5deg); }
-        }
-
+        
         .logo h1 {
-            font-size: 1.8rem;
-            font-weight: 700;
-        }
-
-        .logo-tagline {
-            font-size: 0.85rem;
-            opacity: 0.9;
-            margin-top: 0.25rem;
-        }
-
-        .header-info {
-            display: flex;
-            gap: 2rem;
-            align-items: center;
-        }
-
-        .weather-mini {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: rgba(255,255,255,0.15);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-        }
-
-        .weather-mini .temp {
             font-size: 1.5rem;
             font-weight: 600;
         }
-
-        .time-display {
-            font-size: 1.1rem;
-            font-weight: 500;
+        
+        .logo span {
+            color: var(--accent);
         }
-
-        /* Main Content */
-        .main {
-            max-width: 1400px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-        }
-
-        /* Farm Info Banner */
-        .farm-banner {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: var(--shadow);
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 2rem;
-            align-items: center;
-        }
-
-        .farm-features {
+        
+        .header-status {
             display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-top: 1rem;
+            align-items: center;
+            gap: 24px;
         }
-
-        .feature-tag {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-            color: white;
-            padding: 0.5rem 1rem;
+        
+        .connection-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: rgba(78, 204, 163, 0.15);
             border-radius: 20px;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .farm-stats {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-        }
-
-        .stat-box {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            padding: 1rem;
-            border-radius: 12px;
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--primary);
-        }
-
-        .stat-label {
-            font-size: 0.8rem;
-            color: var(--text-light);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        /* Device Grid */
-        .section-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .device-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .device-card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            cursor: pointer;
-        }
-
-        .device-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
-
-        .device-header {
-            padding: 1.25rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #eee;
-        }
-
-        .device-header.greenhouse {
-            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
-            color: white;
-        }
-
-        .device-header.chicken_coop {
-            background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%);
-            color: white;
-        }
-
-        .device-title {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .device-icon {
-            font-size: 2rem;
-        }
-
-        .device-name {
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
-
-        .device-status {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
             font-size: 0.85rem;
-            font-weight: 500;
         }
-
+        
+        .connection-badge.offline {
+            background: rgba(248, 81, 73, 0.15);
+        }
+        
         .status-dot {
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
+            background: var(--accent);
             animation: pulse 2s infinite;
         }
-
-        .status-dot.online {
-            background: #00ff00;
-            box-shadow: 0 0 8px #00ff00;
-        }
-
+        
         .status-dot.offline {
-            background: #ff4444;
+            background: var(--accent-red);
             animation: none;
         }
-
+        
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
         }
-
-        .device-body {
-            padding: 1.25rem;
+        
+        /* Main Content */
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
         }
-
-        .device-desc {
-            color: var(--text-light);
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-        }
-
-        .device-metrics {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 0.75rem;
-        }
-
-        .metric {
-            background: #f8f9fa;
-            padding: 0.75rem;
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        .metric-value {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        .metric-label {
-            font-size: 0.7rem;
-            color: var(--text-light);
-            text-transform: uppercase;
-        }
-
-        .device-actions {
-            padding: 1rem 1.25rem;
-            background: #f8f9fa;
-            display: flex;
-            gap: 0.75rem;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 0.75rem;
-            border: none;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-light);
-        }
-
-        .btn-secondary {
-            background: white;
-            color: var(--text);
-            border: 1px solid #ddd;
-        }
-
-        .btn-secondary:hover {
-            background: #f0f0f0;
-        }
-
+        
         /* Weather Section */
-        .weather-section {
-            background: var(--card-bg);
+        .weather-banner {
+            background: linear-gradient(135deg, #1a365d 0%, #2d3748 100%);
             border-radius: 16px;
-            padding: 2rem;
-            box-shadow: var(--shadow);
-            margin-bottom: 2rem;
+            padding: 24px;
+            margin-bottom: 24px;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 24px;
+            align-items: center;
         }
-
+        
         .weather-current {
             display: flex;
             align-items: center;
-            gap: 2rem;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
+            gap: 16px;
         }
-
-        .weather-main {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
+        
         .weather-icon {
             font-size: 4rem;
         }
-
+        
         .weather-temp {
-            font-size: 3.5rem;
+            font-size: 3rem;
             font-weight: 700;
-            color: var(--primary);
         }
-
+        
         .weather-details {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
         }
-
-        .weather-detail {
+        
+        .weather-sun {
+            text-align: center;
+            padding: 0 24px;
+            border-left: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+        }
+        
+        .sun-item {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 8px;
+            margin: 8px 0;
         }
-
-        .weather-detail-icon {
-            font-size: 1.25rem;
-        }
-
-        .hourly-forecast {
+        
+        .weather-forecast {
             display: flex;
-            gap: 1rem;
-            overflow-x: auto;
-            padding: 0.5rem 0;
+            flex-direction: column;
+            gap: 8px;
         }
-
-        .hourly-item {
-            flex: 0 0 auto;
-            text-align: center;
-            padding: 0.75rem 1rem;
-            background: #f8f9fa;
+        
+        .forecast-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+        }
+        
+        /* Device Grid */
+        .section-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        
+        .section-title h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .device-count {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            background: var(--bg-card);
+            padding: 4px 12px;
             border-radius: 12px;
-            min-width: 70px;
         }
-
-        .hourly-time {
-            font-size: 0.8rem;
-            color: var(--text-light);
+        
+        .devices-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
         }
-
-        .hourly-icon {
-            font-size: 1.5rem;
-            margin: 0.5rem 0;
+        
+        /* Device Card */
+        .device-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
         }
-
-        .hourly-temp {
-            font-size: 1rem;
+        
+        .device-card:hover {
+            background: var(--bg-card-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+        
+        .device-card.offline {
+            opacity: 0.6;
+        }
+        
+        .device-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--accent);
+        }
+        
+        .device-card.offline::before {
+            background: var(--accent-red);
+        }
+        
+        .device-card.greenhouse::before { background: var(--accent); }
+        .device-card.coop::before { background: var(--accent-orange); }
+        
+        .device-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+        
+        .device-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .device-icon {
+            font-size: 2rem;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+        }
+        
+        .device-name {
+            font-size: 1.1rem;
             font-weight: 600;
         }
-
-        /* Footer */
-        .footer {
-            background: var(--primary);
-            color: white;
-            padding: 2rem;
-            margin-top: 3rem;
+        
+        .device-ip {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
         }
-
-        .footer-content {
-            max-width: 1400px;
-            margin: 0 auto;
+        
+        .device-status-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 12px;
+            background: rgba(78, 204, 163, 0.15);
+            color: var(--accent);
+        }
+        
+        .device-status-badge.offline {
+            background: rgba(248, 81, 73, 0.15);
+            color: var(--accent-red);
+        }
+        
+        .device-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+        
+        .metric {
             text-align: center;
+            padding: 12px 8px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
         }
-
-        .footer p {
-            opacity: 0.9;
-            margin-bottom: 0.5rem;
+        
+        .metric-value {
+            font-size: 1.25rem;
+            font-weight: 700;
         }
-
-        /* Mobile Content Layout - Enhanced */
-        @media (max-width: 768px) {
-            .main {
-                padding: 1.5rem 1rem;
-                background: linear-gradient(to bottom, rgba(45, 90, 39, 0.05), transparent 300px);
-            }
-            
-            .header-content {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .farm-banner {
-                grid-template-columns: 1fr;
-                padding: 2rem 1.5rem;
-                text-align: center;
-                background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.95));
-                backdrop-filter: blur(10px);
-                border: 1px solid rgba(255, 255, 255, 0.2);
-                margin-bottom: 2rem;
-                border-radius: 20px;
-            }
-            
-            .farm-banner h2 {
-                font-size: 1.5rem;
-                margin-bottom: 0.8rem;
-            }
-            
-            .farm-features {
-                justify-content: center;
-                margin-top: 1.5rem;
-                gap: 1rem;
-            }
-            
-            .feature-tag {
-                font-size: 0.85rem;
-                padding: 0.6rem 1rem;
-                border-radius: 25px;
-                box-shadow: 0 2px 8px rgba(45, 90, 39, 0.15);
-                transition: transform 0.3s ease;
-            }
-            
-            .feature-tag:hover {
-                transform: translateY(-2px);
-            }
-            
-            .farm-stats {
-                grid-template-columns: 1fr 1fr;
-                gap: 1.2rem;
-                margin-top: 1.5rem;
-            }
-            
-            .stat-box {
-                padding: 1.2rem;
-                border-radius: 16px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            }
-            
-            .stat-value {
-                font-size: 1.8rem;
-                margin-bottom: 0.5rem;
-            }
-            
-            .stat-label {
-                font-size: 0.8rem;
-                font-weight: 500;
-            }
-
-            .device-grid {
-                grid-template-columns: 1fr;
-                gap: 1.5rem;
-                margin-top: 2rem;
-            }
-            
-            .device-card {
-                padding: 1.8rem;
-                border-radius: 20px;
-                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-                background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.9));
-                backdrop-filter: blur(10px);
-                border: 1px solid rgba(255, 255, 255, 0.2);
-                transition: transform 0.3s ease, box-shadow 0.3s ease;
-            }
-            
-            .device-card:hover {
-                transform: translateY(-4px);
-                box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
-            }
-            
-            .device-header h3 {
-                font-size: 1.3rem;
-                margin-bottom: 0.5rem;
-            }
-            
-            .device-actions {
-                flex-direction: column;
-                gap: 1rem;
-                margin-top: 1.5rem;
-            }
-            
-            .device-btn {
-                width: 100%;
-                justify-content: center;
-                padding: 1rem;
-                min-height: 50px;
-                font-size: 1rem;
-                font-weight: 600;
-                border-radius: 16px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-                transition: all 0.3s ease;
-            }
-            
-            .device-btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-            }
-            
-            /* Weather Mobile - Enhanced */
-            .weather-current {
-                flex-direction: column;
-                text-align: center;
-                gap: 1.5rem;
-                padding: 2rem;
-                border-radius: 20px;
-                background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.9));
-                backdrop-filter: blur(10px);
-                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-            }
-            
-            .weather-temp {
-                font-size: 3rem;
-                font-weight: 800;
-                color: var(--primary);
-            }
-            
-            .weather-details {
-                grid-template-columns: 1fr 1fr;
-                gap: 1.2rem;
-            }
-            
-            .weather-detail {
-                padding: 1rem;
-                background: rgba(255, 255, 255, 0.6);
-                border-radius: 12px;
-                text-align: center;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            }
-            
-            /* Modal Mobile - Bottom Sheet Style */
-            .modal-overlay {
-                padding: 0;
-            }
-            
-            .modal-content {
-                margin: 0;
-                border-radius: 25px 25px 0 0;
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                max-height: 90vh;
-                transform: translateY(100%);
-                background: white;
-                box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.2);
-                transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            }
-            
-            .modal-overlay.show .modal-content {
-                transform: translateY(0);
-            }
-            
-            .modal-header {
-                padding: 1.5rem;
-                border-radius: 25px 25px 0 0;
-                background: linear-gradient(135deg, var(--primary), var(--primary-light));
-                color: white;
-                position: relative;
-            }
-            
-            .modal-header::before {
-                content: '';
-                position: absolute;
-                top: 0.8rem;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 40px;
-                height: 4px;
-                background: rgba(255, 255, 255, 0.5);
-                border-radius: 2px;
-            }
-            
-            .modal-header h3 {
-                color: white;
-                font-size: 1.3rem;
-                margin-top: 1rem;
-            }
-            
-            .close-btn {
-                color: white;
-                background: rgba(255, 255, 255, 0.2);
-                border-radius: 50%;
-                width: 36px;
-                height: 36px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                backdrop-filter: blur(10px);
-            }
-            
-            .modal-body {
-                padding: 1.5rem;
-                max-height: 60vh;
-                overflow-y: auto;
-            }
-            
-            .modal-footer {
-                padding: 1.5rem;
-                position: sticky;
-                bottom: 0;
-                background: white;
-                border-top: 1px solid #f3f4f6;
-                border-radius: 0 0 25px 25px;
-            }
-            
-            .btn-primary, .btn-secondary {
-                padding: 1rem 1.5rem;
-                min-height: 50px;
-                font-size: 1rem;
-                font-weight: 600;
-                border-radius: 16px;
-            }
-            
-            /* Form Elements Mobile - Touch Optimized */
-            .settings-select, .settings-input {
-                padding: 1rem;
-                font-size: 16px;
-                min-height: 50px;
-                border-radius: 12px;
-                border: 2px solid #e9ecef;
-                transition: border-color 0.3s ease;
-            }
-            
-            .settings-select:focus, .settings-input:focus {
-                border-color: var(--primary);
-                outline: none;
-                box-shadow: 0 0 0 3px rgba(45, 90, 39, 0.1);
-            }
-            
-            .radio-label {
-                padding: 1rem;
-                min-height: 50px;
-                border-radius: 12px;
-                margin-bottom: 1rem;
-            }
-            
-            .tool-btn, .ota-btn {
-                padding: 1rem 1.5rem;
-                min-height: 50px;
-                width: 100%;
-                margin-bottom: 1rem;
-                margin-right: 0;
-                border-radius: 16px;
-                font-weight: 600;
-                transition: all 0.3s ease;
-            }
-            
-            .tool-btn:hover, .ota-btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            }
-            
-            /* Toast Mobile - Enhanced */
-            .toast {
-                left: 1rem;
-                right: 1rem;
-                top: 2rem;
-                min-width: auto;
-                transform: translateY(-100px);
-                border-radius: 16px;
-                padding: 1.2rem;
-                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-                backdrop-filter: blur(10px);
-                transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-            }
-            
-            .toast.show {
-                transform: translateY(0);
-            }
+        
+        .metric-label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-
-        /* Loading States */
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-            border-radius: 4px;
+        
+        .metric-value.warning { color: var(--accent-yellow); }
+        .metric-value.danger { color: var(--accent-red); }
+        
+        /* Quick Actions */
+        .device-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
         }
-
-        @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+        
+        .action-btn {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
-
+        
+        .action-btn:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--accent);
+        }
+        
+        .action-btn.primary {
+            background: var(--accent);
+            color: #111;
+            border-color: var(--accent);
+        }
+        
+        .action-btn.primary:hover {
+            filter: brightness(1.1);
+        }
+        
+        /* Farm Features */
+        .farm-features {
+            background: linear-gradient(135deg, #1a4731 0%, #2d5a27 100%);
+            border-radius: 16px;
+            padding: 24px;
+            margin-top: 32px;
+        }
+        
+        .farm-features h3 {
+            margin-bottom: 16px;
+            font-size: 1.1rem;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255,255,255,0.1);
+            padding: 12px 16px;
+            border-radius: 8px;
+        }
+        
+        .feature-icon {
+            font-size: 1.5rem;
+        }
+        
+        .feature-text {
+            font-size: 0.9rem;
+        }
+        
+        /* Footer */
+        footer {
+            max-width: 1400px;
+            margin: 32px auto 0;
+            padding: 24px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        
         /* Modal */
         .modal-overlay {
             position: fixed;
@@ -2879,1411 +418,542 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.5);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            padding: 1rem;
-        }
-
-        .modal-overlay.active {
+            background: rgba(0,0,0,0.75);
             display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
         }
-
+        
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
         .modal {
-            background: white;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
             border-radius: 16px;
-            width: 100%;
-            max-width: 500px;
-            max-height: 90vh;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
             overflow-y: auto;
         }
-
+        
         .modal-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid #eee;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
         }
-
+        
         .modal-close {
             background: none;
             border: none;
+            color: var(--text-secondary);
             font-size: 1.5rem;
             cursor: pointer;
-            color: var(--text-light);
+            padding: 4px 8px;
+        }
+        
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+        
+        .modal-body {
+            padding: 24px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .weather-banner {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            
+            .weather-sun {
+                border: none;
+                border-top: 1px solid var(--border);
+                border-bottom: 1px solid var(--border);
+                padding: 16px 0;
+            }
+            
+            .sun-item {
+                justify-content: center;
+            }
+            
+            .devices-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .device-metrics {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 48px;
+            color: var(--text-secondary);
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
-        .modal-body {
-            padding: 1.5rem;
-        }
+        /* Navigation Bar */
     </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="navbar-content">
-            <div class="navbar-top">
-                <div class="navbar-left">
-                    <a href="/" class="navbar-brand">
-                        <span class="navbar-icon">🌿</span>
-                        <span>Smart Farm Hub</span>
-                    </a>
-                </div>
-                <div class="navbar-item">
-                    <button class="settings-btn" id="settingsBtn" title="Settings" onclick="toggleSettings(event)">
-                        <span class="settings-icon">⚙️</span>
-                    </button>
-                    <!-- Settings Dropdown -->
-                    <div class="settings-dropdown" id="settingsDropdown">
-                        <div class="dropdown-header">
-                            <div class="dropdown-title">Farm Hub Menu</div>
-                            <div class="dropdown-subtitle">System Settings</div>
-                        </div>
-                        <div class="dropdown-section">
-                            <div class="dropdown-section-title">System Settings</div>
-                            <button class="dropdown-item" onclick="openSettings('units')">
-                                <span class="dropdown-icon">📊</span>
-                                <span>Units & Time Format</span>
-                            </button>
-                            <button class="dropdown-item" onclick="openSettings('location')">
-                                <span class="dropdown-icon">📍</span>
-                                <span>Location Settings</span>
-                            </button>
-                            <button class="dropdown-item" onclick="openSettings('ota')">
-                                <span class="dropdown-icon">🚀</span>
-                                <span>ESP32 OTA Manager</span>
-                            </button>
-                        </div>
-                        <div class="dropdown-divider"></div>
-                        <button class="dropdown-item" onclick="openSettings('about')">
-                            <span class="dropdown-icon">ℹ️</span>
-                            <span>About System</span>
-                        </button>
-                    </div>
-                </div>
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <span class="logo-icon">🌾</span>
+                <h1 id="farmName">Farm <span>Hub</span></h1>
             </div>
-            <div class="navbar-right">
-                <div class="status-time-container">
-                    <div class="time-display" id="time-display">
-                        <div class="time-main" id="time-main">--:--:--</div>
-                        <div class="date-sub" id="date-sub">--- -- ----</div>
-                    </div>
+            <div class="header-status">
+                <div id="clock" style="color: var(--text-secondary);">--:--:--</div>
+                <div class="connection-badge" id="connectionBadge">
+                    <div class="status-dot" id="statusDot"></div>
+                    <span id="connectionText">Connecting...</span>
                 </div>
             </div>
         </div>
-    </nav>
-
-    <!-- Main Content -->
-    <main class="main">
-        <!-- Farm Info Banner -->
-        <section class="farm-banner">
-            <div>
-                <h2>🏡 Welcome to Our Organic Farm</h2>
-                <p style="color: var(--text-light); margin-top: 0.5rem;">
-                    Committed to sustainable agriculture and animal welfare
-                </p>
-                <div class="farm-features" id="farm-features">
-                    <span class="feature-tag">🐄 Grass-fed Beef</span>
-                    <span class="feature-tag">🐔 Free-range Chickens</span>
-                    <span class="feature-tag">🥚 Farm Fresh Eggs</span>
-                    <span class="feature-tag">🐐 Grass-fed Goats</span>
-                    <span class="feature-tag">🌱 Organic Produce</span>
-                </div>
-            </div>
-            <div class="farm-stats">
-                <div class="stat-box">
-                    <div class="stat-value" id="devices-online">0</div>
-                    <div class="stat-label">Devices Online</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value" id="total-devices">4</div>
-                    <div class="stat-label">Total Devices</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value" id="active-routines">0</div>
-                    <div class="stat-label">Active Routines</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value" id="alerts-count">0</div>
-                    <div class="stat-label">Alerts</div>
-                </div>
-            </div>
-        </section>
-
+    </header>
+    
+    <main>
         <!-- Weather Section -->
-        <section class="weather-section">
-            <h2 class="section-title">🌤️ Weather Conditions</h2>
+        <section class="weather-banner" id="weatherSection">
             <div class="weather-current">
-                <div class="weather-main">
-                    <span class="weather-icon" id="weather-icon">☀️</span>
-                    <span class="weather-temp" id="weather-temp">--°C</span>
-                </div>
-                <div class="weather-details">
-                    <div class="weather-detail">
-                        <span class="weather-detail-icon">🌡️</span>
-                        <span>Feels like <strong id="feels-like">--°C</strong></span>
-                    </div>
-                    <div class="weather-detail">
-                        <span class="weather-detail-icon">💧</span>
-                        <span>Humidity <strong id="humidity">--%</strong></span>
-                    </div>
-                    <div class="weather-detail">
-                        <span class="weather-detail-icon">💨</span>
-                        <span>Wind <strong id="wind">-- km/h</strong></span>
-                    </div>
-                    <div class="weather-detail">
-                        <span class="weather-detail-icon">📍</span>
-                        <span id="location">Loading...</span>
+                <div class="weather-icon" id="weatherIcon">🌤️</div>
+                <div>
+                    <div class="weather-temp"><span id="weatherTemp">--</span>°C</div>
+                    <div class="weather-details">
+                        <div id="weatherDesc">Loading weather...</div>
+                        <div>💧 <span id="weatherHumidity">--</span>% humidity</div>
                     </div>
                 </div>
             </div>
-            <div class="hourly-forecast" id="hourly-forecast">
-                <!-- Populated by JS -->
+            <div class="weather-sun">
+                <div class="sun-item">
+                    <span>🌅</span>
+                    <span>Sunrise: <strong id="sunrise">--:--</strong></span>
+                </div>
+                <div class="sun-item">
+                    <span>🌇</span>
+                    <span>Sunset: <strong id="sunset">--:--</strong></span>
+                </div>
+            </div>
+            <div class="weather-forecast">
+                <div class="forecast-item">
+                    <span>Today's High:</span>
+                    <strong id="tempHigh">--°C</strong>
+                </div>
+                <div class="forecast-item">
+                    <span>Today's Low:</span>
+                    <strong id="tempLow">--°C</strong>
+                </div>
+                <div class="forecast-item">
+                    <span>Wind:</span>
+                    <strong id="windSpeed">-- km/h</strong>
+                </div>
             </div>
         </section>
-
-        <!-- Device Grid -->
-        <h2 class="section-title">📡 Connected Devices</h2>
-        <div class="device-grid" id="device-grid">
-            <!-- Devices populated by JS -->
-        </div>
+        
+        <!-- Greenhouse Section -->
+        <section>
+            <div class="section-title">
+                <h2>🌱 Greenhouse</h2>
+            </div>
+            <div class="devices-grid" id="greenhouseDevices">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading devices...</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Chicken Coops Section -->
+        <section>
+            <div class="section-title">
+                <h2>🐔 Chicken Coops</h2>
+                <span class="device-count"><span id="coopCount">0</span> coops</span>
+            </div>
+            <div class="devices-grid" id="coopDevices">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading devices...</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Farm Features -->
+        <section class="farm-features">
+            <h3>🌿 Our Organic Farm</h3>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <span class="feature-icon">🐄</span>
+                    <span class="feature-text">Grass-Fed Beef</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🐔</span>
+                    <span class="feature-text">Free-Range Chickens</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🥚</span>
+                    <span class="feature-text">Farm Fresh Eggs</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🐐</span>
+                    <span class="feature-text">Grass-Fed Goats</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🥬</span>
+                    <span class="feature-text">Organic Vegetables</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">☀️</span>
+                    <span class="feature-text">Sustainable Farming</span>
+                </div>
+            </div>
+        </section>
     </main>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-content">
-            <p><strong id="footer-farm-name">Farm Hub</strong> - IoT Farm Management System</p>
-            <p>🌱 Proudly Organic | 🐄 Grass-fed | 🐔 Free-range | 🌾 Sustainable</p>
-            <p style="opacity: 0.7; font-size: 0.85rem; margin-top: 1rem;">
-                Powered by ESP32 & Raspberry Pi | © 2026
-            </p>
-        </div>
+    
+    <footer>
+        <p>Farm Hub Dashboard • Last updated: <span id="lastUpdate">--:--:--</span></p>
     </footer>
-
-    <!-- Device Modal -->
-    <div class="modal-overlay" id="device-modal">
+    
+    <!-- Device Detail Modal -->
+    <div class="modal-overlay" id="modalOverlay">
         <div class="modal">
             <div class="modal-header">
-                <h3 id="modal-title">Device Details</h3>
-                <button class="modal-close" onclick="closeModal()">&times;</button>
+                <h3 id="modalTitle">Device Details</h3>
+                <button class="modal-close" onclick="closeModal()">×</button>
             </div>
-            <div class="modal-body" id="modal-body">
-                <!-- Populated by JS -->
+            <div class="modal-body" id="modalBody">
+                <!-- Dynamic content -->
             </div>
         </div>
     </div>
-
+    
     <script>
-        // Configuration
-        const CONFIG = {
-            refreshInterval: 30000,  // 30 seconds
-            weatherRefresh: 600000,  // 10 minutes
-        };
-
         // State
         let devices = {};
-        let weatherData = null;
-
-        // Weather icon mapping
-        function getWeatherIcon(code, isDay = 1) {
-            const icons = {
-                0: isDay ? '☀️' : '🌙',
-                1: isDay ? '🌤️' : '🌙',
-                2: '⛅',
-                3: '☁️',
-                45: '🌫️',
-                48: '🌫️',
-                51: '🌦️',
-                53: '🌧️',
-                55: '🌧️',
-                61: '🌧️',
-                63: '🌧️',
-                65: '🌧️',
-                71: '🌨️',
-                73: '🌨️',
-                75: '❄️',
-                77: '🌨️',
-                80: '🌦️',
-                81: '🌧️',
-                82: '⛈️',
-                85: '🌨️',
-                86: '❄️',
-                95: '⛈️',
-                96: '⛈️',
-                99: '⛈️'
+        let weather = null;
+        let ws = null;
+        
+        // WebSocket connection
+        function connectWebSocket() {
+            const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            ws = new WebSocket(`${protocol}//${location.host}/ws`);
+            
+            ws.onopen = () => {
+                updateConnectionStatus(true);
+                ws.send(JSON.stringify({ type: 'get_status' }));
             };
-            return icons[code] || '🌤️';
+            
+            ws.onclose = () => {
+                updateConnectionStatus(false);
+                setTimeout(connectWebSocket, 3000);
+            };
+            
+            ws.onmessage = (e) => {
+                try {
+                    const data = JSON.parse(e.data);
+                    handleMessage(data);
+                } catch (err) {
+                    console.error('Parse error:', err);
+                }
+            };
         }
-
-        // Fetch farm info (config)
-        async function fetchFarmInfo() {
+        
+        function handleMessage(data) {
+            switch (data.type) {
+                case 'init':
+                    if (data.farmName) {
+                        document.getElementById('farmName').innerHTML = 
+                            data.farmName.replace(/(\w+)$/, '<span>$1</span>');
+                    }
+                    if (data.devices) updateDevices(data.devices);
+                    break;
+                    
+                case 'status':
+                case 'status_update':
+                    if (data.devices) updateDevices(data.devices);
+                    break;
+            }
+        }
+        
+        function updateConnectionStatus(connected) {
+            const badge = document.getElementById('connectionBadge');
+            const dot = document.getElementById('statusDot');
+            const text = document.getElementById('connectionText');
+            
+            badge.classList.toggle('offline', !connected);
+            dot.classList.toggle('offline', !connected);
+            text.textContent = connected ? 'Connected' : 'Reconnecting...';
+        }
+        
+        // Fetch initial data
+        async function fetchDashboardData() {
             try {
-                const response = await fetch('/api/config');
+                const response = await fetch('/api/dashboard');
                 const data = await response.json();
                 
-                // Store location for weather API
-                if (data.weather?.location) {
-                    window.farmConfig = {
-                        lat: parseFloat(data.weather.location.lat),
-                        lon: parseFloat(data.weather.location.lon),
-                        location: `${data.weather.location.city}, ${data.weather.location.region}`
-                    };
+                if (data.farmName) {
+                    document.getElementById('farmName').innerHTML = 
+                        data.farmName.replace(/(\w+)$/, '<span>$1</span>');
+                    document.title = `🌾 ${data.farmName}`;
                 }
                 
-                // Safely update DOM elements if they exist
-                const farmNameEl = document.getElementById('farm-name');
-                const footerFarmNameEl = document.getElementById('footer-farm-name');
+                if (data.weather) updateWeather(data.weather, data.daily);
+                if (data.devices) renderDevices(data.devices);
                 
-                if (farmNameEl) farmNameEl.textContent = 'Farm Hub';
-                if (footerFarmNameEl) footerFarmNameEl.textContent = 'Farm Hub';
-            } catch (error) {
-                console.error('Failed to fetch farm config:', error);
-                // Fallback to Virginia coordinates
-                window.farmConfig = {
-                    lat: 38.130254613092,
-                    lon: -77.73829202505,
-                    location: 'Spotsylvania County, Virginia'
-                };
+                document.getElementById('lastUpdate').textContent = 
+                    new Date().toLocaleTimeString();
+                    
+            } catch (err) {
+                console.error('Failed to fetch dashboard:', err);
             }
         }
-
-        // Fetch devices
-        async function fetchDevices() {
-            try {
-                const response = await fetch('/api/devices');
-                devices = await response.json();
-                renderDevices();
-                updateStats();
-            } catch (error) {
-                console.error('Failed to fetch devices:', error);
+        
+        // Weather display
+        function updateWeather(current, daily) {
+            if (!current) return;
+            
+            document.getElementById('weatherTemp').textContent = 
+                Math.round(current.temperature_2m);
+            document.getElementById('weatherHumidity').textContent = 
+                current.relative_humidity_2m || '--';
+            document.getElementById('windSpeed').textContent = 
+                (current.wind_speed_10m || '--') + ' km/h';
+            
+            // Weather icon based on code
+            const code = current.weather_code;
+            document.getElementById('weatherIcon').textContent = getWeatherIcon(code);
+            document.getElementById('weatherDesc').textContent = getWeatherDesc(code);
+            
+            if (daily) {
+                document.getElementById('tempHigh').textContent = 
+                    Math.round(daily.temperature_2m_max?.[0] || 0) + '°C';
+                document.getElementById('tempLow').textContent = 
+                    Math.round(daily.temperature_2m_min?.[0] || 0) + '°C';
+                
+                if (daily.sunrise?.[0]) {
+                    const sr = new Date(daily.sunrise[0]);
+                    document.getElementById('sunrise').textContent = 
+                        sr.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                }
+                if (daily.sunset?.[0]) {
+                    const ss = new Date(daily.sunset[0]);
+                    document.getElementById('sunset').textContent = 
+                        ss.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                }
             }
         }
-
-        // Render device cards
-        function renderDevices() {
-            const grid = document.getElementById('device-grid');
-            grid.innerHTML = '';
-
-            for (const [id, device] of Object.entries(devices)) {
-                const card = document.createElement('div');
-                card.className = 'device-card';
-                card.onclick = () => openDevicePage(id, device);
-
-                const isOnline = device.status?.online ?? false;
-                const temp = device.status?.temperature ?? '--';
-                const humidity = device.status?.humidity ?? '--';
-                const activeDevices = device.status?.active_devices ?? 0;
-
-                card.innerHTML = `
-                    <div class="device-header ${device.type}">
-                        <div class="device-title">
-                            <span class="device-icon">${device.icon}</span>
-                            <span class="device-name">${device.name}</span>
-                        </div>
-                        <div class="device-status">
-                            <span class="status-dot ${isOnline ? 'online' : 'offline'}"></span>
-                            ${isOnline ? 'Online' : 'Offline'}
-                        </div>
+        
+        function getWeatherIcon(code) {
+            if (code === 0) return '☀️';
+            if (code <= 3) return '⛅';
+            if (code <= 49) return '🌫️';
+            if (code <= 59) return '🌧️';
+            if (code <= 69) return '🌨️';
+            if (code <= 79) return '❄️';
+            if (code <= 99) return '⛈️';
+            return '🌤️';
+        }
+        
+        function getWeatherDesc(code) {
+            if (code === 0) return 'Clear sky';
+            if (code <= 3) return 'Partly cloudy';
+            if (code <= 49) return 'Foggy';
+            if (code <= 59) return 'Drizzle';
+            if (code <= 69) return 'Rain';
+            if (code <= 79) return 'Snow';
+            if (code <= 99) return 'Thunderstorm';
+            return 'Weather data';
+        }
+        
+        // Device rendering
+        function renderDevices(devicesData) {
+            devices = devicesData;
+            
+            const greenhouseContainer = document.getElementById('greenhouseDevices');
+            const coopContainer = document.getElementById('coopDevices');
+            
+            let greenhouseHTML = '';
+            let coopHTML = '';
+            let coopCount = 0;
+            
+            for (const [id, device] of Object.entries(devicesData)) {
+                const card = createDeviceCard(id, device);
+                
+                if (device.type === 'greenhouse') {
+                    greenhouseHTML += card;
+                } else if (device.type === 'coop') {
+                    coopHTML += card;
+                    coopCount++;
+                }
+            }
+            
+            greenhouseContainer.innerHTML = greenhouseHTML || '<p style="color: var(--text-secondary)">No greenhouse devices configured</p>';
+            coopContainer.innerHTML = coopHTML || '<p style="color: var(--text-secondary)">No coop devices configured</p>';
+            document.getElementById('coopCount').textContent = coopCount;
+        }
+        
+        function createDeviceCard(id, device) {
+            const status = device.status || {};
+            const online = status.online !== false;
+            const type = device.type || 'unknown';
+            
+            const icon = type === 'greenhouse' ? '🌱' : '🐔';
+            const temp = status.temperature !== undefined ? status.temperature.toFixed(1) : '--';
+            const humidity = status.humidity !== undefined ? status.humidity : '--';
+            const activeDevices = status.active_devices !== undefined ? status.active_devices : '--';
+            
+            // Extra metrics for coops
+            let extraMetrics = '';
+            if (type === 'coop') {
+                const door = status.door === 'open' ? '🔓 Open' : '🔒 Closed';
+                const feed = status.feed_level !== undefined ? status.feed_level + '%' : '--';
+                extraMetrics = `
+                    <div class="metric">
+                        <div class="metric-value">${door}</div>
+                        <div class="metric-label">Door</div>
                     </div>
-                    <div class="device-body">
-                        <p class="device-desc">${device.description}</p>
-                        <div class="device-metrics">
-                            <div class="metric">
-                                <div class="metric-value">${temp}°</div>
-                                <div class="metric-label">Temp</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-value">${humidity}%</div>
-                                <div class="metric-label">Humidity</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-value">${activeDevices}</div>
-                                <div class="metric-label">Active</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="device-actions">
-                        <button class="btn btn-primary" style="flex: 1; padding: 1rem; font-size: 1.1rem; font-weight: bold;" onclick="event.stopPropagation(); openDevicePage('${id}', devices['${id}'])">
-                            📊 Open ${device.name} Dashboard
-                        </button>
+                    <div class="metric">
+                        <div class="metric-value ${status.feed_level < 20 ? 'warning' : ''}">${feed}</div>
+                        <div class="metric-label">Feed</div>
                     </div>
                 `;
-
-                grid.appendChild(card);
             }
-        }
-
-        // Open device's native dashboard
-        function openDevicePage(id, device) {
-            const paths = {
-                'greenhouse': '/greenhouse/',
-                'coop1': '/coop1/',
-                'coop2': '/coop2/',
-                'coop3': '/coop3/'
-            };
-            window.location.href = paths[id] || `/${id}/`;
-        }
-
-        // Show device details modal
-        function showDeviceDetails(id) {
-            const device = devices[id];
-            if (!device) return;
-
-            document.getElementById('modal-title').textContent = device.name;
-            document.getElementById('modal-body').innerHTML = `
-                <p><strong>Type:</strong> ${device.type}</p>
-                <p><strong>IP Address:</strong> ${device.ip}:${device.port}</p>
-                <p><strong>Status:</strong> ${device.status?.online ? '🟢 Online' : '🔴 Offline'}</p>
-                <p><strong>Description:</strong> ${device.description}</p>
-                ${device.status?.online ? `
-                    <hr style="margin: 1rem 0; border: none; border-top: 1px solid #eee;">
-                    <h4>Live Status</h4>
-                    <pre style="background: #f5f5f5; padding: 1rem; border-radius: 8px; overflow-x: auto;">
-${JSON.stringify(device.status, null, 2)}
-                    </pre>
-                ` : ''}
+            
+            return `
+                <div class="device-card ${type} ${online ? '' : 'offline'}" onclick="openDevice('${id}')">
+                    <div class="device-header">
+                        <div class="device-info">
+                            <div class="device-icon">${icon}</div>
+                            <div>
+                                <div class="device-name">${device.name}</div>
+                                <div class="device-ip">${device.ip}</div>
+                            </div>
+                        </div>
+                        <div class="device-status-badge ${online ? '' : 'offline'}">
+                            <div class="status-dot ${online ? '' : 'offline'}"></div>
+                            ${online ? 'Online' : 'Offline'}
+                        </div>
+                    </div>
+                    <div class="device-metrics">
+                        <div class="metric">
+                            <div class="metric-value">${temp}°C</div>
+                            <div class="metric-label">Temp</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">${humidity}%</div>
+                            <div class="metric-label">Humidity</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">${activeDevices}</div>
+                            <div class="metric-label">Active</div>
+                        </div>
+                        ${extraMetrics}
+                    </div>
+                    <div class="device-actions">
+                        <button class="action-btn" onclick="event.stopPropagation(); openDeviceUI('${id}')">
+                            🖥️ Open UI
+                        </button>
+                        <button class="action-btn primary" onclick="event.stopPropagation(); refreshDevice('${id}')">
+                            🔄 Refresh
+                        </button>
+                    </div>
+                </div>
             `;
-
-            document.getElementById('device-modal').classList.add('active');
         }
-
-        function closeModal() {
-            document.getElementById('device-modal').classList.remove('active');
-        }
-
-        // Update stats
-        function updateStats() {
-            const online = Object.values(devices).filter(d => d.status?.online).length;
-            const total = Object.keys(devices).length;
-            
-            document.getElementById('devices-online').textContent = online;
-            document.getElementById('total-devices').textContent = total;
-        }
-
-        // Fetch weather
-        async function fetchWeather() {
-            try {
-                // Get coordinates from config (fetched in fetchFarmInfo)
-                const lat = window.farmConfig?.lat || 38.130254613092;
-                const lon = window.farmConfig?.lon || -77.73829202505;
-                
-                const response = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
-                weatherData = await response.json();
-                renderWeather();
-            } catch (error) {
-                console.error('Failed to fetch weather:', error);
-            }
-        }
-
-        // Render weather
-        function renderWeather() {
-            // Check if we have weather data (could be in different formats)
-            const data = weatherData?.data || weatherData?.current || weatherData;
-            if (!data) return;
-
-            // Handle both wrapped format (data.temp) and Open-Meteo format (data.temperature_2m)
-            const temp = data.temperature_2m ?? data.temp;
-            const humidity = data.relative_humidity_2m ?? data.humi;
-            const wind = data.wind_speed_10m ?? data.wind;
-            const feelsLike = data.apparent_temperature ?? data.feels;
-            const code = data.weather_code ?? data.code;
-            const isDay = data.is_day ?? 1;
-
-            if (temp === undefined || temp === null) return;
-
-            document.getElementById('weather-icon').textContent = getWeatherIcon(code, isDay);
-            // Safely update weather elements if they exist
-            const weatherTempEl = document.getElementById('weather-temp');
-            const feelsLikeEl = document.getElementById('feels-like');
-            const humidityEl = document.getElementById('humidity');
-            const windEl = document.getElementById('wind');
-            const locationEl = document.getElementById('location');
-            
-            if (weatherTempEl) weatherTempEl.textContent = `${Math.round(temp)}°C`;
-            if (feelsLikeEl) feelsLikeEl.textContent = `${Math.round(feelsLike ?? temp)}°C`;
-            if (humidityEl) humidityEl.textContent = `${humidity ?? '--'}%`;
-            if (windEl) windEl.textContent = `${Math.round(wind ?? 0)} km/h`;
-            
-            // Set location from multiple possible sources
-            const location = weatherData?.data?.city || weatherData?.timezone?.replace('_', ' ').split('/').pop() || 'Unknown';
-            if (locationEl) locationEl.textContent = location;
-
-            // Mini weather - safely update if elements exist
-            const miniWeatherIconEl = document.getElementById('mini-weather-icon');
-            const miniTempEl = document.getElementById('mini-temp');
-            
-            if (miniWeatherIconEl) miniWeatherIconEl.textContent = getWeatherIcon(code, isDay);
-            if (miniTempEl) miniTempEl.textContent = `${Math.round(temp)}°C`;
-
-            // Hourly forecast (if available)
-            if (weatherData?.data?.hourly && Array.isArray(weatherData.data.hourly)) {
-                const hourlyContainer = document.getElementById('hourly-forecast');
-                if (hourlyContainer) {
-                    hourlyContainer.innerHTML = '';
-
-                    const hourlyData = weatherData.data.hourly;
-                    for (let i = 0; i < Math.min(12, hourlyData.length); i++) {
-                        const hour = hourlyData[i];
-                        const hourItem = document.createElement('div');
-                        hourItem.className = 'hourly-item';
-                        hourItem.innerHTML = `
-                            <div class="hourly-time">${hour.time || `${i + new Date().getHours()}:00`}</div>
-                            <div class="hourly-icon">${getWeatherIcon(hour.code, hour.is_day ?? 1)}</div>
-                            <div class="hourly-temp">${Math.round(hour.temp)}°</div>
-                        `;
-                        hourlyContainer.appendChild(hourItem);
-                    }
+        
+        function updateDevices(devicesUpdate) {
+            for (const [id, status] of Object.entries(devicesUpdate)) {
+                if (devices[id]) {
+                    devices[id].status = status;
                 }
             }
+            renderDevices(devices);
         }
-
-        // Update time
-        function updateTime() {
-            const now = new Date();
-            const timeOptions = { 
-                hour: '2-digit', 
-                minute: '2-digit', 
-                second: '2-digit',
-                hour12: false 
-            };
-            const dateOptions = { 
-                weekday: 'short', 
-                month: 'short', 
-                day: 'numeric'
-            };
+        
+        // Device actions
+        function openDevice(deviceId) {
+            const device = devices[deviceId];
+            if (!device) return;
             
-            const timeString = now.toLocaleTimeString('en-US', timeOptions);
-            const dateString = now.toLocaleDateString('en-US', dateOptions);
-            
-            const timeMainEl = document.getElementById('time-main');
-            const dateSubEl = document.getElementById('date-sub');
-            
-            if (timeMainEl) timeMainEl.textContent = timeString;
-            if (dateSubEl) dateSubEl.textContent = dateString;
+            document.getElementById('modalTitle').textContent = device.name;
+            document.getElementById('modalBody').innerHTML = `
+                <p><strong>IP Address:</strong> ${device.ip}</p>
+                <p><strong>Type:</strong> ${device.type}</p>
+                <p><strong>Status:</strong> ${device.status?.online ? 'Online' : 'Offline'}</p>
+                <hr style="margin: 16px 0; border-color: var(--border)">
+                <p style="color: var(--text-secondary)">
+                    Click "Open UI" to access the full device control panel.
+                </p>
+            `;
+            document.getElementById('modalOverlay').classList.add('active');
         }
-
-        // Close modal on overlay click
-        document.getElementById('device-modal').addEventListener('click', (e) => {
-            if (e.target.id === 'device-modal') {
-                closeModal();
+        
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+        }
+        
+        function openDeviceUI(deviceId) {
+            const device = devices[deviceId];
+            if (device) {
+                window.open(`/device/${deviceId}/`, '_blank');
             }
-        });
-
+        }
+        
+        function refreshDevice(deviceId) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'refresh' }));
+            }
+            fetchDashboardData();
+        }
+        
+        // Clock
+        function updateClock() {
+            document.getElementById('clock').textContent = 
+                new Date().toLocaleTimeString();
+        }
+        
         // Initialize
-        async function init() {
-            // Start clock immediately
-            updateTime();
-            setInterval(updateTime, 1000);
-
-            // Fetch data with error handling so UI doesn't freeze
-            try { await fetchFarmInfo(); } catch(e) { console.error("Farm info failed", e); }
-            try { await fetchDevices(); } catch(e) { console.error("Devices failed", e); }
-            try { await fetchWeather(); } catch(e) { console.error("Weather failed", e); }
-
-            // Refresh intervals
-            setInterval(fetchDevices, CONFIG.refreshInterval);
-            setInterval(fetchWeather, CONFIG.weatherRefresh);
-            
-            console.log("Dashboard initialized - v2.1.4 - Robust Settings");
-        }
-
-        // Settings functionality - ROBUST VERSION
-        function toggleSettings(event) {
-            console.log('⚙️ Settings toggled');
-            
-            // Stop event bubbling so document listener doesn't immediately close it
-            if (event) {
-                event.stopPropagation();
-                event.preventDefault();
-            }
-
-            const dropdown = document.getElementById('settingsDropdown');
-            if (dropdown) {
-                dropdown.classList.toggle('show');
-                const isVisible = dropdown.classList.contains('show');
-                console.log('Dropdown state:', isVisible ? 'VISIBLE' : 'HIDDEN');
-            } else {
-                console.error('CRITICAL: Settings dropdown element not found!');
-            }
-        }
-
-        // Test function for debugging
-        function testSettings() {
-            console.log('Test function called');
-            const dropdown = document.getElementById('settingsDropdown');
-            if (dropdown) {
-                dropdown.style.cssText = 'display: block !important; position: fixed !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; background: red !important; width: 300px !important; height: 200px !important; z-index: 999999 !important;';
-                console.log('Test styles applied');
-            }
-        }
-        window.testSettings = testSettings;
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(event) {
-            const dropdown = document.getElementById('settingsDropdown');
-            // Logic: If click is NOT inside dropdown, close it
-            // (Note: Button clicks are stopped by stopPropagation, so they never reach here)
-            if (dropdown && dropdown.classList.contains('show')) {
-                if (!dropdown.contains(event.target)) {
-                    console.log('Closing settings (clicked outside)');
-                    dropdown.classList.remove('show');
-                }
-            }
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchDashboardData();
+            connectWebSocket();
+            updateClock();
+            setInterval(updateClock, 1000);
+            setInterval(fetchDashboardData, 60000); // Refresh every minute
         });
-
-        function openSettings(type) {
-            document.getElementById('settingsDropdown').classList.remove('show');
-            
-            switch(type) {
-                case 'units':
-                    openUnitsSettings();
-                    break;
-                case 'location':
-                    openLocationSettings();
-                    break;
-                case 'ota':
-                    openOTASettings();
-                    break;
-                case 'about':
-                    openAboutDialog();
-                    break;
-            }
-        }
-
-        function openUnitsSettings() {
-            showModal('Units & Time Format Configuration', `
-                <div class="settings-section">
-                    <h4>🕐 Time & Date Display</h4>
-                    <label class="settings-label">
-                        <span class="label-text">Time Format</span>
-                        <select class="settings-select" id="timeFormat">
-                            <option value="12">12-Hour Format (3:45 PM)</option>
-                            <option value="24">24-Hour Format (15:45)</option>
-                        </select>
-                    </label>
-                    
-                    <label class="settings-label">
-                        <span class="label-text">Date Format</span>
-                        <select class="settings-select" id="dateFormat">
-                            <option value="US">MM/DD/YYYY (American Style)</option>
-                            <option value="EU">DD/MM/YYYY (European Style)</option>
-                            <option value="ISO">YYYY-MM-DD (ISO Standard)</option>
-                            <option value="SHORT">MMM DD, YYYY (Jan 30, 2026)</option>
-                        </select>
-                    </label>
-                    
-                    <label class="settings-label">
-                        <span class="label-text">Week Start</span>
-                        <select class="settings-select" id="weekStart">
-                            <option value="sunday">Sunday (US Standard)</option>
-                            <option value="monday">Monday (ISO Standard)</option>
-                        </select>
-                    </label>
-                    
-                    <h4>🌡️ Environmental Units</h4>
-                    <label class="settings-label">
-                        <span class="label-text">Temperature</span>
-                        <select class="settings-select" id="tempUnit">
-                            <option value="C">Celsius (°C)</option>
-                            <option value="F">Fahrenheit (°F)</option>
-                            <option value="K">Kelvin (K)</option>
-                        </select>
-                    </label>
-                    
-                    <label class="settings-label">
-                        <span class="label-text">Atmospheric Pressure</span>
-                        <select class="settings-select" id="pressureUnit">
-                            <option value="hPa">Hectopascal (hPa)</option>
-                            <option value="inHg">Inches of Mercury (inHg)</option>
-                            <option value="mmHg">Millimeters of Mercury (mmHg)</option>
-                            <option value="kPa">Kilopascal (kPa)</option>
-                        </select>
-                    </label>
-                    
-                    <label class="settings-label">
-                        <span class="label-text">Wind Speed</span>
-                        <select class="settings-select" id="windUnit">
-                            <option value="kmh">km/h (Kilometers per Hour)</option>
-                            <option value="mph">mph (Miles per Hour)</option>
-                            <option value="ms">m/s (Meters per Second)</option>
-                            <option value="knots">Knots (Nautical)</option>
-                            <option value="beaufort">Beaufort Scale</option>
-                        </select>
-                    </label>
-                    
-                    <label class="settings-label">
-                        <span class="label-text">Distance/Length</span>
-                        <select class="settings-select" id="distanceUnit">
-                            <option value="metric">Metric (meters, kilometers)</option>
-                            <option value="imperial">Imperial (feet, miles)</option>
-                        </select>
-                    </label>
-                </div>
-            `, 'saveUnitsSettings');
-            loadUnitsSettings();
-        }
-
-        function openLocationSettings() {
-            showModal('Farm Location Configuration', `
-                <div class="settings-section">
-                    <h4>🗺️ GPS Coordinates Input</h4>
-                    <p class="settings-description">Enter your farm's GPS coordinates to get precise location data, weather forecasts, and timezone information.</p>
-                    
-                    <div class="coordinate-input-grid">
-                        <label class="settings-label">
-                            <span class="label-text">Latitude</span>
-                            <input type="number" class="settings-input" id="latitude" 
-                                   step="0.000001" placeholder="38.130254" 
-                                   onchange="translateCoordinates()" 
-                                   title="Decimal degrees (-90 to 90)">
-                        </label>
-                        
-                        <label class="settings-label">
-                            <span class="label-text">Longitude</span>
-                            <input type="number" class="settings-input" id="longitude" 
-                                   step="0.000001" placeholder="-77.738292" 
-                                   onchange="translateCoordinates()" 
-                                   title="Decimal degrees (-180 to 180)">
-                        </label>
-                    </div>
-                    
-                    <div class="coordinate-actions">
-                        <button type="button" class="coord-btn" onclick="getCurrentLocation()">
-                            📍 Get My Current Location
-                        </button>
-                        <button type="button" class="coord-btn secondary" onclick="translateCoordinates()">
-                            🔍 Lookup Address
-                        </button>
-                    </div>
-                    
-                    <div class="location-results" id="locationResults">
-                        <h4>📍 Resolved Location</h4>
-                        <div class="location-grid">
-                            <div class="location-item">
-                                <span class="location-label">Full Address:</span>
-                                <span class="location-value" id="resolvedAddress">Enter coordinates above</span>
-                            </div>
-                            <div class="location-item">
-                                <span class="location-label">City:</span>
-                                <span class="location-value" id="resolvedCity">--</span>
-                            </div>
-                            <div class="location-item">
-                                <span class="location-label">State/Region:</span>
-                                <span class="location-value" id="resolvedState">--</span>
-                            </div>
-                            <div class="location-item">
-                                <span class="location-label">Country:</span>
-                                <span class="location-value" id="resolvedCountry">--</span>
-                            </div>
-                            <div class="location-item">
-                                <span class="location-label">Timezone:</span>
-                                <span class="location-value" id="resolvedTimezone">--</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `, 'saveLocationSettings');
-            setupLocationSettings();
-        }
-
-
-
-        function openOTASettings() {
-            showModal('ESP32 Device & OTA Management', `
-                <div class="settings-section">
-                    <div class="ota-overview">
-                        <h4>🚀 Connected ESP32 Devices</h4>
-                        <p class="settings-description">Manage firmware updates for all connected ESP32 devices. Updates are failsafe with automatic rollback on failure.</p>
-                    </div>
-                    
-                    <div class="device-scan-section">
-                        <button class="scan-btn" onclick="scanForDevices()">
-                            🔍 Scan for ESP32 Devices
-                        </button>
-                        <span class="scan-status" id="scanStatus">Last scan: Never</span>
-                    </div>
-                    
-                    <div class="esp32-device-grid" id="esp32DeviceGrid">
-                        <!-- Greenhouse Controller -->
-                        <div class="esp32-device-card online">
-                            <div class="device-header">
-                                <div class="device-info">
-                                    <h4>🌱 Greenhouse Controller</h4>
-                                    <span class="device-ip">192.168.1.100</span>
-                                </div>
-                                <div class="device-status online">Online</div>
-                            </div>
-                            
-                            <div class="device-details">
-                                <div class="detail-row">
-                                    <span>Firmware:</span> <strong>v2.1.0</strong>
-                                </div>
-                                <div class="detail-row">
-                                    <span>Uptime:</span> <span>5d 12h 34m</span>
-                                </div>
-                                <div class="detail-row">
-                                    <span>Free Memory:</span> <span>245KB</span>
-                                </div>
-                                <div class="detail-row">
-                                    <span>WiFi Signal:</span> <span>-45 dBm (Excellent)</span>
-                                </div>
-                            </div>
-                            
-                            <div class="device-actions">
-                                <button class="action-btn primary" onclick="updateFirmware('greenhouse')">
-                                    📤 Update Firmware
-                                </button>
-                                <button class="action-btn secondary" onclick="restartDevice('greenhouse')">
-                                    🔄 Restart Device
-                                </button>
-                                <button class="action-btn info" onclick="showDeviceInfo('greenhouse')">
-                                    📊 View Details
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <!-- Coop Monitor -->
-                        <div class="esp32-device-card offline">
-                            <div class="device-header">
-                                <div class="device-info">
-                                    <h4>🐔 Coop Monitor</h4>
-                                    <span class="device-ip">192.168.1.101</span>
-                                </div>
-                                <div class="device-status offline">Offline</div>
-                            </div>
-                            
-                            <div class="device-details">
-                                <div class="detail-row">
-                                    <span>Last Firmware:</span> <strong>v1.9.2</strong>
-                                </div>
-                                <div class="detail-row">
-                                    <span>Last Seen:</span> <span>2h 15m ago</span>
-                                </div>
-                                <div class="detail-row">
-                                    <span>Status:</span> <span class="text-warning">Connection Lost</span>
-                                </div>
-                            </div>
-                            
-                            <div class="device-actions">
-                                <button class="action-btn disabled" disabled>
-                                    ⏸️ Device Offline
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="firmware-management">
-                        <h4>📁 Firmware Upload</h4>
-                        <div class="upload-section">
-                            <div class="file-drop-area" id="firmwareDropArea">
-                                <input type="file" id="firmwareFile" accept=".bin" style="display: none;" onchange="handleFirmwareFile(this)">
-                                <div class="drop-content">
-                                    <span class="drop-icon">📂</span>
-                                    <p>Drop .bin firmware file here or click to select</p>
-                                    <button class="select-file-btn" onclick="document.getElementById('firmwareFile').click()">
-                                        Select Firmware File
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="firmware-info" id="firmwareInfo"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="ota-history">
-                        <h4>📋 Update History</h4>
-                        <div class="history-list">
-                            <div class="history-item success">
-                                <div class="history-icon">✅</div>
-                                <div class="history-details">
-                                    <div class="history-title">Greenhouse Controller → v2.1.0</div>
-                                    <div class="history-time">Today, 15:42 - Update successful</div>
-                                </div>
-                            </div>
-                            <div class="history-item failed">
-                                <div class="history-icon">⚠️</div>
-                                <div class="history-details">
-                                    <div class="history-title">Coop Monitor → v1.9.3</div>
-                                    <div class="history-time">Yesterday, 09:15 - Failed, rolled back to v1.9.2</div>
-                                </div>
-                            </div>
-                            <div class="history-item success">
-                                <div class="history-icon">✅</div>
-                                <div class="history-details">
-                                    <div class="history-title">Coop Monitor → v1.9.2</div>
-                                    <div class="history-time">Jan 28, 14:30 - Update successful</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `, null, true);
-            loadESP32DeviceList();
-        }
-
-        function openAboutDialog() {
-            showModal('About Smart Farm Hub', `
-                <div class="settings-section about-section">
-                    <div class="about-logo">
-                        <span class="about-icon">🌱</span>
-                        <h2>Smart Farm Hub</h2>
-                        <p class="version">Version 2.1.0</p>
-                    </div>
-                    
-                    <div class="about-info">
-                        <div class="info-item">
-                            <strong>🎯 Mission:</strong>
-                            <p>Empowering sustainable organic farming through intelligent automation and monitoring.</p>
-                        </div>
-                        
-                        <div class="info-item">
-                            <strong>🚀 Features:</strong>
-                            <ul>
-                                <li>Real-time environmental monitoring</li>
-                                <li>Automated irrigation and climate control</li>
-                                <li>Weather integration & forecasting</li>
-                                <li>Mobile-responsive dashboard</li>
-                                <li>OTA firmware updates</li>
-                                <li>Multi-device farm management</li>
-                            </ul>
-                        </div>
-                        
-                        <div class="info-item">
-                            <strong>🔧 Technical Specs:</strong>
-                            <p>ESP32-powered IoT devices, Raspberry Pi gateway, modern web interface with real-time WebSocket communication.</p>
-                        </div>
-                        
-                        <div class="info-item">
-                            <strong>📅 Last Updated:</strong>
-                            <p>January 30, 2026</p>
-                        </div>
-                    </div>
-                </div>
-            `, null, true);
-        }
-
-        // Modal system
-        function showModal(title, content, saveCallback = null, infoOnly = false) {
-            try {
-                console.log('showModal called with title:', title);
-                
-                // Remove existing modal
-                const existingModal = document.getElementById('settingsModal');
-                if (existingModal) {
-                    console.log('Removing existing modal');
-                    existingModal.remove();
-                }
-
-                const modal = document.createElement('div');
-                modal.id = 'settingsModal';
-                modal.className = 'modal-overlay';
-                
-                // Check if mobile
-                const isMobile = window.innerWidth <= 768;
-                
-                if (isMobile) {
-                    modal.style.cssText = `
-                        position: fixed !important;
-                        top: 0 !important;
-                        left: 0 !important;
-                        width: 100vw !important;
-                        height: 100vh !important;
-                        background: rgba(0,0,0,0.9) !important;
-                        z-index: 999999 !important;
-                        display: flex !important;
-                        align-items: flex-start !important;
-                        justify-content: center !important;
-                        overflow: hidden !important;
-                        opacity: 1 !important;
-                        visibility: visible !important;
-                    `;
-                    
-                    modal.innerHTML = `
-                        <div class="modal-content" style="
-                            background: white !important;
-                            width: 100% !important;
-                            height: 100% !important;
-                            border-radius: 0 !important;
-                            margin: 0 !important;
-                            display: flex !important;
-                            flex-direction: column !important;
-                            overflow: hidden !important;
-                        ">
-                            <div class="modal-header" style="
-                                padding: 1rem 1.5rem !important;
-                                border-bottom: 1px solid #e5e7eb !important;
-                                background: white !important;
-                                position: relative !important;
-                                flex-shrink: 0 !important;
-                            ">
-                                <h3 style="margin: 0 !important; font-size: 1.25rem !important; color: #1f2937 !important;">${title}</h3>
-                                <button onclick="closeModal()" style="
-                                    position: absolute !important;
-                                    right: 1rem !important;
-                                    top: 50% !important;
-                                    transform: translateY(-50%) !important;
-                                    width: 32px !important;
-                                    height: 32px !important;
-                                    border-radius: 50% !important;
-                                    background: #f3f4f6 !important;
-                                    border: none !important;
-                                    font-size: 18px !important;
-                                    cursor: pointer !important;
-                                    display: flex !important;
-                                    align-items: center !important;
-                                    justify-content: center !important;
-                                ">&times;</button>
-                            </div>
-                            <div class="modal-body" style="
-                                padding: 1.5rem !important;
-                                overflow-y: auto !important;
-                                flex: 1 !important;
-                                background: #f9fafb !important;
-                                padding-bottom: 6rem !important;
-                            ">
-                                ${content}
-                            </div>
-                            <div class="modal-footer" style="
-                                position: fixed !important;
-                                bottom: 0 !important;
-                                left: 0 !important;
-                                right: 0 !important;
-                                background: white !important;
-                                padding: 1rem 1.5rem !important;
-                                border-top: 1px solid #e5e7eb !important;
-                                display: flex !important;
-                                gap: 0.75rem !important;
-                                flex-shrink: 0 !important;
-                            ">
-                                ${saveCallback ? `<button onclick="${saveCallback}()" style="flex: 1; padding: 0.875rem; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer;">💾 Save Changes</button>` : ''}
-                                <button onclick="closeModal()" style="flex: 1; padding: 0.875rem; background: #f3f4f6; color: #374151; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer;">${infoOnly ? 'Close' : 'Cancel'}</button>
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    // Desktop modal
-                    modal.style.cssText = 'position:fixed!important;top:0!important;left:0!important;width:100vw!important;height:100vh!important;background:rgba(0,0,0,0.8)!important;z-index:999999!important;display:flex!important;align-items:center!important;justify-content:center!important;';
-                    modal.innerHTML = `
-                        <div class="modal-content" style="background:white;border-radius:12px;padding:20px;max-width:600px;width:90%;max-height:80vh;overflow:auto;box-shadow:0 20px 40px rgba(0,0,0,0.3);">
-                            <div class="modal-header">
-                                <h3>${title}</h3>
-                                <button class="close-btn" onclick="closeModal()" style="float:right;background:none;border:none;font-size:24px;cursor:pointer;">&times;</button>
-                            </div>
-                            <div class="modal-body">
-                                ${content}
-                            </div>
-                            <div class="modal-footer" style="margin-top:20px;text-align:right;">
-                                ${saveCallback ? `<button onclick="${saveCallback}()" style="background:#4f46e5;color:white;border:none;padding:8px 16px;border-radius:6px;margin-right:10px;cursor:pointer;">💾 Save Changes</button>` : ''}
-                                <button onclick="closeModal()" style="background:#6b7280;color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;">${infoOnly ? 'Close' : 'Cancel'}</button>
-                            </div>
-                        </div>
-                    `;
-                }
-                
-                document.body.appendChild(modal);
-                console.log('Modal appended to body. Modal element:', modal);
-                console.log('Modal should now be visible');
-                
-            } catch (error) {
-                console.error('Error in showModal:', error);
-            }
-        }
-
-        function closeModal() {
-            const modal = document.getElementById('settingsModal');
-            if (modal) {
-                modal.classList.remove('show');
-                setTimeout(() => modal.remove(), 300);
-            }
-        }
-
-        // Test function to verify modal system
-        function testModal() {
-            console.log('Testing modal system...');
-            showModal('Test Modal', '<p>This is a test modal. If you can see this, the modal system is working.</p>', null, true);
-        }
-
-        window.testModal = testModal; // Make available globally for console testing
-
-        // Settings handlers
-        function loadUnitsSettings() {
-            const timeFormat = localStorage.getItem('timeFormat') || '12';
-            const dateFormat = localStorage.getItem('dateFormat') || 'US';
-            const tempUnit = localStorage.getItem('tempUnit') || 'C';
-            const windUnit = localStorage.getItem('windUnit') || 'kmh';
-            const humidityUnit = localStorage.getItem('humidityUnit') || 'percent';
-            const pressureUnit = localStorage.getItem('pressureUnit') || 'hPa';
-            
-            // Safely set values with null checks
-            const setIfExists = (id, value) => {
-                const element = document.getElementById(id);
-                if (element) element.value = value;
-            };
-            
-            setIfExists('timeFormat', timeFormat);
-            setIfExists('dateFormat', dateFormat);
-            setIfExists('tempUnit', tempUnit);
-            setIfExists('windUnit', windUnit);
-            setIfExists('humidityUnit', humidityUnit);
-            setIfExists('pressureUnit', pressureUnit);
-        }
-
-        function saveUnitsSettings() {
-            // Safely get values with null checks
-            const getIfExists = (id) => {
-                const element = document.getElementById(id);
-                return element ? element.value : null;
-            };
-            
-            const timeFormat = getIfExists('timeFormat') || '12';
-            const dateFormat = getIfExists('dateFormat') || 'US';
-            const tempUnit = getIfExists('tempUnit') || 'C';
-            const windUnit = getIfExists('windUnit') || 'kmh';
-            const humidityUnit = getIfExists('humidityUnit') || 'percent';
-            const pressureUnit = getIfExists('pressureUnit') || 'hPa';
-            
-            localStorage.setItem('timeFormat', timeFormat);
-            localStorage.setItem('dateFormat', dateFormat);
-            localStorage.setItem('tempUnit', tempUnit);
-            localStorage.setItem('windUnit', windUnit);
-            localStorage.setItem('humidityUnit', humidityUnit);
-            localStorage.setItem('pressureUnit', pressureUnit);
-            
-            closeModal();
-            showToast('✅ Settings saved successfully!');
-            
-            // Refresh displays
-            fetchWeather();
-        }
-
-        function setupLocationSettings() {
-            try {
-                const radios = document.querySelectorAll('input[name="locationMethod"]');
-                const coordinatesInput = document.getElementById('coordinatesInput');
-                
-                if (radios && coordinatesInput) {
-                    radios.forEach(radio => {
-                        radio.addEventListener('change', function() {
-                            coordinatesInput.style.display = this.value === 'coordinates' ? 'block' : 'none';
-                        });
-                    });
-                }
-                
-                // Auto-detect current location
-                getCurrentLocation();
-            } catch (error) {
-                console.error('Error setting up location settings:', error);
-            }
-        }
         
-        function getCurrentLocation() {
-            try {
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(
-                        position => {
-                            const lat = position.coords.latitude;
-                            const lng = position.coords.longitude;
-                            translateCoordinates(lat, lng);
-                        },
-                        error => {
-                            const currentAddress = document.getElementById('currentAddress');
-                            const currentCity = document.getElementById('currentCity');
-                            const currentState = document.getElementById('currentState');
-                            const currentCoords = document.getElementById('currentCoords');
-                            
-                            if (currentAddress) currentAddress.textContent = 'Location access denied';
-                            if (currentCity) currentCity.textContent = '--';
-                            if (currentState) currentState.textContent = '--';
-                            if (currentCoords) currentCoords.textContent = '--';
-                        }
-                    );
-                }
-            } catch (error) {
-                console.error('Error getting current location:', error);
-            }
-        }
+        // Close modal on overlay click
+        document.getElementById('modalOverlay').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeModal();
+        });
         
-        function translateCoordinates(lat = null, lng = null) {
-            try {
-                // Get coordinates from inputs if not provided
-                if (lat === null || lng === null) {
-                    const latInput = document.getElementById('latitude');
-                    const lngInput = document.getElementById('longitude');
-                    
-                    lat = latInput ? parseFloat(latInput.value) : null;
-                    lng = lngInput ? parseFloat(lngInput.value) : null;
-                }
-                
-                if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
-                    showToast('⚠️ Please enter valid coordinates', 'warning');
-                    return;
-                }
-                
-                // Update coordinate display elements
-                const results = {
-                    address: document.getElementById('resolvedAddress'),
-                    city: document.getElementById('resolvedCity'),
-                    state: document.getElementById('resolvedState'),
-                    country: document.getElementById('resolvedCountry'),
-                    timezone: document.getElementById('resolvedTimezone')
-                };
-                
-                // Show loading state
-                Object.values(results).forEach(el => {
-                    if (el) el.textContent = 'Loading...';
-                });
-                
-                // Use OpenStreetMap Nominatim for reverse geocoding
-                const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`;
-                
-                fetch(url)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data && data.address) {
-                            const addr = data.address;
-                            const fullAddress = data.display_name || 'Address not found';
-                            const city = addr.city || addr.town || addr.village || addr.municipality || 'Unknown';
-                            const state = addr.state || addr.province || addr.region || 'Unknown';
-                            const country = addr.country || 'Unknown';
-                            
-                            if (results.address) results.address.textContent = fullAddress;
-                            if (results.city) results.city.textContent = city;
-                            if (results.state) results.state.textContent = state;
-                            if (results.country) results.country.textContent = country;
-                            
-                            // Calculate timezone
-                            const timezoneOffset = Math.round(lng / 15);
-                            const timezone = `UTC${timezoneOffset >= 0 ? '+' : ''}${timezoneOffset}`;
-                            if (results.timezone) results.timezone.textContent = timezone;
-                            
-                            showToast('✅ Location resolved successfully!');
-                        } else {
-                            Object.values(results).forEach(el => {
-                                if (el) el.textContent = 'Not found';
-                            });
-                            showToast('⚠️ Address not found for these coordinates', 'warning');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Geocoding error:', error);
-                        Object.values(results).forEach(el => {
-                            if (el) el.textContent = 'Service unavailable';
-                        });
-                        showToast('❌ Geocoding service unavailable', 'error');
-                    });
-            } catch (error) {
-                console.error('Error in translateCoordinates:', error);
-            }
-        }
-        
-        function updateTimezone(lat, lng) {
-            try {
-                // Simple timezone estimation based on longitude
-                const timezoneOffset = Math.round(lng / 15);
-                const timezone = `UTC${timezoneOffset >= 0 ? '+' : ''}${timezoneOffset}`;
-                const currentTimezone = document.getElementById('currentTimezone');
-                if (currentTimezone) {
-                    currentTimezone.textContent = timezone;
-                }
-            } catch (error) {
-                console.error('Error updating timezone:', error);
-            }
-        }
-
-        function saveLocationSettings() {
-            const method = document.querySelector('input[name="locationMethod"]:checked')?.value;
-            
-            if (method === 'coordinates') {
-                const lat = document.getElementById('latitude')?.value;
-                const lng = document.getElementById('longitude')?.value;
-                
-                if (!lat || !lng) {
-                    showToast('⚠️ Please enter both latitude and longitude', 'warning');
-                    return;
-                }
-                
-                localStorage.setItem('locationMethod', 'coordinates');
-                localStorage.setItem('manualLat', lat);
-                localStorage.setItem('manualLng', lng);
-            } else {
-                localStorage.setItem('locationMethod', 'auto');
-            }
-            
-            closeModal();
-            showToast('✅ Location settings saved!');
-            fetchWeather(); // Refresh weather with new location
-        }
-
-        function checkNetworkStatus() {
-            // Check internet connectivity
-            fetch('/api/status')
-                .then(() => {
-                    document.getElementById('internetStatus').innerHTML = '<span class="status-online">Online</span>';
-                })
-                .catch(() => {
-                    document.getElementById('internetStatus').innerHTML = '<span class="status-offline">Offline</span>';
-                });
-            
-            // Load device network info
-            fetch('/api/devices')
-                .then(response => response.json())
-                .then(devices => {
-                    const deviceList = document.getElementById('deviceNetworkList');
-                    deviceList.innerHTML = devices.map(device => `
-                        <div class="device-network-item">
-                            <div class="device-info">
-                                <strong>${device.name}</strong>
-                                <span class="device-ip">${device.ip}</span>
-                            </div>
-                            <div class="device-status">
-                                <span class="status-${device.status === 'online' ? 'online' : 'offline'}">
-                                    ${device.status === 'online' ? '🟢 Online' : '🔴 Offline'}
-                                </span>
-                            </div>
-                        </div>
-                    `).join('');
-                })
-                .catch(() => {
-                    document.getElementById('deviceNetworkList').innerHTML = '❌ Failed to load device information';
-                });
-        }
-
-        // ESP32 Device Management Functions
-        function scanForDevices() {
-            const statusEl = document.getElementById('scanStatus');
-            if (statusEl) {
-                statusEl.textContent = 'Scanning...';
-            }
-            
-            showToast('🔍 Scanning for ESP32 devices...', 'info');
-            
-            // Simulate device scan
-            setTimeout(() => {
-                if (statusEl) {
-                    statusEl.textContent = `Last scan: ${new Date().toLocaleTimeString()}`;
-                }
-                showToast('✅ Device scan completed!', 'success');
-            }, 2000);
-        }
-        
-        function loadESP32DeviceList() {
-            // This would typically fetch from /api/esp32/devices
-            console.log('Loading ESP32 device list...');
-        }
-        
-        function updateFirmware(deviceId) {
-            if (confirm(`🚀 Start firmware update for ${deviceId}?\n\nThis will temporarily interrupt device operation but will automatically rollback on failure.`)) {
-                showToast(`📤 Starting firmware update for ${deviceId}...`, 'info');
-                
-                // Simulate OTA update process
-                setTimeout(() => {
-                    showToast(`✅ Firmware update completed for ${deviceId}!`, 'success');
-                }, 3000);
-            }
-        }
-        
-        function restartDevice(deviceId) {
-            if (confirm(`🔄 Restart ${deviceId} device?`)) {
-                showToast(`🔄 Restarting ${deviceId}...`, 'info');
-                
-                setTimeout(() => {
-                    showToast(`✅ ${deviceId} restarted successfully!`, 'success');
-                }, 2000);
-            }
-        }
-        
-        function showDeviceInfo(deviceId) {
-            showToast(`📊 Loading detailed information for ${deviceId}...`, 'info');
-            // This would show detailed device information
-        }
-        
-        function handleFirmwareFile(input) {
-            const file = input.files[0];
-            const infoEl = document.getElementById('firmwareInfo');
-            
-            if (file && infoEl) {
-                if (file.name.endsWith('.bin')) {
-                    infoEl.innerHTML = `
-                        <div class="firmware-file-info">
-                            <h5>✅ Firmware File Ready</h5>
-                            <p><strong>File:</strong> ${file.name}</p>
-                            <p><strong>Size:</strong> ${(file.size / 1024 / 1024).toFixed(2)} MB</p>
-                            <p><strong>Modified:</strong> ${new Date(file.lastModified).toLocaleString()}</p>
-                            <div class="firmware-actions">
-                                <button class="action-btn primary" onclick="uploadToDevice()">
-                                    📤 Upload to Selected Device
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    infoEl.innerHTML = '<div class="error">❌ Please select a .bin firmware file</div>';
-                }
-            }
-        }
-        
-        function uploadToDevice() {
-            showToast('📤 Uploading firmware to device...', 'info');
-            
-            // Simulate firmware upload
-            setTimeout(() => {
-                showToast('✅ Firmware uploaded successfully!', 'success');
-            }, 2500);
-        }
-
-        function loadOTADevices() {
-            fetch('/api/devices')
-                .then(response => response.json())
-                .then(devices => {
-                    const deviceList = document.getElementById('deviceOTAList');
-                    deviceList.innerHTML = `
-                        <h4>🔄 Available Devices for Update</h4>
-                        ${devices.map(device => `
-                            <div class="ota-device-item">
-                                <div class="device-ota-info">
-                                    <strong>${device.name}</strong>
-                                    <span class="device-version">Current: v${device.version || '1.0.0'}</span>
-                                    <span class="device-status-ota status-${device.status === 'online' ? 'online' : 'offline'}">
-                                        ${device.status === 'online' ? '🟢 Ready' : '🔴 Offline'}
-                                    </span>
-                                </div>
-                                <button class="ota-btn ${device.status !== 'online' ? 'disabled' : ''}" 
-                                        onclick="initiateOTA('${device.id}')" 
-                                        ${device.status !== 'online' ? 'disabled' : ''}>
-                                    🚀 Update Firmware
-                                </button>
-                            </div>
-                        `).join('')}
-                    `;
-                })
-                .catch(() => {
-                    document.getElementById('deviceOTAList').innerHTML = '❌ Failed to load devices for OTA updates';
-                });
-        }
-
-        function initiateOTA(deviceId) {
-            showToast('🚀 Starting OTA update...', 'info');
-            // OTA update implementation will be added later
-            console.log('Starting OTA update for device:', deviceId);
-        }
-
-        function showToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className = `toast toast-${type}`;
-            toast.textContent = message;
-            
-            document.body.appendChild(toast);
-            
-            setTimeout(() => toast.classList.add('show'), 100);
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
-
-        init();
+        // Escape key closes modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
     </script>
 </body>
 </html>
