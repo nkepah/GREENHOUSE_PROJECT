@@ -849,8 +849,9 @@
             /* Mobile Navbar */
             .navbar-content {
                 padding: 1rem;
-                gap: 1rem;
+                gap: 0.8rem;
                 flex-direction: column;
+                align-items: flex-start;
             }
             
             .navbar-top {
@@ -859,8 +860,10 @@
             
             .navbar-right {
                 gap: 0;
-                justify-content: center;
-                width: 100%;
+                justify-content: flex-end;
+                width: auto;
+                align-self: flex-end;
+                margin-top: -0.5rem;
             }
             
             .navbar-brand {
@@ -872,44 +875,54 @@
             }
             
             .status-time-container {
-                padding: 0.4rem 0;
-                font-size: 0.9rem;
-                justify-content: center;
+                padding: 0;
+                font-size: 1rem;
+                justify-content: flex-start;
+                align-items: flex-start;
             }
             
             .time-display {
                 min-width: auto;
-                text-align: center;
+                text-align: left;
+                line-height: 1.2;
             }
             
             .time-main {
-                font-size: 1rem;
-                display: inline;
-                margin-right: 0.5rem;
+                font-size: 1.4rem;
+                font-weight: 700;
+                display: block;
+                margin-bottom: 0.2rem;
+                color: white;
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+                letter-spacing: 0.5px;
             }
             
             .date-sub {
-                font-size: 0.8rem;
-                display: inline;
-                opacity: 0.9;
+                font-size: 0.9rem;
+                display: block;
+                opacity: 0.85;
+                color: rgba(255, 255, 255, 0.9);
+                font-weight: 500;
+                text-transform: uppercase;
+                letter-spacing: 0.8px;
             }
             
             .settings-btn {
                 background: none;
                 color: white;
-                border: 3px solid white;
-                border-radius: 16px;
-                padding: 1.2rem 1.5rem;
-                font-size: 1.1rem;
-                font-weight: 700;
-                box-shadow: 0 4px 16px rgba(255, 255, 255, 0.3);
+                border: none;
+                border-radius: 12px;
+                padding: 1rem;
+                font-size: 1.2rem;
+                font-weight: 800;
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+                filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
             }
             
             .settings-btn:hover {
                 background: rgba(255, 255, 255, 0.1);
-                transform: translateY(-3px);
-                box-shadow: 0 8px 24px rgba(255, 255, 255, 0.4);
-                scale: 1.05;
+                transform: scale(1.1);
+                filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.8));
             }
             
             .settings-text {
@@ -917,7 +930,7 @@
             }
             
             .settings-icon {
-                font-size: 1.4rem;
+                font-size: 1.6rem;
             }
             
             .status-time-container {
