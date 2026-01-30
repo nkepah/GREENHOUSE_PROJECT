@@ -944,8 +944,12 @@
             }
             
             .settings-icon {
-                font-size: 1.4rem;
+                font-size: 0 !important;
+                width: 20px;
+                height: 20px;
                 position: relative;
+                text-indent: -9999px;
+                overflow: hidden;
             }
             
             .settings-icon::before {
@@ -961,13 +965,16 @@
                     0 -6px 0 white,
                     0 6px 0 white;
                 border-radius: 2px;
+                text-indent: 0;
             }
             
-            /* Hide the emoji icon on mobile */
+            /* Completely hide the emoji text */
             .settings-icon {
-                font-size: 0;
+                font-size: 0 !important;
                 width: 20px;
                 height: 20px;
+                text-indent: -9999px;
+                overflow: hidden;
             }
             
             .status-time-container {
