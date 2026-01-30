@@ -2118,9 +2118,38 @@
                         <span>Smart Farm Hub</span>
                     </a>
                 </div>
-                <button class="settings-btn" id="settingsBtn" title="Settings">
-                    <span class="settings-icon">⚙️</span>
-                </button>
+                <div class="navbar-item">
+                    <button class="settings-btn" id="settingsBtn" title="Settings">
+                        <span class="settings-icon">⚙️</span>
+                    </button>
+                    <!-- Settings Dropdown -->
+                    <div class="settings-dropdown" id="settingsDropdown">
+                        <div class="dropdown-header">
+                            <div class="dropdown-title">Farm Hub Menu</div>
+                            <div class="dropdown-subtitle">System Settings</div>
+                        </div>
+                        <div class="dropdown-section">
+                            <div class="dropdown-section-title">System Settings</div>
+                            <button class="dropdown-item" onclick="openSettings('units')">
+                                <span class="dropdown-icon">📊</span>
+                                <span>Units & Time Format</span>
+                            </button>
+                            <button class="dropdown-item" onclick="openSettings('location')">
+                                <span class="dropdown-icon">📍</span>
+                                <span>Location Settings</span>
+                            </button>
+                            <button class="dropdown-item" onclick="openSettings('ota')">
+                                <span class="dropdown-icon">🚀</span>
+                                <span>ESP32 OTA Manager</span>
+                            </button>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <button class="dropdown-item" onclick="openSettings('about')">
+                            <span class="dropdown-icon">ℹ️</span>
+                            <span>About System</span>
+                        </button>
+                    </div>
+                </div>
             </div>
             <div class="navbar-right">
                 <div class="status-time-container">
