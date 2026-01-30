@@ -1185,56 +1185,60 @@
     </style>
 </head>
 <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-        <div class="navbar-content">
-            <a href="/" class="navbar-brand">
-                <span class="navbar-icon">🌱</span>
-                <span>Smart Farm Hub</span>
-            </a>
-            <div class="navbar-menu">
-                <div class="status-indicator">
-                    <div class="status-dot"></div>
-                    <span>System Online</span>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <span class="logo-icon">🌾</span>
+                <div>
+                    <h1 id="farm-name">Farm Hub</h1>
+                    <div class="logo-tagline">Sustainable Organic Farming</div>
                 </div>
-                <div class="navbar-item">
-                    <button class="navbar-link settings-btn" onclick="toggleSettings()">
-                        <span>⚙️</span>
-                        <span>Settings</span>
-                    </button>
-                    <div class="settings-dropdown" id="settingsDropdown">
-                        <div class="dropdown-header">
-                            <div class="dropdown-title">System Settings</div>
-                            <div class="dropdown-subtitle">Configure your farm hub</div>
+            </div>
+            <div class="header-info">
+                <div class="time-display" id="time-display">--:--</div>
+                <div class="header-actions">
+                    <div class="status-indicator">
+                        <div class="status-dot"></div>
+                        <span>Online</span>
+                    </div>
+                    <div class="navbar-item">
+                        <button class="settings-btn" onclick="toggleSettings()">
+                            <span>⚙️</span>
+                            <span>Settings</span>
+                        </button>
+                        <div class="settings-dropdown" id="settingsDropdown">
+                            <div class="dropdown-header">
+                                <div class="dropdown-title">System Settings</div>
+                                <div class="dropdown-subtitle">Configure your farm hub</div>
+                            </div>
+                            <button class="dropdown-item" onclick="openSettings('units')">
+                                <span class="dropdown-icon">📊</span>
+                                <span>Units & Time Format</span>
+                            </button>
+                            <button class="dropdown-item" onclick="openSettings('location')">
+                                <span class="dropdown-icon">📍</span>
+                                <span>Location Settings</span>
+                            </button>
+                            <button class="dropdown-item" onclick="openSettings('network')">
+                                <span class="dropdown-icon">🌐</span>
+                                <span>Network Setup</span>
+                            </button>
+                            <button class="dropdown-item" onclick="openSettings('ota')">
+                                <span class="dropdown-icon">🔄</span>
+                                <span>OTA Updates</span>
+                            </button>
+                            <div class="dropdown-divider"></div>
+                            <button class="dropdown-item" onclick="openSettings('about')">
+                                <span class="dropdown-icon">ℹ️</span>
+                                <span>About</span>
+                            </button>
                         </div>
-                        <button class="dropdown-item" onclick="openSettings('units')">
-                            <span class="dropdown-icon">📊</span>
-                            <span>Units & Time Format</span>
-                        </button>
-                        <button class="dropdown-item" onclick="openSettings('location')">
-                            <span class="dropdown-icon">📍</span>
-                            <span>Location Settings</span>
-                        </button>
-                        <button class="dropdown-item" onclick="openSettings('network')">
-                            <span class="dropdown-icon">🌐</span>
-                            <span>Network Setup</span>
-                        </button>
-                        <button class="dropdown-item" onclick="openSettings('ota')">
-                            <span class="dropdown-icon">🔄</span>
-                            <span>OTA Updates</span>
-                        </button>
-                        <div class="dropdown-divider"></div>
-                        <button class="dropdown-item" onclick="openSettings('about')">
-                            <span class="dropdown-icon">ℹ️</span>
-                            <span>About</span>
-                        </button>
                     </div>
                 </div>
             </div>
         </div>
-    </nav>
-
-    <!-- Header -->
+    </header>
     <header class="header">
         <div class="header-content">
             <div class="logo">
