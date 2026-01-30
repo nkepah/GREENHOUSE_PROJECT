@@ -3499,9 +3499,9 @@ ${JSON.stringify(device.status, null, 2)}
             const dropdown = document.getElementById('settingsDropdown');
             const settingsBtn = event.target.closest('.settings-btn');
             
-            if (!settingsBtn && !dropdown.contains(event.target)) {
+            if (!settingsBtn && dropdown && !dropdown.contains(event.target)) {
+                dropdown.classList.remove('show');
                 dropdown.style.display = 'none';
-                console.log('Settings dropdown closed by outside click');
             }
         });
 
