@@ -943,12 +943,31 @@
                 transform: scale(0.95);
             }
             
-            .settings-text {
-                display: none;
+            .settings-icon {
+                font-size: 1.4rem;
+                position: relative;
             }
             
+            .settings-icon::before {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 20px;
+                height: 2px;
+                background: white;
+                box-shadow: 
+                    0 -6px 0 white,
+                    0 6px 0 white;
+                border-radius: 2px;
+            }
+            
+            /* Hide the emoji icon on mobile */
             .settings-icon {
-                font-size: 1.6rem;
+                font-size: 0;
+                width: 20px;
+                height: 20px;
             }
             
             .status-time-container {
