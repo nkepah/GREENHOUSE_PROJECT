@@ -5,6 +5,22 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>🌿 ESP32 Setup</title>
 <style>
+:root{--accent-green:#00d9a5;--accent-blue:#4f7cff;--shadow:0 8px 32px rgba(0,0,0,0.3);}
+
+/* Navigation Bar */
+.navbar{background:linear-gradient(90deg,var(--accent-green) 0%,var(--accent-blue) 100%);color:white;padding:0;box-shadow:var(--shadow);position:sticky;top:0;z-index:1000;}
+.navbar-content{max-width:1400px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;padding:1rem 2rem;}
+.navbar-brand{display:flex;align-items:center;gap:0.75rem;cursor:pointer;text-decoration:none;color:white;font-weight:700;font-size:1.3rem;}
+.navbar-brand:hover{opacity:0.9;}
+.navbar-icon{font-size:1.8rem;animation:sway 3s ease-in-out infinite;}
+@keyframes sway{0%,100%{transform:rotate(-5deg);}50%{transform:rotate(5deg);}}
+.navbar-menu{display:flex;gap:0.5rem;align-items:center;}
+.navbar-link{color:white;text-decoration:none;padding:0.6rem 1.2rem;border-radius:8px;transition:all 0.3s;font-weight:500;font-size:0.95rem;cursor:pointer;border:2px solid transparent;}
+.navbar-link:hover{background:rgba(255,255,255,0.2);transform:translateY(-2px);}
+.navbar-link.active{background:rgba(255,255,255,0.3);border-color:rgba(255,255,255,0.5);}
+.weather-mini{display:flex;align-items:center;gap:0.5rem;background:rgba(255,255,255,0.15);padding:0.5rem 1rem;border-radius:20px;margin-left:auto;}
+.weather-mini .temp{font-size:1.2rem;font-weight:600;}
+
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh;padding:20px}
 .container{max-width:500px;margin:0 auto}
@@ -42,12 +58,29 @@ h1{text-align:center;margin-bottom:30px;font-size:1.5rem}
 </style>
 </head>
 <body>
-<nav style="background:rgba(30,41,59,0.95);padding:12px 20px;margin:-20px -20px 20px -20px;display:flex;align-items:center;gap:20px;border-bottom:1px solid rgba(148,163,184,0.12);position:sticky;top:-20px;z-index:1000;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);"><div class="brand" onclick="window.location.href='/'" title="Back to Home" style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;font-size:1.1rem;color:#00d9a5;">🌱 Greenhouse OS</div><div style="flex:1;"></div></nav>
+<nav class="navbar">
+  <div class="navbar-content">
+    <a href="/" class="navbar-brand">
+      <span class="navbar-icon">🌾</span>
+      <span>Farm Hub</span>
+    </a>
+    <div class="navbar-menu">
+      <a href="/" class="navbar-link" title="Main Dashboard">📊 Dashboard</a>
+      <a href="/greenhouse/" class="navbar-link" title="Greenhouse Controls">🌱 Greenhouse</a>
+      <a href="/routines.html" class="navbar-link" title="Automation">⚡ Routines</a>
+      <a href="/alerts.html" class="navbar-link" title="Alerts">🔔 Alerts</a>
+      <a href="/setup.html" class="navbar-link active" title="Settings">⚙️ Setup</a>
+    </div>
+    <div class="weather-mini" id="weather-mini" style="margin-left:auto;">
+      <span id="mini-weather-icon">🌤️</span>
+      <span class="temp" id="mini-temp">--°C</span>
+    </div>
+  </div>
+</nav>
 <div class="container">
 <h1>🌿 ESP32 Greenhouse Setup</h1>
 
 <div id="alert" class="alert hidden"></div>
-
 <!-- Status Card -->
 <div class="card">
 <h2>📊 System Status</h2>
