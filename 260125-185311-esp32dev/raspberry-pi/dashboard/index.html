@@ -885,6 +885,38 @@
     </div>
     
     <script>
+        // Toggle Function
+        function toggleSettings(event) {
+            console.log('⚙️ Settings toggled');
+            if (event) {
+                event.stopPropagation();
+                event.preventDefault();
+            }
+            const dropdown = document.getElementById('settingsDropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('show');
+            }
+        }
+
+        // Close on Outside Click
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('settingsDropdown');
+            // If click is outside dropdown AND outside the button (handled by stopPropagation, but double check)
+            if (dropdown && dropdown.classList.contains('show')) {
+                 if (!dropdown.contains(event.target)) {
+                    dropdown.classList.remove('show');
+                }
+            }
+        });
+
+        // Open Modal Handlers (placeholders)
+        function openSettings(type) {
+            console.log('Open setting:', type);
+            const dropdown = document.getElementById('settingsDropdown');
+            if(dropdown) dropdown.classList.remove('show');
+            alert('Settings [' + type + '] implementation coming soon!');
+        }
+
         // State
         let devices = {};
         let weather = null;
