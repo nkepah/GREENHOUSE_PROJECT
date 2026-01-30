@@ -336,29 +336,7 @@
             50% { opacity: 0.7; box-shadow: 0 0 12px rgba(40, 167, 69, 0.6); }
         }
 
-        /* Settings Dropdown */
-        .settings-dropdown {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            margin-top: 0.5rem;
-            min-width: 280px;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-            border: 1px solid rgba(0,0,0,0.1);
-            opacity: 0;
-            transform: translateY(-10px);
-            visibility: hidden;
-            transition: all 0.3s ease;
-            z-index: 1001;
-        }
-
-        .settings-dropdown.show {
-            opacity: 1;
-            transform: translateY(0);
-            visibility: visible;
-        }
+        /* REMOVED - Duplicate settings dropdown CSS that conflicts with mobile */
 
         .dropdown-header {
             padding: 1rem 1.25rem 0.5rem;
