@@ -3391,7 +3391,15 @@ ${JSON.stringify(device.status, null, 2)}
             // Add event listener for settings button as backup
             const settingsBtn = document.getElementById('settingsBtn');
             if (settingsBtn) {
-                settingsBtn.addEventListener('click', toggleSettings);
+                // Remove any existing listeners
+                settingsBtn.removeEventListener('click', toggleSettings);
+                // Add new listener
+                settingsBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Settings button clicked!');
+                    toggleSettings();
+                });
                 console.log('Settings button event listener added');
             } else {
                 console.error('Settings button not found');
