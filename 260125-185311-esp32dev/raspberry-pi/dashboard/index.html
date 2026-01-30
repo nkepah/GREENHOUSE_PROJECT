@@ -2,62 +2,52 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Smart FARM HUB</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌾 Smart Farm Hub - Unified Dashboard</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌾</text></svg>">
     <style>
         :root {
-            --bg-primary: #0f172a; /* Slate 900 */
-            --bg-secondary: #1e293b; /* Slate 800 */
-            --bg-card: #1e293b;
-            --bg-card-hover: #334155;
-            --accent: #22c55e; /* Green 500 */
-            --accent-glow: rgba(34, 197, 94, 0.5);
-            --accent-blue: #3b82f6;
-            --accent-orange: #f59e0b;
-            --accent-red: #ef4444;
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --border: #334155;
-            --nav-height: 64px;
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-card: #21262d;
+            --bg-card-hover: #30363d;
+            --accent: #4ecca3;
+            --accent-blue: #58a6ff;
+            --accent-orange: #f39c12;
+            --accent-red: #f85149;
+            --accent-yellow: #d29922;
+            --text-primary: #f0f6fc;
+            --text-secondary: #8b949e;
+            --border: #30363d;
         }
         
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            -webkit-tap-highlight-color: transparent;
         }
         
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
             min-height: 100vh;
             line-height: 1.5;
-            padding-top: var(--nav-height); /* Prevent content from hiding behind fixed header */
         }
         
-        /* Modern App Navbar */
+        /* Header */
         header {
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: var(--bg-secondary);
             border-bottom: 1px solid var(--border);
-            height: var(--nav-height);
-            position: fixed;
+            padding: 16px 24px;
+            position: sticky;
             top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            z-index: 100;
         }
         
         .header-content {
             max-width: 1400px;
             margin: 0 auto;
-            height: 100%;
-            padding: 0 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -67,207 +57,25 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            text-decoration: none;
-            color: inherit;
         }
         
         .logo-icon {
-            font-size: 1.75rem;
-            filter: drop-shadow(0 0 8px var(--accent-glow));
+            font-size: 2rem;
         }
         
         .logo h1 {
-            font-size: 1.25rem;
-            font-weight: 800;
-            letter-spacing: -0.025em;
-            white-space: nowrap; /* Prevent wrapping as requested */
-            background: linear-gradient(to right, #fff, #cbd5e1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-transform: uppercase;
+            font-size: 1.5rem;
+            font-weight: 600;
         }
         
         .logo span {
             color: var(--accent);
-            -webkit-text-fill-color: var(--accent);
         }
         
         .header-status {
             display: flex;
             align-items: center;
-            gap: 16px;
-        }
-
-        .settings-btn {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text-primary);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            padding: 8px 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            height: 40px;
-            width: 40px;
-        }
-
-        .settings-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        /* Settings Dropdown - Desktop Only */
-        .settings-dropdown {
-            position: absolute;
-            top: calc(100% + 10px);
-            right: 0;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-            min-width: 280px;
-            padding: 0.5rem 0;
-            z-index: 2000;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            color: #333;
-        }
-
-        /* Desktop show state */
-        @media (min-width: 769px) {
-            .settings-dropdown.show {
-                opacity: 1;
-                visibility: visible;
-                transform: translateY(0);
-            }
-        }
-
-        /* Mobile Responsive Navigation */
-        @media (max-width: 600px) {
-            :root {
-                --nav-height: 56px;
-            }
-            
-            .header-content {
-                padding: 0 12px;
-            }
-            
-            .logo-icon {
-                font-size: 1.5rem;
-            }
-            
-            .logo h1 {
-                font-size: 1rem;
-            }
-            
-            /* Keep clock visible but smaller if needed, or hide if space is tight. 
-               User asked to bring back "log" (possibly "clock" or "logo"), so let's keep clock visible but small */
-            .nav-clock {
-                font-size: 0.8rem;
-                display: block; 
-            }
-            
-            .nav-status-text {
-                display: none; /* Hide "Online" text, only show dot */
-            }
-            
-            .connection-badge {
-                padding: 6px; /* Circle shape-ish */
-                border-radius: 50%;
-                min-width: unset;
-                aspect-ratio: 1;
-                display: flex;
-                justify-content: center;
-            }
-            
-            .header-status {
-                gap: 8px;
-            }
-
-            /* Settings Dropdown Mobile - FIXED */
-            .settings-dropdown {
-                position: fixed !important;
-                bottom: 0 !important;
-                left: 0 !important;
-                right: 0 !important;
-                width: 100% !important;
-                height: auto !important;
-                max-height: 80vh !important;
-                background: white !important;
-                border-radius: 20px 20px 0 0 !important;
-                box-shadow: 0 -4px 20px rgba(0,0,0,0.15) !important;
-                z-index: 99999 !important;
-                overflow-y: auto !important;
-                margin: 0 !important;
-                padding: 1rem 0 !important;
-                top: auto !important; /* Override desktop top */
-                transform: translateY(100%) !important;
-            }
-            
-            .settings-dropdown.show {
-                transform: translateY(0) !important;
-            }
-        }
-
-        .dropdown-header {
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid #e5e7eb;
-            margin-bottom: 0.5rem;
-        }
-        
-        .dropdown-title {
-            font-weight: 700;
-            font-size: 1.1rem;
-            color: #111827;
-        }
-
-        .dropdown-subtitle {
-            font-size: 0.85rem;
-            color: #6b7280;
-        }
-
-        .dropdown-section {
-            padding: 0.5rem 0;
-            border-bottom: 1px solid #f3f4f6;
-        }
-
-        .dropdown-section-title {
-            padding: 0.5rem 1.5rem;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            color: #9ca3af;
-            letter-spacing: 0.05em;
-        }
-
-        .dropdown-item {
-            width: 100%;
-            padding: 0.75rem 1.5rem;
-            border: none;
-            background: none;
-            text-align: left;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            font-size: 0.95rem;
-            color: #374151;
-            text-decoration: none;
-        }
-
-        .dropdown-item:hover {
-            background: #f3f4f6;
-            color: #111827;
-        }
-
-        .dropdown-icon {
-            font-size: 1.1rem;
-            width: 24px;
-            text-align: center;
+            gap: 24px;
         }
         
         .connection-badge {
@@ -715,55 +523,14 @@
     <header>
         <div class="header-content">
             <div class="logo">
-                <span class="logo-icon">�</span>
-                <h1 id="farmName">Smart <span>FARM HUB</span></h1>
+                <span class="logo-icon">🌾</span>
+                <h1 id="farmName">Farm <span>Hub</span></h1>
             </div>
             <div class="header-status">
-                <div id="clock" class="nav-clock">--:--:--</div>
+                <div id="clock" style="color: var(--text-secondary);">--:--:--</div>
                 <div class="connection-badge" id="connectionBadge">
                     <div class="status-dot" id="statusDot"></div>
-                    <span id="connectionText" class="nav-status-text">Connecting...</span>
-                </div>
-                <!-- Settings Button Added Back -->
-                <button class="settings-btn" id="settingsBtn" title="Settings" onclick="toggleSettings(event)">
-                    <span>⚙️</span>
-                </button>
-                
-                <!-- Settings Dropdown Structure -->
-                <div class="settings-dropdown" id="settingsDropdown">
-                    <div class="dropdown-header">
-                        <div class="dropdown-title">Farm Hub Menu</div>
-                        <div class="dropdown-subtitle">System Settings</div>
-                    </div>
-                    <div class="dropdown-section">
-                        <div class="dropdown-section-title">Configuration</div>
-                        <button class="dropdown-item" onclick="openSettings('units')">
-                            <span class="dropdown-icon">📏</span>
-                            Units & Time
-                        </button>
-                        <button class="dropdown-item" onclick="openSettings('location')">
-                            <span class="dropdown-icon">📍</span>
-                            Location & Weather
-                        </button>
-                    </div>
-                    <div class="dropdown-section">
-                        <div class="dropdown-section-title">System</div>
-                        <button class="dropdown-item" onclick="openSettings('ota')">
-                            <span class="dropdown-icon">🔄</span>
-                            Firmware Updates
-                        </button>
-                        <button class="dropdown-item" onclick="openSettings('logs')">
-                            <span class="dropdown-icon">📋</span>
-                            System Logs
-                        </button>
-                    </div>
-                    <div class="dropdown-section">
-                        <div class="dropdown-section-title">About</div>
-                        <button class="dropdown-item" onclick="openSettings('about')">
-                            <span class="dropdown-icon">ℹ️</span>
-                            About Farm Hub
-                        </button>
-                    </div>
+                    <span id="connectionText">Connecting...</span>
                 </div>
             </div>
         </div>
@@ -885,38 +652,6 @@
     </div>
     
     <script>
-        // Toggle Function
-        function toggleSettings(event) {
-            console.log('⚙️ Settings toggled');
-            if (event) {
-                event.stopPropagation();
-                event.preventDefault();
-            }
-            const dropdown = document.getElementById('settingsDropdown');
-            if (dropdown) {
-                dropdown.classList.toggle('show');
-            }
-        }
-
-        // Close on Outside Click
-        document.addEventListener('click', function(event) {
-            const dropdown = document.getElementById('settingsDropdown');
-            // If click is outside dropdown AND outside the button (handled by stopPropagation, but double check)
-            if (dropdown && dropdown.classList.contains('show')) {
-                 if (!dropdown.contains(event.target)) {
-                    dropdown.classList.remove('show');
-                }
-            }
-        });
-
-        // Open Modal Handlers (placeholders)
-        function openSettings(type) {
-            console.log('Open setting:', type);
-            const dropdown = document.getElementById('settingsDropdown');
-            if(dropdown) dropdown.classList.remove('show');
-            alert('Settings [' + type + '] implementation coming soon!');
-        }
-
         // State
         let devices = {};
         let weather = null;
