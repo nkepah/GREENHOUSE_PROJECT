@@ -3040,22 +3040,20 @@ ${JSON.stringify(device.status, null, 2)}
         }
 
         function saveLocationSettings() {
-            const method = document.querySelector('input[name="locationMethod"]:checked').value;
+            const method = document.querySelector('input[name="locationMethod"]:checked')?.value;
             
-            if (method === 'manual') {
-                const lat = document.getElementById('latitude').value;
-                const lng = document.getElementById('longitude').value;
-                const name = document.getElementById('locationName').value;
+            if (method === 'coordinates') {
+                const lat = document.getElementById('latitude')?.value;
+                const lng = document.getElementById('longitude')?.value;
                 
                 if (!lat || !lng) {
                     showToast('⚠️ Please enter both latitude and longitude', 'warning');
                     return;
                 }
                 
-                localStorage.setItem('locationMethod', 'manual');
+                localStorage.setItem('locationMethod', 'coordinates');
                 localStorage.setItem('manualLat', lat);
                 localStorage.setItem('manualLng', lng);
-                localStorage.setItem('locationName', name);
             } else {
                 localStorage.setItem('locationMethod', 'auto');
             }
