@@ -30,7 +30,7 @@ const PORT = 3000;
 // =============================================================================
 
 let config = {
-    farmName: "My Farm Hub",
+    farmName: "Smart Farm Hub",
     location: { lat: -17.8292, lon: 31.0522 },
     devices: {
         greenhouse: { 
