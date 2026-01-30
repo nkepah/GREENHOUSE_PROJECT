@@ -2975,34 +2975,49 @@ ${JSON.stringify(device.status, null, 2)}
         }
 
         function setupLocationSettings() {
-            const radios = document.querySelectorAll('input[name="locationMethod"]');
-            const coordinatesInput = document.getElementById('coordinatesInput');
-            
-            radios.forEach(radio => {
-                radio.addEventListener('change', function() {
-                    coordinatesInput.style.display = this.value === 'coordinates' ? 'block' : 'none';
-                });
-            });
-            
-            // Auto-detect current location
-            getCurrentLocation();
+            try {
+                const radios = document.querySelectorAll('input[name="locationMethod"]');
+                const coordinatesInput = document.getElementById('coordinatesInput');
+                
+                if (radios && coordinatesInput) {
+                    radios.forEach(radio => {
+                        radio.addEventListener('change', function() {
+                            coordinatesInput.style.display = this.value === 'coordinates' ? 'block' : 'none';
+                        });
+                    });
+                }
+                
+                // Auto-detect current location
+                getCurrentLocation();
+            } catch (error) {
+                console.error('Error setting up location settings:', error);
+            }
         }
         
         function getCurrentLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    position => {
-                        const lat = position.coords.latitude;
-                        const lng = position.coords.longitude;
-                        translateCoordinates(lat, lng);
-                    },
-                    error => {
-                        document.getElementById('currentAddress').textContent = 'Location access denied';
-                        document.getElementById('currentCity').textContent = '--';
-                        document.getElementById('currentState').textContent = '--';
-                        document.getElementById('currentCoords').textContent = '--';
-                    }
-                );
+            try {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        position => {
+                            const lat = position.coords.latitude;
+                            const lng = position.coords.longitude;
+                            translateCoordinates(lat, lng);
+                        },
+                        error => {
+                            const currentAddress = document.getElementById('currentAddress');
+                            const currentCity = document.getElementById('currentCity');
+                            const currentState = document.getElementById('currentState');
+                            const currentCoords = document.getElementById('currentCoords');
+                            
+                            if (currentAddress) currentAddress.textContent = 'Location access denied';
+                            if (currentCity) currentCity.textContent = '--';
+                            if (currentState) currentState.textContent = '--';
+                            if (currentCoords) currentCoords.textContent = '--';
+                        }
+                    );
+                }
+            } catch (error) {
+                console.error('Error getting current location:', error);
             }
         }
         
