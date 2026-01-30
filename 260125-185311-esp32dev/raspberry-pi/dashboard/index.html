@@ -908,73 +908,59 @@
             }
             
             .settings-btn {
-                background: rgba(255, 255, 255, 0.1);
+                background: none !important;
                 color: white;
                 border: 2px solid rgba(255, 255, 255, 0.4);
                 border-radius: 50%;
-                padding: 1rem;
+                padding: 0;
                 width: 3.5rem;
                 height: 3.5rem;
-                font-size: 1.2rem;
-                font-weight: 800;
-                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
                 cursor: pointer;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 transition: all 0.3s ease;
+                position: relative;
             }
             
             .settings-btn:hover {
-                background: rgba(255, 255, 255, 0.2);
+                background: none !important;
                 border-color: rgba(255, 255, 255, 0.6);
                 transform: scale(1.1);
-                box-shadow: 0 4px 16px rgba(255, 255, 255, 0.3);
             }
             
             .settings-btn:focus {
-                background: rgba(255, 255, 255, 0.15);
+                background: none !important;
                 border-color: rgba(255, 255, 255, 0.5);
                 outline: none;
             }
             
             .settings-btn:active {
-                background: rgba(255, 255, 255, 0.1);
+                background: none !important;
                 transform: scale(0.95);
             }
             
-            .settings-icon {
-                font-size: 0 !important;
-                width: 20px;
-                height: 20px;
-                position: relative;
-                text-indent: -9999px;
-                overflow: hidden;
+            .settings-text {
+                display: none !important;
             }
             
-            .settings-icon::before {
+            .settings-icon {
+                display: none !important;
+            }
+            
+            .settings-btn::before {
                 content: '';
                 position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                width: 20px;
+                width: 18px;
                 height: 2px;
                 background: white;
                 box-shadow: 
                     0 -6px 0 white,
                     0 6px 0 white;
-                border-radius: 2px;
-                text-indent: 0;
-            }
-            
-            /* Completely hide the emoji text */
-            .settings-icon {
-                font-size: 0 !important;
-                width: 20px;
-                height: 20px;
-                text-indent: -9999px;
-                overflow: hidden;
+                border-radius: 1px;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
             }
             
             .status-time-container {
