@@ -3403,37 +3403,11 @@ ${JSON.stringify(device.status, null, 2)}
             }
         }
 
-        // Settings functionality - Simplified and fixed
+        // Settings functionality - SIMPLE VERSION
         function toggleSettings() {
-            try {
-                console.log('=== toggleSettings called ===');
-                const dropdown = document.getElementById('settingsDropdown');
-                
-                if (!dropdown) {
-                    console.error('Settings dropdown element not found');
-                    return;
-                }
-                
-                const isShowing = dropdown.classList.contains('show');
-                console.log('Current isShowing state:', isShowing);
-                
-                if (isShowing) {
-                    dropdown.classList.remove('show');
-                    console.log('Hidden settings dropdown');
-                } else {
-                    dropdown.classList.add('show');
-                    console.log('Shown settings dropdown');
-                }
-                
-                // Force recalculation for mobile
-                if (window.innerWidth <= 768) {
-                    setTimeout(() => {
-                        const rect = dropdown.getBoundingClientRect();
-                        console.log('Mobile dropdown position:', rect);
-                    }, 100);
-                }
-            } catch (error) {
-                console.error('Error in toggleSettings:', error);
+            const dropdown = document.getElementById('settingsDropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('show');
             }
         }
 
