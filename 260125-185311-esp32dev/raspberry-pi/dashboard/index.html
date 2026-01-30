@@ -1899,7 +1899,6 @@
             /* Settings Dropdown Mobile */
             .settings-dropdown {
                 position: fixed !important;
-                top: auto !important;
                 bottom: 0 !important;
                 left: 0 !important;
                 right: 0 !important;
@@ -1908,16 +1907,27 @@
                 max-height: 85vh !important;
                 margin: 0 !important;
                 border-radius: 20px 20px 0 0 !important;
-                transform: translateY(100%) !important;
-                transition: transform 0.3s ease !important;
                 background: white !important;
                 box-shadow: 0 -4px 20px rgba(0,0,0,0.15) !important;
-                z-index: 9999 !important;
+                z-index: 99999 !important;
                 overflow-y: auto !important;
+                
+                /* Hidden by default */
+                transform: translateY(100%) !important;
+                opacity: 0 !important;
+                visibility: hidden !important;
+                transition: all 0.3s ease !important;
             }
             
             .settings-dropdown.show {
                 transform: translateY(0) !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+            }
+            
+            /* Force visibility debugging */
+            .settings-dropdown.show {
+                display: block !important;
             }
             
             .dropdown-header {
