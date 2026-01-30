@@ -3022,56 +3022,85 @@ ${JSON.stringify(device.status, null, 2)}
         }
         
         function translateCoordinates(lat = null, lng = null) {
-            // Get coordinates from inputs if not provided
-            if (lat === null || lng === null) {
-                lat = parseFloat(document.getElementById('latitude').value);
-                lng = parseFloat(document.getElementById('longitude').value);
-            }
-            
-            if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
-                showToast('⚠️ Please enter valid coordinates', 'warning');
-                return;
-            }
-            
-            document.getElementById('currentCoords').textContent = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-            
-            // Use reverse geocoding API (OpenStreetMap Nominatim)
-            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`;
-            
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (data && data.address) {
-                        const addr = data.address;
-                        const fullAddress = data.display_name || 'Address not found';
-                        const city = addr.city || addr.town || addr.village || addr.municipality || 'Unknown';
-                        const state = addr.state || addr.province || addr.region || 'Unknown';
+            try {
+                // Get coordinates from inputs if not provided
+                if (lat === null || lng === null) {
+                    const latInput = document.getElementById('latitude');
+                    const lngInput = document.getElementById('longitude');
+                    
+                    lat = latInput ? parseFloat(latInput.value) : null;
+                    lng = lngInput ? parseFloat(lngInput.value) : null;
+                }
+                
+                if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
+                    showToast('⚠️ Please enter valid coordinates', 'warning');
+                    return;
+                }
+                
+                const currentCoords = document.getElementById('currentCoords');
+                if (currentCoords) {
+                    currentCoords.textContent = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                }
+                
+                // Use reverse geocoding API (OpenStreetMap Nominatim)
+                const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`;
+                
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data.address) {
+                            const addr = data.address;
+                            const fullAddress = data.display_name || 'Address not found';
+                            const city = addr.city || addr.town || addr.village || addr.municipality || 'Unknown';
+                            const state = addr.state || addr.province || addr.region || 'Unknown';
+                            
+                            const currentAddress = document.getElementById('currentAddress');
+                            const currentCity = document.getElementById('currentCity');
+                            const currentState = document.getElementById('currentState');
+                            
+                            if (currentAddress) currentAddress.textContent = fullAddress;
+                            if (currentCity) currentCity.textContent = city;
+                            if (currentState) currentState.textContent = state;
+                            
+                            // Update timezone based on coordinates
+                            updateTimezone(lat, lng);
+                        } else {
+                            const currentAddress = document.getElementById('currentAddress');
+                            const currentCity = document.getElementById('currentCity');
+                            const currentState = document.getElementById('currentState');
+                            
+                            if (currentAddress) currentAddress.textContent = 'Address not found';
+                            if (currentCity) currentCity.textContent = 'Unknown';
+                            if (currentState) currentState.textContent = 'Unknown';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Geocoding error:', error);
+                        const currentAddress = document.getElementById('currentAddress');
+                        const currentCity = document.getElementById('currentCity');
+                        const currentState = document.getElementById('currentState');
                         
-                        document.getElementById('currentAddress').textContent = fullAddress;
-                        document.getElementById('currentCity').textContent = city;
-                        document.getElementById('currentState').textContent = state;
-                        
-                        // Update timezone based on coordinates
-                        updateTimezone(lat, lng);
-                    } else {
-                        document.getElementById('currentAddress').textContent = 'Address not found';
-                        document.getElementById('currentCity').textContent = 'Unknown';
-                        document.getElementById('currentState').textContent = 'Unknown';
-                    }
-                })
-                .catch(error => {
-                    console.error('Geocoding error:', error);
-                    document.getElementById('currentAddress').textContent = 'Geocoding service unavailable';
-                    document.getElementById('currentCity').textContent = '--';
-                    document.getElementById('currentState').textContent = '--';
-                });
+                        if (currentAddress) currentAddress.textContent = 'Geocoding service unavailable';
+                        if (currentCity) currentCity.textContent = '--';
+                        if (currentState) currentState.textContent = '--';
+                    });
+            } catch (error) {
+                console.error('Error in translateCoordinates:', error);
+            }
         }
         
         function updateTimezone(lat, lng) {
-            // Simple timezone estimation based on longitude
-            const timezoneOffset = Math.round(lng / 15);
-            const timezone = `UTC${timezoneOffset >= 0 ? '+' : ''}${timezoneOffset}`;
-            document.getElementById('currentTimezone').textContent = timezone;
+            try {
+                // Simple timezone estimation based on longitude
+                const timezoneOffset = Math.round(lng / 15);
+                const timezone = `UTC${timezoneOffset >= 0 ? '+' : ''}${timezoneOffset}`;
+                const currentTimezone = document.getElementById('currentTimezone');
+                if (currentTimezone) {
+                    currentTimezone.textContent = timezone;
+                }
+            } catch (error) {
+                console.error('Error updating timezone:', error);
+            }
         }
 
         function saveLocationSettings() {
