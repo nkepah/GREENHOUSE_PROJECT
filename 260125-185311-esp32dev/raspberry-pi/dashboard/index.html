@@ -1877,7 +1877,7 @@
                 font-size: 0.6rem;
             }
             
-            /* Settings Dropdown Mobile */
+            /* Settings Dropdown Mobile - FIXED */
             .settings-dropdown {
                 position: fixed !important;
                 bottom: 0 !important;
@@ -1885,13 +1885,14 @@
                 right: 0 !important;
                 width: 100% !important;
                 height: auto !important;
-                max-height: 85vh !important;
-                margin: 0 !important;
-                border-radius: 20px 20px 0 0 !important;
+                max-height: 80vh !important;
                 background: white !important;
+                border-radius: 20px 20px 0 0 !important;
                 box-shadow: 0 -4px 20px rgba(0,0,0,0.15) !important;
                 z-index: 99999 !important;
                 overflow-y: auto !important;
+                margin: 0 !important;
+                padding: 1rem 0 !important;
                 
                 /* Hidden by default */
                 transform: translateY(100%) !important;
@@ -1904,10 +1905,6 @@
                 transform: translateY(0) !important;
                 opacity: 1 !important;
                 visibility: visible !important;
-            }
-            
-            /* Force visibility debugging */
-            .settings-dropdown.show {
                 display: block !important;
             }
             
@@ -3406,7 +3403,7 @@ ${JSON.stringify(device.status, null, 2)}
             }
         }
 
-        // Settings functionality - Fixed for both desktop and mobile
+        // Settings functionality - Simplified and fixed
         function toggleSettings() {
             try {
                 console.log('=== toggleSettings called ===');
@@ -3417,66 +3414,23 @@ ${JSON.stringify(device.status, null, 2)}
                     return;
                 }
                 
-                console.log('Dropdown element found:', dropdown);
-                
-                const isShowing = dropdown.classList.contains('show') || dropdown.style.display === 'block';
+                const isShowing = dropdown.classList.contains('show');
                 console.log('Current isShowing state:', isShowing);
                 
                 if (isShowing) {
-                    // Hide dropdown
                     dropdown.classList.remove('show');
-                    dropdown.style.display = 'none';
                     console.log('Hidden settings dropdown');
                 } else {
-                    // Show dropdown
                     dropdown.classList.add('show');
-                    dropdown.style.display = 'block';
-                    
-                    // Apply mobile-specific positioning if needed
-                    if (window.innerWidth <= 768) {
-                        console.log('Applying mobile positioning...');
-                        dropdown.style.cssText = `
-                            display: block !important;
-                            position: fixed !important;
-                            top: auto !important;
-                            bottom: 0 !important;
-                            left: 0 !important;
-                            right: 0 !important;
-                            width: 100% !important;
-                            height: auto !important;
-                            min-height: 200px !important;
-                            max-height: 80vh !important;
-                            background: white !important;
-                            border-radius: 20px 20px 0 0 !important;
-                            box-shadow: 0 -4px 20px rgba(0,0,0,0.15) !important;
-                            z-index: 99999 !important;
-                            overflow-y: auto !important;
-                            margin: 0 !important;
-                            padding: 0 !important;
-                            opacity: 1 !important;
-                            visibility: visible !important;
-                            transform: none !important;
-                        `;
-                        
-                        // Ensure content is visible
-                        const items = dropdown.querySelectorAll('.dropdown-item, .dropdown-header, .dropdown-section');
-                        items.forEach(item => {
-                            item.style.display = 'block';
-                            item.style.visibility = 'visible';
-                        });
-                    }
-                    
                     console.log('Shown settings dropdown');
-                    
-                    // Verify positioning
+                }
+                
+                // Force recalculation for mobile
+                if (window.innerWidth <= 768) {
                     setTimeout(() => {
                         const rect = dropdown.getBoundingClientRect();
-                        console.log('Final dropdown position:', rect);
-                        if (rect.height < 50) {
-                            console.warn('Dropdown height too small, fixing...');
-                            dropdown.style.minHeight = '200px';
-                        }
-                    }, 50);
+                        console.log('Mobile dropdown position:', rect);
+                    }, 100);
                 }
             } catch (error) {
                 console.error('Error in toggleSettings:', error);
@@ -3499,16 +3453,20 @@ ${JSON.stringify(device.status, null, 2)}
             const dropdown = document.getElementById('settingsDropdown');
             const settingsBtn = event.target.closest('.settings-btn');
             
-            if (!settingsBtn && dropdown && !dropdown.contains(event.target)) {
+            if (dropdown && !settingsBtn && !dropdown.contains(event.target)) {
                 dropdown.classList.remove('show');
-                dropdown.style.display = 'none';
+                console.log('Settings dropdown closed by outside click');
             }
         });
 
         function openSettings(type) {
             try {
                 console.log('Opening settings:', type);
-                document.getElementById('settingsDropdown').classList.remove('show');
+                // Close the dropdown first
+                const dropdown = document.getElementById('settingsDropdown');
+                if (dropdown) {
+                    dropdown.classList.remove('show');
+                }
                 
                 switch(type) {
                     case 'units':
@@ -3528,6 +3486,12 @@ ${JSON.stringify(device.status, null, 2)}
                         openAboutDialog();
                         break;
                     default:
+                        console.error('Unknown settings type:', type);
+                }
+            } catch (error) {
+                console.error('Error in openSettings:', error);
+            }
+        }
                         console.error('Unknown settings type:', type);
                 }
             } catch (error) {
