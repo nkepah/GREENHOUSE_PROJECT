@@ -2513,14 +2513,15 @@ ${JSON.stringify(device.status, null, 2)}
                     const hourlyData = weatherData.data.hourly;
                     for (let i = 0; i < Math.min(12, hourlyData.length); i++) {
                         const hour = hourlyData[i];
-                    const hourItem = document.createElement('div');
-                    hourItem.className = 'hourly-item';
-                    hourItem.innerHTML = `
-                        <div class="hourly-time">${hour.time || `${i + new Date().getHours()}:00`}</div>
-                        <div class="hourly-icon">${getWeatherIcon(hour.code, hour.is_day ?? 1)}</div>
-                        <div class="hourly-temp">${Math.round(hour.temp)}°</div>
-                    `;
-                    hourlyContainer.appendChild(hourItem);
+                        const hourItem = document.createElement('div');
+                        hourItem.className = 'hourly-item';
+                        hourItem.innerHTML = `
+                            <div class="hourly-time">${hour.time || `${i + new Date().getHours()}:00`}</div>
+                            <div class="hourly-icon">${getWeatherIcon(hour.code, hour.is_day ?? 1)}</div>
+                            <div class="hourly-temp">${Math.round(hour.temp)}°</div>
+                        `;
+                        hourlyContainer.appendChild(hourItem);
+                    }
                 }
             }
         }
