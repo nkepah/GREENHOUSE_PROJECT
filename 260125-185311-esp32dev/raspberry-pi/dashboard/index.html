@@ -2032,6 +2032,93 @@
             .settings-input {
                 background-image: none;
                 padding-right: 1rem;
+                font-size: 16px; /* Prevent iOS zoom */
+            }
+            
+            .radio-label {
+                padding: 1rem;
+                border-radius: 12px;
+                margin-bottom: 0.75rem;
+                font-size: 1rem;
+                min-height: 56px;
+                display: flex;
+                align-items: center;
+                background: white;
+                border: 2px solid #e5e7eb;
+            }
+            
+            .radio-label input[type="radio"] {
+                width: 20px;
+                height: 20px;
+                margin-right: 0.75rem;
+            }
+            
+            /* Additional mobile optimizations */
+            * {
+                -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+            }
+            
+            button, .radio-label, .settings-select, .settings-input {
+                -webkit-tap-highlight-color: rgba(79, 70, 229, 0.2);
+            }
+            
+            .modal-body, .settings-dropdown {
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior: contain;
+            }
+            
+            /* Mobile Settings Form Improvements */
+            .settings-section {
+                margin-bottom: 2rem;
+                padding-bottom: 1.5rem;
+                border-bottom: 1px solid #f3f4f6;
+            }
+            
+            .settings-section:last-child {
+                border-bottom: none;
+                margin-bottom: 0;
+            }
+            
+            .settings-section h4 {
+                font-size: 1.1rem;
+                color: #1f2937;
+                margin-bottom: 1.25rem;
+                font-weight: 700;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            
+            .settings-label {
+                margin-bottom: 1.5rem;
+            }
+            
+            .label-text {
+                font-size: 0.95rem;
+                color: #374151;
+                margin-bottom: 0.75rem;
+                font-weight: 500;
+            }
+            
+            .settings-select, .settings-input {
+                padding: 1rem;
+                font-size: 1rem;
+                border: 2px solid #e5e7eb;
+                border-radius: 12px;
+                background: #f9fafb;
+                min-height: 48px;
+                -webkit-appearance: none;
+                appearance: none;
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+                background-position: right 1rem center;
+                background-repeat: no-repeat;
+                background-size: 1rem;
+                padding-right: 3rem;
+            }
+            
+            .settings-input {
+                background-image: none;
+                padding-right: 1rem;
             }
             
             .radio-label {
