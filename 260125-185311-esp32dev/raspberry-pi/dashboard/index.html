@@ -764,11 +764,8 @@
                         </div>
                     </div>
                     <div class="device-actions">
-                        <button class="btn btn-primary" onclick="event.stopPropagation(); openDevicePage('${id}', devices['${id}'])">
-                            📊 Dashboard
-                        </button>
-                        <button class="btn btn-secondary" onclick="event.stopPropagation(); showDeviceDetails('${id}')">
-                            ⚙️ Details
+                        <button class="btn btn-primary" style="flex: 1; padding: 1rem; font-size: 1.1rem; font-weight: bold;" onclick="event.stopPropagation(); openDevicePage('${id}', devices['${id}'])">
+                            📊 Open ${device.name} Dashboard
                         </button>
                     </div>
                 `;
