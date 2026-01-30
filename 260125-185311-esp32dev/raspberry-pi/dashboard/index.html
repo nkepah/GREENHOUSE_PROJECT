@@ -3355,6 +3355,14 @@ ${JSON.stringify(device.status, null, 2)}
             }
         }
 
+        // Test function to verify modal system
+        function testModal() {
+            console.log('Testing modal system...');
+            showModal('Test Modal', '<p>This is a test modal. If you can see this, the modal system is working.</p>', null, true);
+        }
+
+        window.testModal = testModal; // Make available globally for console testing
+
         // Settings handlers
         function loadUnitsSettings() {
             const timeFormat = localStorage.getItem('timeFormat') || '12';
