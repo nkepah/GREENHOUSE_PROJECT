@@ -84,7 +84,7 @@
         .header-info {
             display: flex;
             align-items: center;
-            gap: 2rem;
+            gap: 3rem;
         }
 
         .header-actions {
@@ -97,73 +97,72 @@
             font-size: 1.3rem;
             font-weight: 600;
             color: var(--primary);
-            padding: 1rem 1.5rem;
+            padding: 0.75rem 0;
             font-family: 'Segoe UI', 'Arial', sans-serif;
-            text-align: center;
-            min-width: 180px;
+            text-align: right;
+            min-width: 140px;
             white-space: nowrap;
-            line-height: 1.3;
+            line-height: 1.2;
         }
         
         .time-main {
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             font-weight: 700;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             margin-bottom: 2px;
             color: var(--primary);
         }
         
         .date-sub {
-            font-size: 0.85rem;
-            font-weight: 400;
+            font-size: 0.8rem;
+            font-weight: 500;
             opacity: 0.7;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
             color: var(--text-light);
+            text-transform: uppercase;
         }
 
         /* Settings Button in Header */
         .settings-btn {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.25rem;
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
-            color: white;
-            text-decoration: none;
-            border-radius: 12px;
-            font-weight: 500;
+            gap: 0.6rem;
+            padding: 0.7rem 1.2rem;
+            background: rgba(99, 102, 241, 0.1);
+            color: #6366f1;
+            border: 2px solid rgba(99, 102, 241, 0.2);
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
             transition: all 0.3s ease;
             cursor: pointer;
-            border: none;
-            font-size: 1rem;
         }
 
         .settings-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
-        }
-
-        /* Settings Navigation Item */
-        .navbar-item {
-            position: relative;
+            background: #6366f1;
+            color: white;
+            border-color: #6366f1;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
         }
 
         /* Status Indicators */
         .status-indicator {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: rgba(40, 167, 69, 0.1);
+            gap: 0.6rem;
+            padding: 0.6rem 1rem;
+            background: rgba(40, 167, 69, 0.08);
             border: 1px solid rgba(40, 167, 69, 0.2);
-            border-radius: 20px;
-            font-size: 0.85rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
             color: #28a745;
+            font-weight: 600;
         }
 
         .status-dot {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
             background: #28a745;
             animation: pulse-glow 2s infinite;
