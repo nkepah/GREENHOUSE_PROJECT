@@ -610,6 +610,27 @@
     </style>
 </head>
 <body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="/" class="navbar-brand">
+                <span class="navbar-icon">🌾</span>
+                <span>Farm Hub</span>
+            </a>
+            <div class="navbar-menu">
+                <a href="/" class="navbar-link active" title="Main Dashboard">📊 Dashboard</a>
+                <a href="/greenhouse/" class="navbar-link" title="Greenhouse Controls">🌱 Greenhouse</a>
+                <a href="/routines.html" class="navbar-link" title="Automation">⚡ Routines</a>
+                <a href="/alerts.html" class="navbar-link" title="Alerts">🔔 Alerts</a>
+                <a href="/setup.html" class="navbar-link" title="Settings">⚙️ Setup</a>
+            </div>
+            <div class="weather-mini" id="weather-mini" style="margin-left: auto;">
+                <span id="mini-weather-icon">🌤️</span>
+                <span class="temp" id="mini-temp">--°C</span>
+            </div>
+        </div>
+    </nav>
+
     <!-- Header -->
     <header class="header">
         <div class="header-content">
