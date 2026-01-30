@@ -97,6 +97,52 @@
             align-items: center;
             gap: 16px;
         }
+
+        .nav-clock {
+            color: var(--text-secondary);
+            font-variant-numeric: tabular-nums;
+            font-weight: 500;
+        }
+
+        /* Mobile Responsive Navigation */
+        @media (max-width: 600px) {
+            :root {
+                --nav-height: 56px;
+            }
+            
+            .header-content {
+                padding: 0 12px;
+            }
+            
+            .logo-icon {
+                font-size: 1.5rem;
+            }
+            
+            .logo h1 {
+                font-size: 1rem;
+            }
+            
+            .nav-clock {
+                display: none; /* Hide clock on small screens to save space */
+            }
+            
+            .nav-status-text {
+                display: none; /* Hide "Online" text, only show dot */
+            }
+            
+            .connection-badge {
+                padding: 6px; /* Circle shape-ish */
+                border-radius: 50%;
+                min-width: unset;
+                aspect-ratio: 1;
+                display: flex;
+                justify-content: center;
+            }
+            
+            .header-status {
+                gap: 8px;
+            }
+        }
         
         .connection-badge {
             display: flex;
