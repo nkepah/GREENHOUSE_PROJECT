@@ -2929,23 +2929,43 @@ ${JSON.stringify(device.status, null, 2)}
             const dateFormat = localStorage.getItem('dateFormat') || 'US';
             const tempUnit = localStorage.getItem('tempUnit') || 'C';
             const windUnit = localStorage.getItem('windUnit') || 'kmh';
+            const humidityUnit = localStorage.getItem('humidityUnit') || 'percent';
+            const pressureUnit = localStorage.getItem('pressureUnit') || 'hPa';
             
-            document.getElementById('timeFormat').value = timeFormat;
-            document.getElementById('dateFormat').value = dateFormat;
-            document.getElementById('tempUnit').value = tempUnit;
-            document.getElementById('windUnit').value = windUnit;
+            // Safely set values with null checks
+            const setIfExists = (id, value) => {
+                const element = document.getElementById(id);
+                if (element) element.value = value;
+            };
+            
+            setIfExists('timeFormat', timeFormat);
+            setIfExists('dateFormat', dateFormat);
+            setIfExists('tempUnit', tempUnit);
+            setIfExists('windUnit', windUnit);
+            setIfExists('humidityUnit', humidityUnit);
+            setIfExists('pressureUnit', pressureUnit);
         }
 
         function saveUnitsSettings() {
-            const timeFormat = document.getElementById('timeFormat').value;
-            const dateFormat = document.getElementById('dateFormat').value;
-            const tempUnit = document.getElementById('tempUnit').value;
-            const windUnit = document.getElementById('windUnit').value;
+            // Safely get values with null checks
+            const getIfExists = (id) => {
+                const element = document.getElementById(id);
+                return element ? element.value : null;
+            };
+            
+            const timeFormat = getIfExists('timeFormat') || '12';
+            const dateFormat = getIfExists('dateFormat') || 'US';
+            const tempUnit = getIfExists('tempUnit') || 'C';
+            const windUnit = getIfExists('windUnit') || 'kmh';
+            const humidityUnit = getIfExists('humidityUnit') || 'percent';
+            const pressureUnit = getIfExists('pressureUnit') || 'hPa';
             
             localStorage.setItem('timeFormat', timeFormat);
             localStorage.setItem('dateFormat', dateFormat);
             localStorage.setItem('tempUnit', tempUnit);
             localStorage.setItem('windUnit', windUnit);
+            localStorage.setItem('humidityUnit', humidityUnit);
+            localStorage.setItem('pressureUnit', pressureUnit);
             
             closeModal();
             showToast('✅ Settings saved successfully!');
