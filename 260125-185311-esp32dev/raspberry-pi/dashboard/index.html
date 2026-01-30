@@ -845,38 +845,48 @@ ${JSON.stringify(device.status, null, 2)}
 
         // Render weather
         function renderWeather() {
-            if (!weatherData || !weatherData.current) return;
+            // Check if we have weather data (could be in different formats)
+            const data = weatherData?.data || weatherData?.current || weatherData;
+            if (!data) return;
 
-            const current = weatherData.current;
-            const isDay = current.is_day ?? 1;
-            const code = current.weather_code ?? 0;
+            // Handle both wrapped format (data.temp) and Open-Meteo format (data.temperature_2m)
+            const temp = data.temperature_2m ?? data.temp;
+            const humidity = data.relative_humidity_2m ?? data.humi;
+            const wind = data.wind_speed_10m ?? data.wind;
+            const feelsLike = data.apparent_temperature ?? data.feels;
+            const code = data.weather_code ?? data.code;
+            const isDay = data.is_day ?? 1;
+
+            if (temp === undefined || temp === null) return;
 
             document.getElementById('weather-icon').textContent = getWeatherIcon(code, isDay);
-            document.getElementById('weather-temp').textContent = `${Math.round(current.temperature_2m)}°C`;
-            document.getElementById('feels-like').textContent = `${Math.round(current.apparent_temperature)}°C`;
-            document.getElementById('humidity').textContent = `${current.relative_humidity_2m}%`;
-            document.getElementById('wind').textContent = `${Math.round(current.wind_speed_10m)} km/h`;
-            document.getElementById('location').textContent = weatherData.timezone?.replace('_', ' ').split('/').pop() || 'Unknown';
+            document.getElementById('weather-temp').textContent = `${Math.round(temp)}°C`;
+            document.getElementById('feels-like').textContent = `${Math.round(feelsLike ?? temp)}°C`;
+            document.getElementById('humidity').textContent = `${humidity ?? '--'}%`;
+            document.getElementById('wind').textContent = `${Math.round(wind ?? 0)} km/h`;
+            
+            // Set location from multiple possible sources
+            const location = weatherData?.data?.city || weatherData?.timezone?.replace('_', ' ').split('/').pop() || 'Unknown';
+            document.getElementById('location').textContent = location;
 
             // Mini weather
             document.getElementById('mini-weather-icon').textContent = getWeatherIcon(code, isDay);
-            document.getElementById('mini-temp').textContent = `${Math.round(current.temperature_2m)}°C`;
+            document.getElementById('mini-temp').textContent = `${Math.round(temp)}°C`;
 
-            // Hourly forecast
-            if (weatherData.hourly) {
+            // Hourly forecast (if available)
+            if (weatherData?.data?.hourly && Array.isArray(weatherData.data.hourly)) {
                 const hourlyContainer = document.getElementById('hourly-forecast');
                 hourlyContainer.innerHTML = '';
 
-                const now = new Date();
-                const currentHour = now.getHours();
-
-                for (let i = currentHour; i < Math.min(currentHour + 12, 24); i++) {
+                const hourlyData = weatherData.data.hourly;
+                for (let i = 0; i < Math.min(12, hourlyData.length); i++) {
+                    const hour = hourlyData[i];
                     const hourItem = document.createElement('div');
                     hourItem.className = 'hourly-item';
                     hourItem.innerHTML = `
-                        <div class="hourly-time">${i.toString().padStart(2, '0')}:00</div>
-                        <div class="hourly-icon">${getWeatherIcon(weatherData.hourly.weather_code[i], weatherData.hourly.is_day?.[i] ?? 1)}</div>
-                        <div class="hourly-temp">${Math.round(weatherData.hourly.temperature_2m[i])}°</div>
+                        <div class="hourly-time">${hour.time || `${i + new Date().getHours()}:00`}</div>
+                        <div class="hourly-icon">${getWeatherIcon(hour.code, hour.is_day ?? 1)}</div>
+                        <div class="hourly-temp">${Math.round(hour.temp)}°</div>
                     `;
                     hourlyContainer.appendChild(hourItem);
                 }
