@@ -355,6 +355,27 @@ app.post('/api/device/:device_id/ota-push-immediate', (req, res) => {
 });
 
 // =============================================================================
+// DEVICE DASHBOARDS
+// =============================================================================
+
+// Unified device dashboard
+app.get('/greenhouse/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dashboard', 'unified.html'));
+});
+
+app.get('/coop1/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dashboard', 'unified.html'));
+});
+
+app.get('/coop2/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dashboard', 'unified.html'));
+});
+
+app.get('/coop3/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dashboard', 'unified.html'));
+});
+
+// =============================================================================
 // WEBSOCKET SERVER
 // =============================================================================
 
