@@ -724,6 +724,47 @@
                     <div class="status-dot" id="statusDot"></div>
                     <span id="connectionText" class="nav-status-text">Connecting...</span>
                 </div>
+                <!-- Settings Button Added Back -->
+                <button class="settings-btn" id="settingsBtn" title="Settings" onclick="toggleSettings(event)">
+                    <span>⚙️</span>
+                </button>
+                
+                <!-- Settings Dropdown Structure -->
+                <div class="settings-dropdown" id="settingsDropdown">
+                    <div class="dropdown-header">
+                        <div class="dropdown-title">Farm Hub Menu</div>
+                        <div class="dropdown-subtitle">System Settings</div>
+                    </div>
+                    <div class="dropdown-section">
+                        <div class="dropdown-section-title">Configuration</div>
+                        <button class="dropdown-item" onclick="openSettings('units')">
+                            <span class="dropdown-icon">📏</span>
+                            Units & Time
+                        </button>
+                        <button class="dropdown-item" onclick="openSettings('location')">
+                            <span class="dropdown-icon">📍</span>
+                            Location & Weather
+                        </button>
+                    </div>
+                    <div class="dropdown-section">
+                        <div class="dropdown-section-title">System</div>
+                        <button class="dropdown-item" onclick="openSettings('ota')">
+                            <span class="dropdown-icon">🔄</span>
+                            Firmware Updates
+                        </button>
+                        <button class="dropdown-item" onclick="openSettings('logs')">
+                            <span class="dropdown-icon">📋</span>
+                            System Logs
+                        </button>
+                    </div>
+                    <div class="dropdown-section">
+                        <div class="dropdown-section-title">About</div>
+                        <button class="dropdown-item" onclick="openSettings('about')">
+                            <span class="dropdown-icon">ℹ️</span>
+                            About Farm Hub
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </header>
