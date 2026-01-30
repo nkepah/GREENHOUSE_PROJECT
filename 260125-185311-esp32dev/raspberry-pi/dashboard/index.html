@@ -3427,10 +3427,29 @@ ${JSON.stringify(device.status, null, 2)}
         // Settings functionality
         function toggleSettings() {
             try {
+                console.log('toggleSettings called');
                 const dropdown = document.getElementById('settingsDropdown');
                 if (dropdown) {
-                    dropdown.classList.toggle('show');
-                    console.log('Settings dropdown toggled, show class:', dropdown.classList.contains('show'));
+                    const isShowing = dropdown.classList.contains('show');
+                    console.log('Current show state:', isShowing);
+                    
+                    if (isShowing) {
+                        dropdown.classList.remove('show');
+                        console.log('Removed show class');
+                    } else {
+                        dropdown.classList.add('show');
+                        console.log('Added show class');
+                        
+                        // Force visibility for mobile debugging
+                        if (window.innerWidth <= 768) {
+                            dropdown.style.display = 'block';
+                            dropdown.style.visibility = 'visible';
+                            dropdown.style.opacity = '1';
+                            dropdown.style.transform = 'translateY(0)';
+                            dropdown.style.zIndex = '99999';
+                            console.log('Applied mobile visibility fixes');
+                        }
+                    }
                 } else {
                     console.error('Settings dropdown element not found');
                 }
