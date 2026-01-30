@@ -908,21 +908,35 @@
             }
             
             .settings-btn {
-                background: none;
+                background: transparent !important;
                 color: white;
                 border: none;
-                border-radius: 12px;
+                border-radius: 0;
                 padding: 1rem;
                 font-size: 1.2rem;
                 font-weight: 800;
                 text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
                 filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
+                outline: none;
+                box-shadow: none;
             }
             
             .settings-btn:hover {
-                background: rgba(255, 255, 255, 0.1);
+                background: transparent !important;
                 transform: scale(1.1);
                 filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.8));
+            }
+            
+            .settings-btn:focus {
+                background: transparent !important;
+                outline: none;
+                box-shadow: none;
+            }
+            
+            .settings-btn:active {
+                background: transparent !important;
+                outline: none;
+                box-shadow: none;
             }
             
             .settings-text {
