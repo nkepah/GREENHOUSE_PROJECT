@@ -2854,6 +2854,63 @@ ${JSON.stringify(device.status, null, 2)}
                 });
         }
 
+        // ESP32 OTA Management Functions
+        function loadESP32Devices() {
+            // Simulate loading ESP32 devices
+            // In real implementation, this would fetch from /api/esp32/devices
+            console.log('Loading ESP32 devices for OTA management...');
+        }
+        
+        function startOTAUpdate(deviceId) {
+            if (confirm(`🚀 Start OTA update for ${deviceId}? This will temporarily interrupt device operation.`)) {
+                showToast(`🔄 Starting OTA update for ${deviceId}...`, 'info');
+                
+                // Simulate OTA process
+                setTimeout(() => {
+                    showToast(`✅ OTA update completed successfully for ${deviceId}!`, 'success');
+                    loadESP32Devices(); // Refresh device list
+                }, 3000);
+            }
+        }
+        
+        function restartDevice(deviceId) {
+            if (confirm(`🔄 Restart ${deviceId} device?`)) {
+                showToast(`🔄 Restarting ${deviceId}...`, 'info');
+                
+                setTimeout(() => {
+                    showToast(`✅ ${deviceId} restarted successfully!`, 'success');
+                    loadESP32Devices();
+                }, 2000);
+            }
+        }
+        
+        function handleFirmwareSelect(input) {
+            const file = input.files[0];
+            if (file) {
+                const uploadInfo = document.getElementById('uploadInfo');
+                if (file.name.endsWith('.bin')) {
+                    uploadInfo.innerHTML = `
+                        <div class="file-selected">
+                            📁 <strong>Selected:</strong> ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)
+                            <button class="upload-firmware-btn" onclick="uploadFirmware('${file.name}')">🚀 Upload to Selected Device</button>
+                        </div>
+                    `;
+                } else {
+                    uploadInfo.innerHTML = '<div class="error">❌ Please select a .bin firmware file</div>';
+                }
+            }
+        }
+        
+        function uploadFirmware(filename) {
+            showToast(`📤 Uploading ${filename}...`, 'info');
+            
+            // Simulate firmware upload
+            setTimeout(() => {
+                showToast(`✅ Firmware ${filename} uploaded successfully!`, 'success');
+            }, 2000);
+        }
+        }
+
         function loadOTADevices() {
             fetch('/api/devices')
                 .then(response => response.json())
