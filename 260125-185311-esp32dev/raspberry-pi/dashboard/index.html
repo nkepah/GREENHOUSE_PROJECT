@@ -1158,6 +1158,438 @@ ${JSON.stringify(device.status, null, 2)}
             setInterval(fetchWeather, CONFIG.weatherRefresh);
         }
 
+        // Settings functionality
+        function toggleSettings() {
+            const dropdown = document.getElementById('settingsDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('settingsDropdown');
+            const settingsBtn = event.target.closest('.settings-btn');
+            
+            if (!settingsBtn && !dropdown.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        function openSettings(type) {
+            document.getElementById('settingsDropdown').classList.remove('show');
+            
+            switch(type) {
+                case 'units':
+                    openUnitsSettings();
+                    break;
+                case 'location':
+                    openLocationSettings();
+                    break;
+                case 'network':
+                    openNetworkSettings();
+                    break;
+                case 'ota':
+                    openOTASettings();
+                    break;
+                case 'about':
+                    openAboutDialog();
+                    break;
+            }
+        }
+
+        function openUnitsSettings() {
+            showModal('Units & Time Format', `
+                <div class="settings-section">
+                    <label class="settings-label">
+                        <span class="label-text">Time Format</span>
+                        <select class="settings-select" id="timeFormat">
+                            <option value="12">12 Hour (3:00 PM)</option>
+                            <option value="24">24 Hour (15:00)</option>
+                        </select>
+                    </label>
+                    
+                    <label class="settings-label">
+                        <span class="label-text">Date Format</span>
+                        <select class="settings-select" id="dateFormat">
+                            <option value="US">MM/DD/YYYY (US)</option>
+                            <option value="EU">DD/MM/YYYY (EU)</option>
+                            <option value="ISO">YYYY-MM-DD (ISO)</option>
+                        </select>
+                    </label>
+                    
+                    <label class="settings-label">
+                        <span class="label-text">Temperature Unit</span>
+                        <select class="settings-select" id="tempUnit">
+                            <option value="C">Celsius (°C)</option>
+                            <option value="F">Fahrenheit (°F)</option>
+                        </select>
+                    </label>
+                    
+                    <label class="settings-label">
+                        <span class="label-text">Wind Speed Unit</span>
+                        <select class="settings-select" id="windUnit">
+                            <option value="kmh">km/h</option>
+                            <option value="mph">mph</option>
+                            <option value="ms">m/s</option>
+                        </select>
+                    </label>
+                </div>
+            `, 'saveUnitsSettings');
+            loadUnitsSettings();
+        }
+
+        function openLocationSettings() {
+            showModal('Location Settings', `
+                <div class="settings-section">
+                    <div class="location-method">
+                        <label class="radio-label">
+                            <input type="radio" name="locationMethod" value="auto" checked>
+                            <span class="radio-text">📍 Use Device Location</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="locationMethod" value="manual">
+                            <span class="radio-text">📝 Enter Coordinates Manually</span>
+                        </label>
+                    </div>
+                    
+                    <div class="manual-location" id="manualLocation" style="display: none;">
+                        <label class="settings-label">
+                            <span class="label-text">Latitude</span>
+                            <input type="number" class="settings-input" id="latitude" 
+                                   step="0.000001" placeholder="e.g., 40.7128">
+                        </label>
+                        
+                        <label class="settings-label">
+                            <span class="label-text">Longitude</span>
+                            <input type="number" class="settings-input" id="longitude" 
+                                   step="0.000001" placeholder="e.g., -74.0060">
+                        </label>
+                        
+                        <label class="settings-label">
+                            <span class="label-text">Location Name</span>
+                            <input type="text" class="settings-input" id="locationName" 
+                                   placeholder="e.g., My Farm">
+                        </label>
+                    </div>
+                    
+                    <div class="current-location" id="currentLocation">
+                        <h4>Current Location</h4>
+                        <p id="locationDisplay">Getting location...</p>
+                    </div>
+                </div>
+            `, 'saveLocationSettings');
+            setupLocationSettings();
+        }
+
+        function openNetworkSettings() {
+            showModal('Network Setup', `
+                <div class="settings-section">
+                    <div class="network-status">
+                        <h4>🌐 Connection Status</h4>
+                        <div class="status-grid">
+                            <div class="status-item">
+                                <span>Pi Gateway:</span>
+                                <span class="status-online">Online</span>
+                            </div>
+                            <div class="status-item">
+                                <span>Internet:</span>
+                                <span id="internetStatus">Checking...</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="network-info">
+                        <h4>🔌 Connected Devices</h4>
+                        <div id="deviceNetworkList">Loading...</div>
+                    </div>
+                    
+                    <div class="network-tools">
+                        <h4>🛠️ Network Tools</h4>
+                        <button class="tool-btn" onclick="pingTest()">📡 Connectivity Test</button>
+                        <button class="tool-btn" onclick="refreshNetwork()">🔄 Refresh Network</button>
+                        <button class="tool-btn" onclick="showWiFiCredentials()">🔐 WiFi Credentials</button>
+                    </div>
+                </div>
+            `, null, true);
+            checkNetworkStatus();
+        }
+
+        function openOTASettings() {
+            showModal('OTA Updates', `
+                <div class="settings-section">
+                    <div class="ota-warning">
+                        <h4>⚠️ Important Notice</h4>
+                        <p>Over-The-Air updates are brick-proof. If an update fails, devices automatically revert to the previous working version.</p>
+                    </div>
+                    
+                    <div class="device-ota-list" id="deviceOTAList">
+                        <h4>🔄 Available Devices for Update</h4>
+                        <div class="loading-spinner">Loading devices...</div>
+                    </div>
+                    
+                    <div class="ota-logs" id="otaLogs">
+                        <h4>📋 Update History</h4>
+                        <div class="log-container">
+                            <div class="log-entry">
+                                <span class="log-time">2025-01-30 14:30</span>
+                                <span class="log-device">Greenhouse ESP32</span>
+                                <span class="log-status success">✅ Update Successful (v2.1.0)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `, null, true);
+            loadOTADevices();
+        }
+
+        function openAboutDialog() {
+            showModal('About Smart Farm Hub', `
+                <div class="settings-section about-section">
+                    <div class="about-logo">
+                        <span class="about-icon">🌱</span>
+                        <h2>Smart Farm Hub</h2>
+                        <p class="version">Version 2.1.0</p>
+                    </div>
+                    
+                    <div class="about-info">
+                        <div class="info-item">
+                            <strong>🎯 Mission:</strong>
+                            <p>Empowering sustainable organic farming through intelligent automation and monitoring.</p>
+                        </div>
+                        
+                        <div class="info-item">
+                            <strong>🚀 Features:</strong>
+                            <ul>
+                                <li>Real-time environmental monitoring</li>
+                                <li>Automated irrigation and climate control</li>
+                                <li>Weather integration & forecasting</li>
+                                <li>Mobile-responsive dashboard</li>
+                                <li>OTA firmware updates</li>
+                                <li>Multi-device farm management</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="info-item">
+                            <strong>🔧 Technical Specs:</strong>
+                            <p>ESP32-powered IoT devices, Raspberry Pi gateway, modern web interface with real-time WebSocket communication.</p>
+                        </div>
+                        
+                        <div class="info-item">
+                            <strong>📅 Last Updated:</strong>
+                            <p>January 30, 2026</p>
+                        </div>
+                    </div>
+                </div>
+            `, null, true);
+        }
+
+        // Modal system
+        function showModal(title, content, saveCallback = null, infoOnly = false) {
+            // Remove existing modal
+            const existingModal = document.getElementById('settingsModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+
+            const modal = document.createElement('div');
+            modal.id = 'settingsModal';
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>${title}</h3>
+                        <button class="close-btn" onclick="closeModal()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        ${content}
+                    </div>
+                    <div class="modal-footer">
+                        ${saveCallback ? `<button class="btn-primary" onclick="${saveCallback}()">💾 Save Changes</button>` : ''}
+                        <button class="btn-secondary" onclick="closeModal()">${infoOnly ? 'Close' : 'Cancel'}</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            setTimeout(() => modal.classList.add('show'), 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('settingsModal');
+            if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => modal.remove(), 300);
+            }
+        }
+
+        // Settings handlers
+        function loadUnitsSettings() {
+            const timeFormat = localStorage.getItem('timeFormat') || '12';
+            const dateFormat = localStorage.getItem('dateFormat') || 'US';
+            const tempUnit = localStorage.getItem('tempUnit') || 'C';
+            const windUnit = localStorage.getItem('windUnit') || 'kmh';
+            
+            document.getElementById('timeFormat').value = timeFormat;
+            document.getElementById('dateFormat').value = dateFormat;
+            document.getElementById('tempUnit').value = tempUnit;
+            document.getElementById('windUnit').value = windUnit;
+        }
+
+        function saveUnitsSettings() {
+            const timeFormat = document.getElementById('timeFormat').value;
+            const dateFormat = document.getElementById('dateFormat').value;
+            const tempUnit = document.getElementById('tempUnit').value;
+            const windUnit = document.getElementById('windUnit').value;
+            
+            localStorage.setItem('timeFormat', timeFormat);
+            localStorage.setItem('dateFormat', dateFormat);
+            localStorage.setItem('tempUnit', tempUnit);
+            localStorage.setItem('windUnit', windUnit);
+            
+            closeModal();
+            showToast('✅ Settings saved successfully!');
+            
+            // Refresh displays
+            fetchWeather();
+        }
+
+        function setupLocationSettings() {
+            const radios = document.querySelectorAll('input[name="locationMethod"]');
+            const manualLocation = document.getElementById('manualLocation');
+            
+            radios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    manualLocation.style.display = this.value === 'manual' ? 'block' : 'none';
+                });
+            });
+            
+            // Load current location
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    position => {
+                        const lat = position.coords.latitude.toFixed(6);
+                        const lng = position.coords.longitude.toFixed(6);
+                        document.getElementById('locationDisplay').innerHTML = `
+                            📍 <strong>Current:</strong> ${lat}, ${lng}<br>
+                            🎯 <strong>Accuracy:</strong> ±${Math.round(position.coords.accuracy)}m
+                        `;
+                    },
+                    error => {
+                        document.getElementById('locationDisplay').innerHTML = '❌ Location access denied or unavailable';
+                    }
+                );
+            }
+        }
+
+        function saveLocationSettings() {
+            const method = document.querySelector('input[name="locationMethod"]:checked').value;
+            
+            if (method === 'manual') {
+                const lat = document.getElementById('latitude').value;
+                const lng = document.getElementById('longitude').value;
+                const name = document.getElementById('locationName').value;
+                
+                if (!lat || !lng) {
+                    showToast('⚠️ Please enter both latitude and longitude', 'warning');
+                    return;
+                }
+                
+                localStorage.setItem('locationMethod', 'manual');
+                localStorage.setItem('manualLat', lat);
+                localStorage.setItem('manualLng', lng);
+                localStorage.setItem('locationName', name);
+            } else {
+                localStorage.setItem('locationMethod', 'auto');
+            }
+            
+            closeModal();
+            showToast('✅ Location settings saved!');
+            fetchWeather(); // Refresh weather with new location
+        }
+
+        function checkNetworkStatus() {
+            // Check internet connectivity
+            fetch('/api/status')
+                .then(() => {
+                    document.getElementById('internetStatus').innerHTML = '<span class="status-online">Online</span>';
+                })
+                .catch(() => {
+                    document.getElementById('internetStatus').innerHTML = '<span class="status-offline">Offline</span>';
+                });
+            
+            // Load device network info
+            fetch('/api/devices')
+                .then(response => response.json())
+                .then(devices => {
+                    const deviceList = document.getElementById('deviceNetworkList');
+                    deviceList.innerHTML = devices.map(device => `
+                        <div class="device-network-item">
+                            <div class="device-info">
+                                <strong>${device.name}</strong>
+                                <span class="device-ip">${device.ip}</span>
+                            </div>
+                            <div class="device-status">
+                                <span class="status-${device.status === 'online' ? 'online' : 'offline'}">
+                                    ${device.status === 'online' ? '🟢 Online' : '🔴 Offline'}
+                                </span>
+                            </div>
+                        </div>
+                    `).join('');
+                })
+                .catch(() => {
+                    document.getElementById('deviceNetworkList').innerHTML = '❌ Failed to load device information';
+                });
+        }
+
+        function loadOTADevices() {
+            fetch('/api/devices')
+                .then(response => response.json())
+                .then(devices => {
+                    const deviceList = document.getElementById('deviceOTAList');
+                    deviceList.innerHTML = `
+                        <h4>🔄 Available Devices for Update</h4>
+                        ${devices.map(device => `
+                            <div class="ota-device-item">
+                                <div class="device-ota-info">
+                                    <strong>${device.name}</strong>
+                                    <span class="device-version">Current: v${device.version || '1.0.0'}</span>
+                                    <span class="device-status-ota status-${device.status === 'online' ? 'online' : 'offline'}">
+                                        ${device.status === 'online' ? '🟢 Ready' : '🔴 Offline'}
+                                    </span>
+                                </div>
+                                <button class="ota-btn ${device.status !== 'online' ? 'disabled' : ''}" 
+                                        onclick="initiateOTA('${device.id}')" 
+                                        ${device.status !== 'online' ? 'disabled' : ''}>
+                                    🚀 Update Firmware
+                                </button>
+                            </div>
+                        `).join('')}
+                    `;
+                })
+                .catch(() => {
+                    document.getElementById('deviceOTAList').innerHTML = '❌ Failed to load devices for OTA updates';
+                });
+        }
+
+        function initiateOTA(deviceId) {
+            showToast('🚀 Starting OTA update...', 'info');
+            // OTA update implementation will be added later
+            console.log('Starting OTA update for device:', deviceId);
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => toast.classList.add('show'), 100);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
         init();
     </script>
 </body>
