@@ -3406,184 +3406,82 @@ ${JSON.stringify(device.status, null, 2)}
             }
         }
 
-        // Settings functionality - Mobile-first simple implementation
+        // Settings functionality - Fixed for both desktop and mobile
         function toggleSettings() {
             try {
                 console.log('=== toggleSettings called ===');
+                const dropdown = document.getElementById('settingsDropdown');
                 
-                // Check if we're on mobile
-                const isMobile = window.innerWidth <= 768;
-                console.log('isMobile:', isMobile, 'window width:', window.innerWidth);
+                if (!dropdown) {
+                    console.error('Settings dropdown element not found');
+                    return;
+                }
                 
-                if (isMobile) {
-                    // Mobile: Create a full-screen overlay with settings
-                    showMobileSettings();
+                console.log('Dropdown element found:', dropdown);
+                
+                const isShowing = dropdown.classList.contains('show') || dropdown.style.display === 'block';
+                console.log('Current isShowing state:', isShowing);
+                
+                if (isShowing) {
+                    // Hide dropdown
+                    dropdown.classList.remove('show');
+                    dropdown.style.display = 'none';
+                    console.log('Hidden settings dropdown');
                 } else {
-                    // Desktop: Use existing dropdown
-                    const dropdown = document.getElementById('settingsDropdown');
-                    if (dropdown) {
-                        dropdown.classList.toggle('show');
+                    // Show dropdown
+                    dropdown.classList.add('show');
+                    dropdown.style.display = 'block';
+                    
+                    // Apply mobile-specific positioning if needed
+                    if (window.innerWidth <= 768) {
+                        console.log('Applying mobile positioning...');
+                        dropdown.style.cssText = `
+                            display: block !important;
+                            position: fixed !important;
+                            top: auto !important;
+                            bottom: 0 !important;
+                            left: 0 !important;
+                            right: 0 !important;
+                            width: 100% !important;
+                            height: auto !important;
+                            min-height: 200px !important;
+                            max-height: 80vh !important;
+                            background: white !important;
+                            border-radius: 20px 20px 0 0 !important;
+                            box-shadow: 0 -4px 20px rgba(0,0,0,0.15) !important;
+                            z-index: 99999 !important;
+                            overflow-y: auto !important;
+                            margin: 0 !important;
+                            padding: 0 !important;
+                            opacity: 1 !important;
+                            visibility: visible !important;
+                            transform: none !important;
+                        `;
+                        
+                        // Ensure content is visible
+                        const items = dropdown.querySelectorAll('.dropdown-item, .dropdown-header, .dropdown-section');
+                        items.forEach(item => {
+                            item.style.display = 'block';
+                            item.style.visibility = 'visible';
+                        });
                     }
+                    
+                    console.log('Shown settings dropdown');
+                    
+                    // Verify positioning
+                    setTimeout(() => {
+                        const rect = dropdown.getBoundingClientRect();
+                        console.log('Final dropdown position:', rect);
+                        if (rect.height < 50) {
+                            console.warn('Dropdown height too small, fixing...');
+                            dropdown.style.minHeight = '200px';
+                        }
+                    }, 50);
                 }
             } catch (error) {
                 console.error('Error in toggleSettings:', error);
             }
         }
-        
-        function showMobileSettings() {
-            console.log('showMobileSettings called');
-            
-            // Remove any existing mobile settings
-            const existing = document.getElementById('mobileSettings');
-            if (existing) {
-                existing.remove();
-            }
-            
-            // Create full-screen mobile settings overlay
-            const overlay = document.createElement('div');
-            overlay.id = 'mobileSettings';
-            overlay.innerHTML = `
-                <div style="
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
-                    background: white;
-                    z-index: 999999;
-                    overflow-y: auto;
-                    padding: 0;
-                ">
-                    <!-- Header -->
-                    <div style="
-                        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-                        color: white;
-                        padding: 1rem 1.5rem;
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                    ">
-                        <h2 style="margin: 0; font-size: 1.25rem;">Settings</h2>
-                        <button onclick="closeMobileSettings()" style="
-                            background: rgba(255,255,255,0.2);
-                            border: none;
-                            color: white;
-                            width: 32px;
-                            height: 32px;
-                            border-radius: 50%;
-                            font-size: 18px;
-                            cursor: pointer;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                        ">×</button>
-                    </div>
-                    
-                    <!-- Settings Menu -->
-                    <div style="padding: 2rem 1.5rem;">
-                        <div style="margin-bottom: 2rem;">
-                            <h3 style="color: #6b7280; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 1rem 0;">System Settings</h3>
-                            
-                            <button onclick="openSettings('units')" style="
-                                display: flex;
-                                align-items: center;
-                                gap: 1rem;
-                                width: 100%;
-                                padding: 1rem;
-                                background: #f9fafb;
-                                border: 1px solid #e5e7eb;
-                                border-radius: 12px;
-                                margin-bottom: 0.75rem;
-                                cursor: pointer;
-                                font-size: 1rem;
-                                color: #374151;
-                                text-align: left;
-                            ">
-                                <span style="font-size: 1.2rem;">📊</span>
-                                <span>Units & Time Format</span>
-                                <span style="margin-left: auto; color: #9ca3af;">›</span>
-                            </button>
-                            
-                            <button onclick="openSettings('location')" style="
-                                display: flex;
-                                align-items: center;
-                                gap: 1rem;
-                                width: 100%;
-                                padding: 1rem;
-                                background: #f9fafb;
-                                border: 1px solid #e5e7eb;
-                                border-radius: 12px;
-                                margin-bottom: 0.75rem;
-                                cursor: pointer;
-                                font-size: 1rem;
-                                color: #374151;
-                                text-align: left;
-                            ">
-                                <span style="font-size: 1.2rem;">📍</span>
-                                <span>Location Settings</span>
-                                <span style="margin-left: auto; color: #9ca3af;">›</span>
-                            </button>
-                            
-                            <button onclick="openSettings('ota')" style="
-                                display: flex;
-                                align-items: center;
-                                gap: 1rem;
-                                width: 100%;
-                                padding: 1rem;
-                                background: #f9fafb;
-                                border: 1px solid #e5e7eb;
-                                border-radius: 12px;
-                                margin-bottom: 0.75rem;
-                                cursor: pointer;
-                                font-size: 1rem;
-                                color: #374151;
-                                text-align: left;
-                            ">
-                                <span style="font-size: 1.2rem;">🚀</span>
-                                <span>ESP32 OTA Manager</span>
-                                <span style="margin-left: auto; color: #9ca3af;">›</span>
-                            </button>
-                        </div>
-                        
-                        <div style="border-top: 1px solid #e5e7eb; padding-top: 1.5rem;">
-                            <button onclick="openSettings('about')" style="
-                                display: flex;
-                                align-items: center;
-                                gap: 1rem;
-                                width: 100%;
-                                padding: 1rem;
-                                background: #f9fafb;
-                                border: 1px solid #e5e7eb;
-                                border-radius: 12px;
-                                cursor: pointer;
-                                font-size: 1rem;
-                                color: #374151;
-                                text-align: left;
-                            ">
-                                <span style="font-size: 1.2rem;">ℹ️</span>
-                                <span>About System</span>
-                                <span style="margin-left: auto; color: #9ca3af;">›</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            document.body.appendChild(overlay);
-            console.log('Mobile settings overlay created and added to DOM');
-        }
-        
-        function closeMobileSettings() {
-            const overlay = document.getElementById('mobileSettings');
-            if (overlay) {
-                overlay.remove();
-                console.log('Mobile settings closed');
-            }
-        }
-        
-        // Make functions globally available
-        window.closeMobileSettings = closeMobileSettings;
 
         // Test function for debugging
         function testSettings() {
