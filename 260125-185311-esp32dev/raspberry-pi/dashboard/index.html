@@ -3378,17 +3378,6 @@ ${JSON.stringify(device.status, null, 2)}
             updateTime();
             setInterval(updateTime, 1000);
 
-            // Add event listener for settings button - duplicate safeguard
-            const settingsBtn = document.getElementById('settingsBtn');
-            if (settingsBtn) {
-                // Remove old listeners to be safe
-                const newBtn = settingsBtn.cloneNode(true);
-                settingsBtn.parentNode.replaceChild(newBtn, settingsBtn);
-                newBtn.addEventListener('click', toggleSettings);
-            }
-
-            console.log("Dashboard initializing...");
-
             // Fetch data with error handling so UI doesn't freeze
             try { await fetchFarmInfo(); } catch(e) { console.error("Farm info failed", e); }
             try { await fetchDevices(); } catch(e) { console.error("Devices failed", e); }
