@@ -844,6 +844,251 @@
             border-left-color: #17a2b8;
         }
 
+        /* Location Settings Styles */
+        .coordinate-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .location-lookup {
+            text-align: center;
+            margin: 1rem 0;
+        }
+        
+        .lookup-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        
+        .lookup-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+        
+        .location-display {
+            background: linear-gradient(135deg, rgba(45, 90, 39, 0.1), rgba(76, 175, 80, 0.1));
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+        }
+        
+        .location-info, .timezone-info {
+            margin-top: 1rem;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        /* ESP32 OTA Styles */
+        .esp32-grid {
+            display: grid;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .esp32-card {
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 1rem;
+            transition: all 0.2s ease;
+        }
+        
+        .esp32-card:hover {
+            border-color: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .device-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .device-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        
+        .device-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .device-status.online {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .device-status.offline {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .device-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .device-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .ota-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+        
+        .ota-btn.primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .ota-btn.primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+        
+        .ota-btn.secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .ota-btn.secondary:hover {
+            background: #545b62;
+            transform: translateY(-1px);
+        }
+        
+        .ota-btn.disabled {
+            background: #e9ecef;
+            color: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        .upload-area {
+            border: 2px dashed #dee2e6;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            margin: 1rem 0;
+            transition: all 0.2s ease;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary-light);
+            background: rgba(45, 90, 39, 0.05);
+        }
+        
+        .upload-btn {
+            background: var(--primary-light);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+        
+        .upload-btn:hover {
+            background: var(--primary);
+            transform: translateY(-1px);
+        }
+        
+        .file-selected {
+            background: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+        
+        .upload-firmware-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+        
+        .log-container {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 0.5rem;
+        }
+        
+        .log-entry {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 1rem;
+            padding: 0.5rem;
+            border-bottom: 1px solid #f1f3f4;
+            font-size: 0.9rem;
+        }
+        
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+        
+        .log-entry.success .log-status {
+            color: #28a745;
+        }
+        
+        .log-entry.failed .log-status {
+            color: #dc3545;
+        }
+        
+        .log-time {
+            font-weight: 600;
+            color: #6c757d;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             /* Mobile Navbar - Ultra Compact Design */
