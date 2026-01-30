@@ -902,18 +902,39 @@
             /* Settings Dropdown Mobile */
             .settings-dropdown {
                 position: fixed;
-                top: auto;
+                top: 0;
                 bottom: 0;
                 left: 0;
                 right: 0;
-                border-radius: 25px 25px 0 0;
+                border-radius: 0;
                 min-width: auto;
-                max-height: 80vh;
-                transform: translateY(100%);
+                max-height: none;
+                transform: translateX(100%);
+                overflow-y: auto;
+                padding: 2rem 0 1rem;
             }
             
             .settings-dropdown.show {
-                transform: translateY(0);
+                transform: translateX(0);
+            }
+            
+            .dropdown-header {
+                padding: 1rem 1.5rem;
+                border-bottom: 1px solid #e5e7eb;
+                margin-bottom: 1rem;
+            }
+            
+            .dropdown-item {
+                padding: 1rem 1.5rem;
+                font-size: 1rem;
+            }
+            
+            .dropdown-section {
+                padding: 1rem 0;
+            }
+            
+            .dropdown-section-title {
+                padding: 0.75rem 1.5rem;
             }
             
             .settings-btn {
