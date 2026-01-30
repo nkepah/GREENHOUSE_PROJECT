@@ -645,15 +645,11 @@
 
         /* Responsive Design */
         @media (max-width: 768px) {
-            .navbar-content {
+            .header-content {
                 padding: 0 1rem;
             }
             
-            .navbar-brand span:last-child {
-                display: none;
-            }
-            
-            .navbar-menu {
+            .header-actions {
                 gap: 1rem;
             }
             
@@ -661,24 +657,14 @@
                 display: none;
             }
             
-            .modal-overlay {
-                padding: 1rem;
+            .time-display {
+                font-size: 1rem;
+                padding: 0.4rem 0.8rem;
             }
             
-            .modal-header {
-                padding: 1.5rem 1.5rem 1rem;
-            }
-            
-            .modal-body {
-                padding: 1rem 1.5rem;
-            }
-            
-            .modal-footer {
-                padding: 1rem 1.5rem 1.5rem;
-            }
-            
-            .status-grid {
-                grid-template-columns: 1fr;
+            .settings-dropdown {
+                min-width: 250px;
+                right: -1rem;
             }
         }
 
