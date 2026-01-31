@@ -370,14 +370,17 @@ app.get('/api/dashboard', async (req, res) => {
         console.error('Weather fetch failed:', err);
     }
     
-    // Build response
+    // Build response - use dynamically registered IPs
     const devices = {};
     for (const [id, info] of Object.entries(config.devices)) {
+        // Get IP from device registration (if available), fallback to config
+        const ip = info.ip || (deviceStatus[id]?.ip);
         devices[id] = {
             id,
             name: info.name,
             type: info.type,
-            ip: info.ip,
+            ip: ip || null,
+            online: deviceStatus[id]?.online || false,
             status: deviceStatus[id] || { online: false }
         };
     }
