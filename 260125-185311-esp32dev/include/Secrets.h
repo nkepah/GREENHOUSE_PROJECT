@@ -17,7 +17,7 @@ static constexpr const char* AP_PASSWORD = "greenhouse123";  // TODO: Make rando
 
 // Default Network Credentials (fallback if provisioning fails)
 static constexpr const char* DEFAULT_SSID = "";
-static constexpr const char* DEFAULT_PASS = "";
+static constexpr const char* DEFAULT_PASS = "Je";
 
 // Default Raspberry Pi IP (will be overridden by provisioning)
 static constexpr const char* DEFAULT_PI_IP = "100.92.151.67";
