@@ -437,6 +437,50 @@ app.get('/api/health', (req, res) => {
     });
 });
 
+// --- System Time API (for ESP32 devices to sync their time) ---
+app.get('/api/time', async (req, res) => {
+    try {
+        const now = new Date();
+        const timestamp = Math.floor(now.getTime() / 1000);
+        const timezone = config.weather.timezone || 'UTC';
+        
+        // Get stored NTP sync info
+        let syncInfo = await db.get('systemTime');
+        let ntpSynced = false;
+        let ntpSource = null;
+        
+        if (syncInfo) {
+            try {
+                const parsed = typeof syncInfo === 'string' ? JSON.parse(syncInfo) : syncInfo;
+                ntpSynced = parsed.synced || false;
+                ntpSource = parsed.source || null;
+            } catch (e) {
+                // JSON parse error, ignore
+            }
+        }
+        
+        res.json({
+            unix: timestamp,
+            iso: now.toISOString(),
+            timestamp: timestamp,
+            timezone: timezone,
+            ntpSynced: ntpSynced,
+            ntpSource: ntpSource,
+            serverTime: {
+                year: now.getFullYear(),
+                month: now.getMonth() + 1,
+                day: now.getDate(),
+                hour: now.getHours(),
+                minute: now.getMinutes(),
+                second: now.getSeconds(),
+                millisecond: now.getMilliseconds()
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to get system time' });
+    }
+});
+
 // --- Reverse Geocode (Convert Lat/Lon to Address) ---
 app.get('/api/geocode', async (req, res) => {
     const { lat, lon } = req.query;
