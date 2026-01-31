@@ -573,16 +573,6 @@ app.get('/api/weather-convert', async (req, res) => {
         res.set('Pragma', 'no-cache');
         res.set('Expires', '0');
         
-        // Get user's preferred temperature unit
-        let tempUnit = 'C';
-        try {
-            const settings = await db.getAll();
-            const units = settings.units || {};
-            tempUnit = units.temp || 'C';
-        } catch (err) {
-            console.error('[API] Error getting units setting:', err);
-        }
-        
         // Parse cached data and return with correct display temperature
         const daily = cachedData.daily_data ? JSON.parse(cachedData.daily_data) : null;
         const hourly = cachedData.hourly_data ? JSON.parse(cachedData.hourly_data) : null;
