@@ -404,6 +404,7 @@ app.get('/api/dashboard', async (req, res) => {
         location: locationDisplay,
         weather: weather?.current || null,
         daily: weather?.daily || null,
+        hourly: weather?.hourly || null,
         devices,
         timestamp: Date.now()
     });
