@@ -1681,6 +1681,7 @@
                 if (data.weather) updateWeather(data.weather, data.daily);
                 if (data.devices) renderDevices(data.devices);
                 
+                const now = new Date();
                 document.getElementById('lastUpdate').innerHTML = 
                     `<span class="clock-number">${now.getHours().toString().padStart(2, '0')}</span><span class="clock-colon">:</span><span class="clock-number">${now.getMinutes().toString().padStart(2, '0')}</span><span class="clock-colon">:</span><span class="clock-number">${now.getSeconds().toString().padStart(2, '0')}</span>`;
                     
