@@ -23,11 +23,12 @@ INSTALL_DIR="/opt/farmhub"
 WEB_DIR="/var/www/farmhub"
 LOG_DIR="/var/log/farmhub"
 
-# ESP32 Device Configuration (edit these IPs after devices are set up)
-GREENHOUSE_IP="${GREENHOUSE_IP:-192.168.1.100}"
-COOP1_IP="${COOP1_IP:-192.168.1.101}"
-COOP2_IP="${COOP2_IP:-192.168.1.102}"
-COOP3_IP="${COOP3_IP:-192.168.1.103}"
+# ESP32 Device Configuration - must be provided via environment variables or farm-config.json
+# Example: GREENHOUSE_IP="192.168.x.x" COOP1_IP="192.168.x.x" ./setup_farm_hub.sh
+GREENHOUSE_IP="${GREENHOUSE_IP}"
+COOP1_IP="${COOP1_IP}"
+COOP2_IP="${COOP2_IP}"
+COOP3_IP="${COOP3_IP}"
 
 echo -e "${CYAN}"
 cat << "EOF"
