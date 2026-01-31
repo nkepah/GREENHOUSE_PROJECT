@@ -1827,8 +1827,8 @@ void setup()
                 syncSettingsFromPi();
             }
             
-            // Check for IP address changes and re-register if needed
-            checkIPAddressChange();
+            // Note: Device registration checking is now handled by DeviceRegTask (Priority 0)
+            // which runs every 30 seconds without blocking critical operations
 
             // Pending weather refresh (triggered 5s after WebSocket connect) - ONLY if Pi is NOT connected
             if(pendingWeatherRefresh > 0 && millis() >= pendingWeatherRefresh) {
