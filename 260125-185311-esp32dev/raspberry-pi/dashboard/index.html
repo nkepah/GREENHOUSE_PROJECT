@@ -2020,12 +2020,22 @@
             document.getElementById('windSpeed').textContent = 
                 (current.wind_speed_10m || '--') + ' ' + windSpeedUnit;
             
-            // Check for temperature warnings (Frost/Heat)
+            // Check for temperature warnings (Frost/Heat) using saved thresholds
             const warningEl = document.getElementById('tempWarning');
             const warningIcon = document.getElementById('warningIcon');
             const warningText = document.getElementById('warningText');
-            const tempThreshold = userSettings?.units?.temp === 'F' ? 32 : 0; // Frost threshold
-            const heatThreshold = userSettings?.units?.temp === 'F' ? 95 : 35; // Heat threshold
+            
+            // Get thresholds from saved settings or use defaults
+            const thresholds = userSettings?.thresholds || {
+                frost_c: 0,
+                frost_f: 32,
+                heat_c: 35,
+                heat_f: 95
+            };
+            
+            // Determine which threshold to use based on current temperature unit
+            const tempThreshold = tempUnit === 'F' ? thresholds.frost_f : thresholds.frost_c;
+            const heatThreshold = tempUnit === 'F' ? thresholds.heat_f : thresholds.heat_c;
             const roundedTemp = Math.round(displayTemp);
             
             if (roundedTemp <= tempThreshold) {
@@ -2034,14 +2044,14 @@
                 warningIcon.textContent = '❄️';
                 warningText.textContent = 'FROST WARNING';
                 warningEl.style.display = 'flex';
-                warningEl.title = 'Frost Warning: Temperature at or below freezing!';
+                warningEl.title = `Frost Warning: Temperature at or below ${tempThreshold}${tempSymbol}!`;
             } else if (roundedTemp >= heatThreshold) {
                 // Heat warning
                 warningEl.classList.add('heat');
                 warningIcon.textContent = '🔥';
                 warningText.textContent = 'HEAT WARNING';
                 warningEl.style.display = 'flex';
-                warningEl.title = 'Heat Warning: High temperature alert!';
+                warningEl.title = `Heat Warning: Temperature at or above ${heatThreshold}${tempSymbol}!`;
             } else {
                 // No warning
                 warningEl.style.display = 'none';
