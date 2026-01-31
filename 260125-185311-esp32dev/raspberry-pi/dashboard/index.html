@@ -1279,34 +1279,31 @@
             fetchDashboardData();
         }
         
-        // Toggle Settings
-        function toggleSettings(event) {
+        // Toggle Settings - New Modal Approach
+        function toggleSettingsUtil(event) {
             if (event) {
                 event.preventDefault();
                 event.stopPropagation();
             }
             
-            const dropdown = document.getElementById('settingsDropdown');
-            // We need to find the button. Since we moved the dropdown, we can't find sibling.
-            // But we can search for the button by ID if we add one, or generic class.
-            const btn = document.getElementById('settingsBtn') || document.querySelector('.settings-btn');
-            
-            if (!dropdown) return;
-
-            const isMobile = window.innerWidth <= 768;
-            const willShow = !dropdown.classList.contains('show');
-            
-            if (willShow) {
-                dropdown.classList.add('show');
-                
-                // Force display first to ensure we can calculate things if needed
-                dropdown.style.display = 'block';
-
-                if (isMobile) {
-                    // Mobile: Fixed Bottom Sheet
-                    dropdown.style.position = 'fixed';
-                    dropdown.style.top = 'auto';
-                    dropdown.style.bottom = '0';
+            const modal = document.getElementById('settings-modal');
+            if (modal) {
+                const isOpen = modal.classList.contains('open');
+                if (isOpen) {
+                    modal.classList.remove('open');
+                } else {
+                    modal.classList.add('open');
+                }
+            }
+        }
+        
+        // Close modal when clicking overlap
+        document.addEventListener('click', (e) => {
+            const modal = document.getElementById('settings-modal');
+            if (modal && e.target === modal) {
+                modal.classList.remove('open');
+            }
+        });
                     dropdown.style.left = '0';
                     dropdown.style.right = '0';
                     dropdown.style.width = '100%';
