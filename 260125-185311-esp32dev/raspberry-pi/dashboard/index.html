@@ -1334,6 +1334,9 @@
             }
         };
         
+        // Alias for HTML onclick handlers
+        window.openSettingsPage = window.showSettingsPage;
+        
         function applyTheme(themeName, save = true) {
             const t = themes[themeName];
             if (!t) return;
