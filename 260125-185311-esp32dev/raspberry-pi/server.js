@@ -439,8 +439,9 @@ app.get('/api/dashboard', async (req, res) => {
     
     // Get weather from database cache (single source of truth)
     let weather = null;
+    let cachedWeather = null;
     try {
-        const cachedWeather = await db.getWeatherCache();
+        cachedWeather = await db.getWeatherCache();
         if (cachedWeather) {
             console.log('[DASHBOARD] Loaded from database cache');
             // Parse the cached data and reconstruct weather object
@@ -461,13 +462,8 @@ app.get('/api/dashboard', async (req, res) => {
     
     // Get user's preferred temperature unit from database cache (stored during conversion)
     let tempUnit = 'C';
-    try {
-        const cachedWeather = await db.getWeatherCache();
-        if (cachedWeather && cachedWeather.preferred_unit) {
-            tempUnit = cachedWeather.preferred_unit;
-        }
-    } catch (err) {
-        console.error('[DASHBOARD] Error getting preferred unit from cache:', err);
+    if (cachedWeather && cachedWeather.preferred_unit) {
+        tempUnit = cachedWeather.preferred_unit;
     }
     
     // Build weather response with correct display temperature and unit-converted values
