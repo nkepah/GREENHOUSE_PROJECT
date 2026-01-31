@@ -1305,7 +1305,7 @@
             const backBtn = document.getElementById('settings-back-btn');
             
             if (pageId === 'main') {
-                titleEl.textContent = 'Settings';
+                if(titleEl) titleEl.textContent = 'Settings';
                 if(backBtn) backBtn.style.display = 'none';
             } else {
                  if(backBtn) backBtn.style.display = 'block';
@@ -1318,6 +1318,9 @@
                  }
             }
         };
+        
+        // Backward compatibility alias to prevent "showSettingsPage is not defined" errors from cache or old listeners
+        window.showSettingsPage = window.openSettingsPage;
 
         function toggleSettings(event) {
             if (event) event.stopPropagation();
