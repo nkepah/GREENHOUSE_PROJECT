@@ -481,38 +481,28 @@ app.get('/api/dashboard', async (req, res) => {
         console.error('[DASHBOARD] Error loading weather from database:', err);
     }
     
-    // Get user's preferred temperature unit (default to C)
+    // Get user's preferred temperature unit from database cache (stored during conversion)
     let tempUnit = 'C';
     try {
-        const settings = await db.getAll();
-        const units = settings.units || {};
-        tempUnit = units.temp || 'C';
+        const cachedWeather = await db.getWeatherCache();
+        if (cachedWeather && cachedWeather.preferred_unit) {
+            tempUnit = cachedWeather.preferred_unit;
+        }
     } catch (err) {
-        console.error('[DASHBOARD] Error getting units setting:', err);
+        console.error('[DASHBOARD] Error getting preferred unit from cache:', err);
     }
     
-    // Convert weather data to user's preferred unit for display
+    // Build weather response with correct display temperature
     let weatherForDisplay = null;
     if (weather) {
-        if (tempUnit === 'F') {
-            weatherForDisplay = {
-                temperature_2m_c: weather.current?.temperature_2m_c,
-                temperature_2m_f: weather.current?.temperature_2m_f,
-                temperature_2m: weather.current?.temperature_2m_f, // Display field uses F
-                weather_code: weather.current?.weather_code,
-                relative_humidity_2m: weather.current?.relative_humidity_2m,
-                wind_speed_10m: weather.current?.wind_speed_10m
-            };
-        } else {
-            weatherForDisplay = {
-                temperature_2m_c: weather.current?.temperature_2m_c,
-                temperature_2m_f: weather.current?.temperature_2m_f,
-                temperature_2m: weather.current?.temperature_2m_c, // Display field uses C
-                weather_code: weather.current?.weather_code,
-                relative_humidity_2m: weather.current?.relative_humidity_2m,
-                wind_speed_10m: weather.current?.wind_speed_10m
-            };
-        }
+        weatherForDisplay = {
+            temperature_2m_c: weather.current?.temperature_2m_c,
+            temperature_2m_f: weather.current?.temperature_2m_f,
+            temperature_2m: tempUnit === 'F' ? weather.current?.temperature_2m_f : weather.current?.temperature_2m_c,
+            weather_code: weather.current?.weather_code,
+            relative_humidity_2m: weather.current?.relative_humidity_2m,
+            wind_speed_10m: weather.current?.wind_speed_10m
+        };
     }
     
     // Build response
