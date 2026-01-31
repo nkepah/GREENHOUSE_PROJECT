@@ -417,20 +417,6 @@ void verifyDeviceRegistration() {
     http.end();
 }
 
-// FreeRTOS Task: Periodic device registration verification (low priority)
-void deviceRegistrationTask(void *pvParameters) {
-    const unsigned long CHECK_INTERVAL = 30000; // 30 seconds
-    unsigned long lastCheck = 0;
-    
-    for(;;) {
-        if(millis() - lastCheck >= CHECK_INTERVAL) {
-            lastCheck = millis();
-            verifyDeviceRegistration();
-        }
-        vTaskDelay(pdMS_TO_TICKS(5000)); // Check every 5 seconds if timer expired
-    }
-}
-
 void fetchWeather() {
     // Only fetch weather if NOT connected to Pi proxy
     if (proxyConnected) {
