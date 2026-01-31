@@ -81,6 +81,8 @@ unsigned long lastWeatherUpdate = 0;
 unsigned long lastWeatherRequest = 0;  // Debounce for weather request triggers
 constexpr unsigned long WEATHER_DEBOUNCE_MS = 5000;  // Minimum 5 seconds between weather triggers
 unsigned long lastLocationSync = 0;
+unsigned long lastSettingsSync = 0;
+static constexpr unsigned long SETTINGS_SYNC_INTERVAL = 300000UL; // Sync settings every 5 minutes
 
 // Timing Constants - static constexpr for compile-time optimization
 static constexpr unsigned long LOCATION_SYNC_INTERVAL = 3600000UL;
@@ -99,55 +101,114 @@ unsigned long pendingWeatherRefresh = 0;  // millis() time to trigger delayed we
 bool weatherCacheStale = true;            // True if cache needs refresh
 volatile bool pendingCacheBroadcast = false; // Flag to broadcast cached weather from SyncTask
 
-// IP-based location fetching disabled - using manual coordinates only
-// void fetchLocation() {
-//     if(WiFi.status() != WL_CONNECTED) return;
-//     
-//     // Check if we need to sync
-//     if(lastLocationSync != 0 && (millis() - lastLocationSync) < LOCATION_SYNC_INTERVAL) return;
-//     
-//     Serial.println("[Loc] Fetching from IP-API...");
-//     HTTPClient http;
-//     http.setTimeout(5000); // 5s timeout
-//     http.begin("http://ip-api.com/json");
-//     
-//     const int httpCode = http.GET();
-//     if(httpCode == HTTP_CODE_OK) {
-//         DynamicJsonDocument doc(1024);
-//         DeserializationError error = deserializeJson(doc, http.getStream());
-//         
-//         if(!error && doc["status"] == "success") {
-//             cfgLat = doc["lat"].as<String>();
-//             cfgLon = doc["lon"].as<String>();
-//             cfgCity = doc["city"] | "";
-//             cfgRegion = doc["regionName"] | "";
-//             
-//             // Save location data to NVS for persistence
-//             Preferences prefs;
-//             prefs.begin("gh-config", false);
-//             prefs.putString("lat", cfgLat);
-//             prefs.putString("lon", cfgLon);
-//             if(cfgCity.length() > 0) prefs.putString("city", cfgCity);
-//             if(cfgRegion.length() > 0) prefs.putString("region", cfgRegion);
-//             prefs.end();
-//             
-//             Serial.printf("[Loc] Updated: %s, %s (%s, %s)\n", cfgLat.c_str(), cfgLon.c_str(), cfgCity.c_str(), cfgRegion.c_str());
-//             lastLocationSync = millis();
-//             
-//             // Broadcast location info to frontend
-//             StaticJsonDocument<512> locDoc;
-//             locDoc["type"] = "location";
-//             locDoc["city"] = cfgCity;
-//             locDoc["region"] = cfgRegion;
-//             String locOut;
-//             serializeJson(locDoc, locOut);
-//             web.broadcastStatus(locOut);
-//         }
-//     } else {
-//         Serial.printf("[Loc] HTTP Failed: %d\n", httpCode);
-//     }
-//     http.end();
-// }
+// Helper to update NVS if value changed
+void updateNvsString(const char* key, const String& value, Preferences& prefs) {
+    String current = prefs.getString(key, "");
+    if (current != value) {
+        prefs.putString(key, value);
+        Serial.printf("[CFG] Updated %s in NVS: %s\n", key, value.c_str());
+    }
+}
+
+void syncSettingsFromPi() {
+    if(WiFi.status() != WL_CONNECTED) return;
+    if(strlen(piIp) < 5) return; // No Pi IP configured
+    
+    // Check interval
+    if(lastSettingsSync != 0 && (millis() - lastSettingsSync) < SETTINGS_SYNC_INTERVAL) return;
+    
+    Serial.printf("[Settings] Syncing from Pi API (http://%s:3000/api/settings)...\n", piIp);
+    
+    WiFiClient client;
+    client.setTimeout(2000);
+    HTTPClient http;
+    http.setTimeout(3000);
+    
+    char url[64];
+    snprintf(url, sizeof(url), "http://%s:3000/api/settings", piIp);
+    
+    http.begin(client, url);
+    int httpCode = http.GET();
+    
+    if(httpCode == HTTP_CODE_OK) {
+        String payload = http.getString();
+        JsonDocument doc;
+        DeserializationError error = deserializeJson(doc, payload);
+        
+        if(!error) {
+            bool configChanged = false;
+            Preferences prefs;
+            prefs.begin("gh-config", false);
+            
+            // 1. Parse Location
+            if(doc.containsKey("location")) {
+                JsonObject loc = doc["location"];
+                
+                // Lat/Lon
+                if(loc.containsKey("lat") && loc.containsKey("lon")) {
+                    String sLat = loc["lat"].as<String>();
+                    String sLon = loc["lon"].as<String>();
+                    
+                    if(sLat != String(cfgLat) || sLon != String(cfgLon)) {
+                        strncpy(cfgLat, sLat.c_str(), sizeof(cfgLat)-1);
+                        strncpy(cfgLon, sLon.c_str(), sizeof(cfgLon)-1);
+                        updateNvsString("lat", sLat, prefs);
+                        updateNvsString("lon", sLon, prefs);
+                        lastWeatherUpdate = 0; // Force weather refresh on location change
+                        configChanged = true;
+                    }
+                }
+                
+                // Timezone (if needed in future)
+                // Accessing nested "address" for city/region inference
+                if(loc.containsKey("address")) {
+                     String fullAddr = loc["address"].as<String>();
+                     // Simple heuristic: First part is city, last part is Country/Region
+                     int firstComma = fullAddr.indexOf(',');
+                     if(firstComma > 0) {
+                        String sCity = fullAddr.substring(0, firstComma);
+                        if(sCity != String(cfgCity) && sCity.length() < 48) {
+                            strncpy(cfgCity, sCity.c_str(), sizeof(cfgCity)-1);
+                            updateNvsString("city", sCity, prefs);
+                            configChanged = true;
+                        }
+                     }
+                }
+            }
+            
+            // 2. Parse Units
+            if(doc.containsKey("units")) {
+                JsonObject units = doc["units"];
+                if(units.containsKey("temp")) {
+                    String sUnit = units["temp"].as<String>();
+                    String currentUnit(cfgUnit);
+                    // Compare case-insensitive 'c'/'f' vs 'C'/'F'
+                    if(!currentUnit.equalsIgnoreCase(sUnit)) {
+                        strncpy(cfgUnit, sUnit.c_str(), sizeof(cfgUnit)-1);
+                        updateNvsString("unit", sUnit, prefs);
+                        lastWeatherUpdate = 0; // Force weather refresh to get new unit
+                        configChanged = true;
+                    }
+                }
+            }
+            
+            prefs.end();
+            lastSettingsSync = millis();
+            
+            if(configChanged) {
+                Serial.println("[Settings] Configuration updated from Server.");
+            } else {
+                Serial.println("[Settings] Configuration is up to date.");
+            }
+            
+        } else {
+            Serial.println("[Settings] JSON Parse Error");
+        }
+    } else {
+        Serial.printf("[Settings] HTTP Error: %d\n", httpCode);
+    }
+    http.end();
+}
 
 void fetchWeather() {
     // Only fetch weather if NOT connected to Pi proxy
