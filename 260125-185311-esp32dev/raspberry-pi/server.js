@@ -16,6 +16,7 @@ const path = require('path');
 const fs = require('fs');
 const http = require('http');
 const WebSocket = require('ws');
+const db = require('./database');
 
 const app = express();
 const PORT = 3000;
