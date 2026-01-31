@@ -1824,6 +1824,8 @@ void setup()
                             Serial.printf("\n[WIFI] Reconnected! IP: %s\n", WiFi.localIP().toString().c_str());
                             wifiReconnectAttempts = 0;
                             lastWeatherUpdate = 0;
+                            // Register device with Pi server
+                            registerDeviceWithPi();
                         }
                     } else {
                         Serial.println("[WIFI] Max reconnection attempts reached. Switching to AP-only mode.");
