@@ -1803,7 +1803,8 @@
                 clockEl.innerHTML = `
                     <span class="clock-date">${dateStr}</span>
                     <span class="clock-time">${timeStr}</span>
-                    <div id="mobile-location-container" style="display:none;">
+                    <!-- Mobile only location display -->
+                    <div id="mobile-location-container" style="display:none;" onclick="showSettingsPage('location')">
                         📍 <span>${currentLoc}</span>
                     </div>
                 `;
