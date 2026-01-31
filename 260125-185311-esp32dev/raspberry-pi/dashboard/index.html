@@ -989,6 +989,41 @@
         @keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes modalSlideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* Temperature Warning Animations */
+        @keyframes frostPulse {
+            0%, 100% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 8px rgba(100, 150, 255, 0.6));
+            }
+            50% {
+                transform: scale(1.15);
+                filter: drop-shadow(0 0 20px rgba(100, 150, 255, 1));
+            }
+        }
+
+        @keyframes heatPulse {
+            0%, 100% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 8px rgba(255, 100, 100, 0.8)) drop-shadow(0 0 16px rgba(255, 165, 0, 0.3));
+            }
+            50% {
+                transform: scale(1.15);
+                filter: drop-shadow(0 0 20px rgba(255, 50, 50, 1)) drop-shadow(0 0 30px rgba(255, 165, 0, 0.7));
+            }
+        }
+
+        .temp-warning {
+            position: absolute;
+            bottom: -8px;
+            right: -8px;
+            font-size: 2rem;
+            animation: frostPulse 1.5s ease-in-out infinite;
+        }
+
+        .temp-warning.heat {
+            animation: heatPulse 1.5s ease-in-out infinite;
+        }
+
         /* Navigation Bar */
     </style>
 </head>
