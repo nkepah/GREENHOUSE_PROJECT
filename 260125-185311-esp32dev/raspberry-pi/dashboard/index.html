@@ -1677,6 +1677,7 @@
                     if(document.getElementById('loc-lat')) document.getElementById('loc-lat').value = loc.lat || '';
                     if(document.getElementById('loc-lon')) document.getElementById('loc-lon').value = loc.lon || '';
                     if(document.getElementById('loc-timezone')) document.getElementById('loc-timezone').value = loc.timezone || 'UTC';
+                    userSettings.timezone = loc.timezone || 'UTC'; // Store timezone globally
                     
                     // Always fetch fresh address from geocode endpoint
                     if (loc.lat && loc.lon && document.getElementById('location-display')) {
@@ -1850,12 +1851,27 @@
                 const container = document.getElementById('hourlyForecast');
                 container.innerHTML = ''; // Clear existing cards
                 
-                // Get current time to find starting index
+                // Get current time in user's timezone to find starting index
+                const timezone = userSettings.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
                 const now = new Date();
-                const currentHour = now.getHours();
-                const currentDate = now.getDate();
-                const currentMonth = now.getMonth();
-                const currentYear = now.getFullYear();
+                const formatter = new Intl.DateTimeFormat('en-US', {
+                    timeZone: timezone,
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false
+                });
+                const parts = formatter.formatToParts(now);
+                let currentHour, currentDate, currentMonth, currentYear;
+                parts.forEach(part => {
+                    if (part.type === 'hour') currentHour = parseInt(part.value);
+                    if (part.type === 'day') currentDate = parseInt(part.value);
+                    if (part.type === 'month') currentMonth = parseInt(part.value) - 1; // JavaScript months are 0-indexed
+                    if (part.type === 'year') currentYear = parseInt(part.value);
+                });
                 
                 // Find the index of the current hour in the API data
                 let startIndex = 0;
@@ -2104,16 +2120,18 @@
             const timeFormat = userSettings.units?.time || '24h';
             let timeStr, hourStr, minuteStr;
             
+            const tzHour = parseInt(tzTime.hour);
+            const tzMinute = tzTime.minute;
+            
             if (timeFormat === '12h') {
-                hourStr = now.getHours().toString().padStart(2, '0');
-                let hour12 = now.getHours() % 12 || 12;
+                let hour12 = tzHour % 12 || 12;
                 hourStr = hour12.toString().padStart(2, '0');
-                const ampm = now.getHours() >= 12 ? 'PM' : 'AM';
-                minuteStr = now.getMinutes().toString().padStart(2, '0');
+                const ampm = tzHour >= 12 ? 'PM' : 'AM';
+                minuteStr = tzMinute;
                 timeStr = `${hourStr}${minuteStr}${ampm}`;
             } else {
-                hourStr = now.getHours().toString().padStart(2, '0');
-                minuteStr = now.getMinutes().toString().padStart(2, '0');
+                hourStr = tzHour.toString().padStart(2, '0');
+                minuteStr = tzMinute;
                 timeStr = `${hourStr}${minuteStr}`;
             }
             
@@ -2127,7 +2145,7 @@
                 // Use class for styling instead of inline
                 clockEl.className = 'clock-widget';
                 if (timeFormat === '12h') {
-                    const hour12 = now.getHours() % 12 || 12;
+                    const hour12 = tzHour % 12 || 12;
                     const ampm = now.getHours() >= 12 ? 'PM' : 'AM';
                     clockEl.innerHTML = `
                         <span class="clock-date">${dateStr}</span>
