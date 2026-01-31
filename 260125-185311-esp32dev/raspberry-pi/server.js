@@ -330,8 +330,37 @@ app.get('/api/dashboard', async (req, res) => {
         };
     }
     
+    // Get fresh location display by geocoding current coordinates if available
+    let locationDisplay = { city: 'Unknown', address: 'Unknown' };
+    if (config.location.lat && config.location.lon) {
+        try {
+            const geoResponse = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${config.location.lat}&lon=${config.location.lon}`, {
+                headers: { 'User-Agent': 'FarmHub/2.3' }
+            });
+            if (geoResponse.ok) {
+                const geoData = await geoResponse.json();
+                const address = geoData.address || {};
+                let city = address.city || address.town || address.village || address.suburb;
+                if (!city && address.county) {
+                    city = address.county.replace(' County', '').replace(' Parish', '').replace(' District', '');
+                }
+                city = city || 'Location';
+                const state = address.state || '';
+                const cityComponent = state ? `${city}, ${state}` : city;
+                locationDisplay = { city: city, address: cityComponent };
+            }
+        } catch (err) {
+            console.error('[API] Fresh geocode failed:', err.message);
+            // Fallback to stored address if available
+            if (config.location.address) {
+                locationDisplay = { city: config.location.city || 'Location', address: config.location.address };
+            }
+        }
+    }
+    
     res.json({
         farmName: config.farmName,
+        location: locationDisplay,
         weather: weather?.current || null,
         daily: weather?.daily || null,
         devices,
