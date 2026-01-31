@@ -624,7 +624,10 @@ app.get('/api/weather-convert', async (req, res) => {
             temperature_2m_c: cachedData.current_temp_c,
             temperature_2m_f: cachedData.current_temp_f,
             temperature_2m: tempUnit === 'F' ? cachedData.current_temp_f : cachedData.current_temp_c,
-            weather_code: cachedData.weather_code
+            weather_code: cachedData.weather_code,
+            relative_humidity_2m: cachedData.humidity,
+            wind_speed_10m: windSpeedDisplay,
+            wind_speed_unit: speedLabel
         };
         
         res.json({
