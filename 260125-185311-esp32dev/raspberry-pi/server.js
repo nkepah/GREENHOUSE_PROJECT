@@ -529,7 +529,45 @@ app.get('/api/dashboard', async (req, res) => {
         timestamp: Date.now()
     });
 });
-
+// --- API to re-convert weather from cache when units change (CONVERSION SOURCE 2) ---
+app.get('/api/weather-convert', async (req, res) => {
+    try {
+        // Get cached weather data from database
+        const cachedData = await db.getWeatherCache();
+        if (!cachedData) {
+            return res.status(404).json({ error: 'No cached weather data' });
+        }
+        
+        // CONVERSION SOURCE 2: Cached database data
+        // Re-convert using cached data (called when user changes temperature unit in settings)
+        const convertedData = await convertAndCacheWeather(cachedData, false);
+        
+        // Get user's preferred temperature unit
+        let tempUnit = 'C';
+        try {
+            const settings = await db.getAll();
+            const units = settings.units || {};
+            tempUnit = units.temp || 'C';
+        } catch (err) {
+            console.error('[API] Error getting units setting:', err);
+        }
+        
+        // Return with correct display temperature
+        const displayData = {
+            ...convertedData.current,
+            temperature_2m: tempUnit === 'F' ? convertedData.current.temperature_2m_f : convertedData.current.temperature_2m_c
+        };
+        
+        res.json({
+            weather: displayData,
+            daily: convertedData.daily,
+            hourly: convertedData.hourly
+        });
+    } catch (err) {
+        console.error('[API] Weather convert error:', err);
+        res.status(500).json({ error: 'Conversion failed' });
+    }
+});
 // --- Health Check ---
 app.get('/api/health', (req, res) => {
     const onlineCount = Object.values(deviceStatus).filter(d => d.online).length;
