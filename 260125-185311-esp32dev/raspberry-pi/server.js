@@ -216,9 +216,9 @@ app.get('/api/geocode', async (req, res) => {
         // Simplify response
         const addr = data.address || {};
         
-        // Prioritize meaningful names
-        // Added 'city_district' and moved 'county' to end
-        const mainName = addr.city || addr.town || addr.village || addr.city_district || addr.hamlet || addr.suburb || addr.neighbourhood || addr.county || 'Unknown Location';
+        // Prioritize meaningful names - Explicitly excluding 'county' per user request to avoid county names
+        // Added 'municipality' which often captures the city/town level better in some regions
+        const mainName = addr.city || addr.town || addr.municipality || addr.village || addr.city_district || addr.hamlet || addr.suburb || addr.neighbourhood || 'Unknown Location';
         const secondary = addr.state || addr.region || addr.province || addr.state_district || '';
         
         let cityDisplay = mainName;
