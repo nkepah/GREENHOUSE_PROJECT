@@ -205,7 +205,7 @@ app.get('/api/geocode', async (req, res) => {
         const { lat, lon } = req.query;
         if (!lat || !lon) return res.status(400).json({ error: 'Missing lat/lon' });
         
-        const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10`;
+        const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=14`;
         const response = await fetch(url, {
             headers: { 'User-Agent': 'SmartFarmHub/2.0' }
         });
@@ -217,8 +217,9 @@ app.get('/api/geocode', async (req, res) => {
         const addr = data.address || {};
         
         // Prioritize meaningful names
-        const mainName = addr.city || addr.town || addr.village || addr.hamlet || addr.suburb || addr.neighbourhood || addr.county || 'Unknown Location';
-        const secondary = addr.state || addr.region || '';
+        // Added 'city_district' and moved 'county' to end
+        const mainName = addr.city || addr.town || addr.village || addr.city_district || addr.hamlet || addr.suburb || addr.neighbourhood || addr.county || 'Unknown Location';
+        const secondary = addr.state || addr.region || addr.province || addr.state_district || '';
         
         let cityDisplay = mainName;
         if (secondary && secondary !== mainName) {
@@ -226,8 +227,10 @@ app.get('/api/geocode', async (req, res) => {
         }
         
         const location = {
-            city: cityDisplay,
+            cityComponent: mainName,
+            stateComponent: secondary,
             country: addr.country || '',
+            city: cityDisplay, // Legacy support
             display_name: data.display_name
         };
         console.log(`[GEOCODE] Resolved ${lat},${lon} to: ${cityDisplay}, ${location.country}`);
