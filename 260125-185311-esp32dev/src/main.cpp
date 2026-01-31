@@ -278,6 +278,70 @@ void checkIPAddressChange() {
     }
 }
 
+// Verify device registration with Pi server (timer-based check)
+void verifyDeviceRegistration() {
+    if(WiFi.status() != WL_CONNECTED) return;
+    if(strlen(piIp) < 5) {
+        Serial.println("[DEVICE] Pi IP not configured, skipping verification");
+        return;
+    }
+    
+    String hostname = WiFi.getHostname();
+    String currentIP = WiFi.localIP().toString();
+    
+    WiFiClient client;
+    client.setTimeout(2000);
+    HTTPClient http;
+    http.setTimeout(3000);
+    
+    char url[96];
+    snprintf(url, sizeof(url), "http://%s:3000/api/device/verify/%s", piIp, hostname.c_str());
+    
+    http.begin(client, url);
+    int httpCode = http.GET();
+    
+    if(httpCode == 200) {
+        // Device found - verify IP matches
+        String response = http.getString();
+        JsonDocument doc;
+        deserializeJson(doc, response);
+        
+        String registeredIP = doc["device"]["ip"].as<String>();
+        
+        if(registeredIP == currentIP) {
+            Serial.printf("[DEVICE] ✓ Verified: %s at %s\n", hostname.c_str(), currentIP.c_str());
+            lastRegisteredIP = currentIP;
+            lastIPCheck = millis();
+        } else {
+            Serial.printf("[DEVICE] IP mismatch: registered=%s, current=%s. Re-registering...\n", 
+                registeredIP.c_str(), currentIP.c_str());
+            registerDeviceWithPi();
+        }
+    } else if(httpCode == 404) {
+        // Device not found in database - register it
+        Serial.printf("[DEVICE] Not found in database (HTTP 404). Registering...\n");
+        registerDeviceWithPi();
+    } else {
+        Serial.printf("[DEVICE] Verification failed: HTTP %d\n", httpCode);
+    }
+    
+    http.end();
+}
+
+// FreeRTOS Task: Periodic device registration verification (low priority)
+void deviceRegistrationTask(void *pvParameters) {
+    const unsigned long CHECK_INTERVAL = 30000; // 30 seconds
+    unsigned long lastCheck = 0;
+    
+    for(;;) {
+        if(millis() - lastCheck >= CHECK_INTERVAL) {
+            lastCheck = millis();
+            verifyDeviceRegistration();
+        }
+        vTaskDelay(pdMS_TO_TICKS(5000)); // Check every 5 seconds if timer expired
+    }
+}
+
 void fetchWeather() {
     // Only fetch weather if NOT connected to Pi proxy
     if (proxyConnected) {
