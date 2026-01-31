@@ -28,7 +28,7 @@ const PORT = 3000;
 // Load device configuration from file
 let config = {
     farmName: "My Farm Hub",
-    location: { lat: -17.8292, lon: 31.0522 }, // Default: Harare, Zimbabwe
+    location: { lat: null, lon: null }, // Will be loaded from database settings
     devices: {
         greenhouse: { ip: "192.168.1.100", name: "Greenhouse", type: "greenhouse" },
         coop1: { ip: "192.168.1.101", name: "Coop 1", type: "coop" },
@@ -37,7 +37,7 @@ let config = {
     },
     weather: {
         cacheMinutes: 10,
-        timezone: "Africa/Harare"
+        timezone: "UTC" // Will be loaded from database settings
     }
 };
 
@@ -65,6 +65,22 @@ function saveConfig() {
 }
 
 loadConfig();
+
+// Load location and timezone from database on startup
+async function initializeSettingsFromDatabase() {
+    try {
+        const settings = await db.getAll();
+        if (settings.location) {
+            const loc = typeof settings.location === 'string' ? JSON.parse(settings.location) : settings.location;
+            config.location.lat = parseFloat(loc.lat);
+            config.location.lon = parseFloat(loc.lon);
+            config.weather.timezone = loc.timezone || 'UTC';
+            console.log(`[CONFIG] Loaded from database: ${config.location.lat}, ${config.location.lon} (${config.weather.timezone})`);
+        }
+    } catch (err) {
+        console.warn('[CONFIG] Could not load location from database:', err.message);
+    }
+}
 
 // =============================================================================
 // WEATHER CACHE
