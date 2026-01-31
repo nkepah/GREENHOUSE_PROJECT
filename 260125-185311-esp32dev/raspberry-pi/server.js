@@ -163,6 +163,17 @@ setInterval(updateAllDeviceStatus, 30000);
 
 app.use(cors());
 app.use(express.json());
+
+// No-cache headers for HTML files to prevent stale versions
+app.use((req, res, next) => {
+    if (req.path.endsWith('.html') || req.path === '/') {
+        res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.set('Pragma', 'no-cache');
+        res.set('Expires', '0');
+    }
+    next();
+});
+
 app.use(express.static(path.join(__dirname, 'dashboard')));
 
 // =============================================================================
