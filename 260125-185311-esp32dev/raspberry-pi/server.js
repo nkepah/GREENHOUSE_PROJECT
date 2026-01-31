@@ -65,10 +65,10 @@ let config = {
     farmName: "My Farm Hub",
     location: { lat: null, lon: null }, // Will be loaded from database settings
     devices: {
-        greenhouse: { ip: "192.168.1.100", name: "Greenhouse", type: "greenhouse" },
-        coop1: { ip: "192.168.1.101", name: "Coop 1", type: "coop" },
-        coop2: { ip: "192.168.1.102", name: "Coop 2", type: "coop" },
-        coop3: { ip: "192.168.1.103", name: "Coop 3", type: "coop" }
+        greenhouse: { name: "Greenhouse", type: "greenhouse" },
+        coop1: { name: "Coop 1", type: "coop" },
+        coop2: { name: "Coop 2", type: "coop" },
+        coop3: { name: "Coop 3", type: "coop" }
     },
     weather: {
         cacheMinutes: 10,
