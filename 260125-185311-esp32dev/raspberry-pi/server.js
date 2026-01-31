@@ -155,26 +155,7 @@ async function fetchWeather(lat, lon) {
             data.hourly.temperature_2m_c = data.hourly.temperature_2m;
             data.hourly.temperature_2m_f = data.hourly.temperature_2m.map(c => (c * 9/5) + 32);
             
-            // Transform parallel arrays into hourly objects for UI
-            // UI expects: [{time: "...", temp: X, code: Y, is_day: Z, wind_speed: W}, ...]
-            const hourlyArray = [];
-            const times = data.hourly.time || [];
-            const temps = data.hourly.temperature_2m || [];
-            const codes = data.hourly.weather_code || [];
-            const winds = data.hourly.wind_speed_10m || [];
-            
-            for (let i = 0; i < Math.min(times.length, temps.length); i++) {
-                hourlyArray.push({
-                    time: times[i],
-                    temp: temps[i],
-                    code: codes[i] || 0,
-                    is_day: 1,  // Open-Meteo doesn't provide this in hourly, default to day
-                    wind_speed: winds[i] || 0
-                });
-            }
-            
-            // Store both formats: keep original arrays for API consumers, add objects for UI
-            data.hourly.array = hourlyArray;
+            applyHourlyTransformation(data);
         }
         
         // Convert daily temperatures to both C and F
