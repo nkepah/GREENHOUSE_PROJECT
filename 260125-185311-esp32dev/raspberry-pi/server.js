@@ -351,37 +351,6 @@ app.all('/device/:deviceId/*', async (req, res) => {
     }
 });
 
-// --- Aggregated Dashboard Data ---
-app.get('/api/dashboard', async (req, res) => {
-    // Fetch fresh weather
-    let weather = null;
-    try {
-        weather = await fetchWeather(config.location.lat, config.location.lon);
-    } catch (err) {
-        console.error('Weather fetch failed:', err);
-    }
-    
-    // Build response
-    const devices = {};
-    for (const [id, info] of Object.entries(config.devices)) {
-        devices[id] = {
-            id,
-            name: info.name,
-            type: info.type,
-            ip: info.ip,
-            status: deviceStatus[id] || { online: false }
-        };
-    }
-    
-    res.json({
-        farmName: config.farmName,
-        weather: weather?.current || null,
-        daily: weather?.daily || null,
-        devices,
-        timestamp: Date.now()
-    });
-});
-
 // --- Health Check ---
 app.get('/api/health', (req, res) => {
     const onlineCount = Object.values(deviceStatus).filter(d => d.online).length;
