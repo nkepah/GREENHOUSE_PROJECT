@@ -569,6 +569,10 @@ app.get('/api/weather-convert', async (req, res) => {
         
         console.log(`[API] Updated preferred unit to ${tempUnit}`);
         
+        res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.set('Pragma', 'no-cache');
+        res.set('Expires', '0');
+        
         // Get user's preferred temperature unit
         let tempUnit = 'C';
         try {
