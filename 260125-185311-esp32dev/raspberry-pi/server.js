@@ -746,13 +746,37 @@ app.post('/api/settings', async (req, res) => {
         await db.set(key, value);
         console.log(`[API] Saved setting: ${key} = ${JSON.stringify(value).substring(0, 50)}`);
         
-        // If location was updated, reload it into config
+        // If location was updated, reload it into config and geocode to get city/state
         if (key === 'location') {
             const loc = typeof value === 'string' ? JSON.parse(value) : value;
             config.location.lat = parseFloat(loc.lat);
             config.location.lon = parseFloat(loc.lon);
             config.weather.timezone = loc.timezone || 'UTC';
             console.log(`[CONFIG] Updated from settings: ${config.location.lat}, ${config.location.lon} (${config.weather.timezone})`);
+            
+            // Geocode to get city and state (one-time, not on every request)
+            try {
+                const geoResponse = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${config.location.lat}&lon=${config.location.lon}`, {
+                    headers: { 'User-Agent': 'FarmHub/2.3' }
+                });
+                if (geoResponse.ok) {
+                    const geoData = await geoResponse.json();
+                    const address = geoData.address || {};
+                    let city = address.city || address.town || address.village || address.suburb;
+                    if (!city && address.county) {
+                        city = address.county.replace(' County', '').replace(' Parish', '').replace(' District', '');
+                    }
+                    city = city || 'Location';
+                    const state = address.state || '';
+                    const cityComponent = state ? `${city}, ${state}` : city;
+                    
+                    config.location.city = city;
+                    config.location.address = cityComponent;
+                    console.log(`[GEOCODE] Located: ${cityComponent}`);
+                }
+            } catch (err) {
+                console.warn('[GEOCODE] Failed:', err.message);
+            }
         }
         
         res.json({ success: true, key, value });
