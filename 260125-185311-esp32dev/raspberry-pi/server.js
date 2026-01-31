@@ -214,11 +214,23 @@ app.get('/api/geocode', async (req, res) => {
         const data = await response.json();
         
         // Simplify response
+        const addr = data.address || {};
+        
+        // Prioritize meaningful names
+        const mainName = addr.city || addr.town || addr.village || addr.hamlet || addr.suburb || addr.neighbourhood || addr.county || 'Unknown Location';
+        const secondary = addr.state || addr.region || '';
+        
+        let cityDisplay = mainName;
+        if (secondary && secondary !== mainName) {
+            cityDisplay += `, ${secondary}`;
+        }
+        
         const location = {
-            city: data.address.city || data.address.town || data.address.village || 'Unknown',
-            country: data.address.country || '',
+            city: cityDisplay,
+            country: addr.country || '',
             display_name: data.display_name
         };
+        console.log(`[GEOCODE] Resolved ${lat},${lon} to: ${cityDisplay}, ${location.country}`);
         
         res.json(location);
     } catch (err) {
