@@ -1319,10 +1319,17 @@
                 },
                 (err) => {
                     console.error(err);
-                    alert('Unable to retrieve location. Please enter manually.');
+                    let msg = 'Unable to retrieve location.';
+                    if (err.code === 1) msg += ' Permission denied. (Requires HTTPS?)';
+                    else if (err.code === 2) msg += ' Position unavailable.';
+                    else if (err.code === 3) msg += ' Timeout.';
+                    
+                    alert(`${msg}\n\nError: ${err.message}\n\nPlease enter coordinates manually.`);
+                    
                     if(btn) btn.textContent = originalText;
                     display.textContent = 'Location detection failed';
-                }
+                },
+                { enableHighAccuracy: false, timeout: 5000, maximumAge: 60000 }
             );
         }
         
