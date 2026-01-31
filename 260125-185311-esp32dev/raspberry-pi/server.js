@@ -215,19 +215,15 @@ app.get('/api/geocode', async (req, res) => {
         
         // Simplify response
         const addr = data.address || {};
-        console.log('[DEBUG] Full Address Object:', JSON.stringify(addr)); // DEBUG LOG
-
+        
         // Priority list for "City" component
         // 1. Precise settlement names
         let mainName = addr.city || addr.town || addr.village || addr.municipality || addr.city_district || addr.hamlet || addr.suburb || addr.neighbourhood;
         
         // 2. Fallback to County if no settlement found (better than 'Unknown')
         // User prefers City, but if we are in the middle of nowhere, County is the best we have.
-        if (!mainName) {
-             console.log('[DEBUG] No city found, checking county (Strict disabled this time to check value)');
-             // Attempt to find ANY non-county name first if possible?
-             // If the user says "showing county instead of city", maybe "city" is null but "county" has value.
-             if (addr.county) mainName = addr.county;
+        if (!mainName && addr.county) {
+            mainName = addr.county;
         }
         
         if (!mainName) mainName = 'Unknown Location';
