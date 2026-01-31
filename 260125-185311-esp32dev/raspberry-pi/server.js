@@ -332,8 +332,10 @@ app.get('/api/dashboard', async (req, res) => {
     
     // Get fresh location display by geocoding current coordinates if available
     let locationDisplay = { city: 'Unknown', address: 'Unknown' };
+    console.log('[DASHBOARD] Checking location:', { lat: config.location.lat, lon: config.location.lon });
     if (config.location.lat && config.location.lon) {
         try {
+            console.log('[DASHBOARD] Geocoding fresh location...');
             const geoResponse = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${config.location.lat}&lon=${config.location.lon}`, {
                 headers: { 'User-Agent': 'FarmHub/2.3' }
             });
@@ -348,14 +350,17 @@ app.get('/api/dashboard', async (req, res) => {
                 const state = address.state || '';
                 const cityComponent = state ? `${city}, ${state}` : city;
                 locationDisplay = { city: city, address: cityComponent };
+                console.log('[DASHBOARD] Fresh geocode result:', locationDisplay);
             }
         } catch (err) {
-            console.error('[API] Fresh geocode failed:', err.message);
+            console.error('[DASHBOARD] Fresh geocode failed:', err.message);
             // Fallback to stored address if available
             if (config.location.address) {
                 locationDisplay = { city: config.location.city || 'Location', address: config.location.address };
             }
         }
+    } else {
+        console.log('[DASHBOARD] No coordinates configured');
     }
     
     res.json({
