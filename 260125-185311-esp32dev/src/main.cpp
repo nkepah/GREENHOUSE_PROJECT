@@ -64,6 +64,12 @@ volatile bool proxyConnected = false; // True if Pi WebSocket is up
 unsigned long lastProxyPing = 0;
 static constexpr unsigned long PROXY_TIMEOUT_MS = 15000; // 15s timeout
 
+// IP address monitoring for DHCP changes
+String lastRegisteredIP = "";
+unsigned long lastIPCheck = 0;
+static constexpr unsigned long IP_CHECK_INTERVAL = 30000UL; // Check every 30 seconds
+static constexpr unsigned long IP_REGISTRATION_TIMEOUT = 3600000UL; // Re-register every hour anyway
+
 // Time Config
 static constexpr char NTP_SERVER_DEFAULT[] PROGMEM = "pool.ntp.org";
 char ntpServer[48] = "pool.ntp.org";
@@ -98,13 +104,6 @@ float lastWeatherTemp = 0.0f;
 String cachedWeatherJson = "";         // Cached weather data JSON
 unsigned long cachedWeatherTimestamp = 0; // Unix timestamp when cached
 unsigned long pendingWeatherRefresh = 0;  // millis() time to trigger delayed weather refresh (0 = none)
-
-// Device Registration & IP Monitoring
-String lastRegisteredIP = "";           // Last IP we registered with Pi
-unsigned long lastIPCheck = 0;          // Last time we checked/updated IP
-static constexpr unsigned long IP_CHECK_INTERVAL = 30000UL;  // Check every 30 seconds
-static constexpr unsigned long IP_REGISTRATION_TIMEOUT = 3600000UL;  // Re-register every hour
-
 bool weatherCacheStale = true;            // True if cache needs refresh
 volatile bool pendingCacheBroadcast = false; // Flag to broadcast cached weather from SyncTask
 
@@ -215,6 +214,132 @@ void syncSettingsFromPi() {
         Serial.printf("[Settings] HTTP Error: %d\n", httpCode);
     }
     http.end();
+}
+
+// Register this device with the Pi server
+void registerDeviceWithPi() {
+    if(WiFi.status() != WL_CONNECTED) return;
+    if(strlen(piIp) < 5) return; // No Pi IP configured
+    
+    String hostname = WiFi.getHostname();
+    String ip = WiFi.localIP().toString();
+    
+    lastRegisteredIP = ip;
+    lastIPCheck = millis();
+    
+    WiFiClient client;
+    client.setTimeout(2000);
+    HTTPClient http;
+    http.setTimeout(3000);
+    
+    char url[64];
+    snprintf(url, sizeof(url), "http://%s:3000/api/device/register", piIp);
+    
+    JsonDocument doc;
+    doc["device_id"] = hostname;
+    doc["hostname"] = hostname;
+    doc["ip_address"] = ip;
+    doc["device_type"] = "greenhouse";
+    
+    String payload;
+    serializeJson(doc, payload);
+    
+    http.begin(client, url);
+    http.addHeader("Content-Type", "application/json");
+    int httpCode = http.POST(payload);
+    
+    if(httpCode == HTTP_CODE_OK) {
+        Serial.printf("[DEVICE] Registered with Pi: %s at %s\n", hostname.c_str(), ip.c_str());
+    } else {
+        Serial.printf("[DEVICE] Registration failed: HTTP %d\n", httpCode);
+    }
+    http.end();
+}
+
+// Check if IP address changed and re-register if needed
+void checkIPAddressChange() {
+    if(WiFi.status() != WL_CONNECTED) return;
+    if(strlen(piIp) < 5) return; // No Pi IP configured
+    
+    // Check every 30 seconds, or force re-register every hour
+    if(lastIPCheck != 0 && (millis() - lastIPCheck) < IP_CHECK_INTERVAL) return;
+    
+    String currentIP = WiFi.localIP().toString();
+    
+    // Re-register if IP changed or if it's been an hour
+    if(currentIP != lastRegisteredIP || (lastIPCheck != 0 && (millis() - lastIPCheck) > IP_REGISTRATION_TIMEOUT)) {
+        if(currentIP != lastRegisteredIP) {
+            Serial.printf("[DEVICE] IP address changed from %s to %s, re-registering...\n", 
+                lastRegisteredIP.c_str(), currentIP.c_str());
+        }
+        registerDeviceWithPi();
+    } else {
+        lastIPCheck = millis();
+    }
+}
+
+// Verify device registration with Pi server (timer-based check)
+void verifyDeviceRegistration() {
+    if(WiFi.status() != WL_CONNECTED) return;
+    if(strlen(piIp) < 5) {
+        Serial.println("[DEVICE] Pi IP not configured, skipping verification");
+        return;
+    }
+    
+    String hostname = WiFi.getHostname();
+    String currentIP = WiFi.localIP().toString();
+    
+    WiFiClient client;
+    client.setTimeout(2000);
+    HTTPClient http;
+    http.setTimeout(3000);
+    
+    char url[96];
+    snprintf(url, sizeof(url), "http://%s:3000/api/device/verify/%s", piIp, hostname.c_str());
+    
+    http.begin(client, url);
+    int httpCode = http.GET();
+    
+    if(httpCode == 200) {
+        // Device found - verify IP matches
+        String response = http.getString();
+        JsonDocument doc;
+        deserializeJson(doc, response);
+        
+        String registeredIP = doc["device"]["ip"].as<String>();
+        
+        if(registeredIP == currentIP) {
+            Serial.printf("[DEVICE] ✓ Verified: %s at %s\n", hostname.c_str(), currentIP.c_str());
+            lastRegisteredIP = currentIP;
+            lastIPCheck = millis();
+        } else {
+            Serial.printf("[DEVICE] IP mismatch: registered=%s, current=%s. Re-registering...\n", 
+                registeredIP.c_str(), currentIP.c_str());
+            registerDeviceWithPi();
+        }
+    } else if(httpCode == 404) {
+        // Device not found in database - register it
+        Serial.printf("[DEVICE] Not found in database (HTTP 404). Registering...\n");
+        registerDeviceWithPi();
+    } else {
+        Serial.printf("[DEVICE] Verification failed: HTTP %d\n", httpCode);
+    }
+    
+    http.end();
+}
+
+// FreeRTOS Task: Periodic device registration verification (low priority)
+void deviceRegistrationTask(void *pvParameters) {
+    const unsigned long CHECK_INTERVAL = 30000; // 30 seconds
+    unsigned long lastCheck = 0;
+    
+    for(;;) {
+        if(millis() - lastCheck >= CHECK_INTERVAL) {
+            lastCheck = millis();
+            verifyDeviceRegistration();
+        }
+        vTaskDelay(pdMS_TO_TICKS(5000)); // Check every 5 seconds if timer expired
+    }
 }
 
 void fetchWeather() {
@@ -453,110 +578,6 @@ void handleWiFiProvisioning() {
         }
     } else if (WiFiProvisioning::isAPMode()) {
         isAPMode = true;
-    }
-}
-
-// Register device with Pi server on WiFi connection
-void registerDeviceWithPi() {
-    if(WiFi.status() != WL_CONNECTED) return;
-    if(strlen(piIp) < 5) return; // No Pi IP configured
-    
-    String hostname = WiFi.getHostname();
-    String ip = WiFi.localIP().toString();
-    
-    lastRegisteredIP = ip;
-    lastIPCheck = millis();
-    
-    WiFiClient client;
-    client.setTimeout(2000);
-    HTTPClient http;
-    http.setTimeout(3000);
-    
-    char url[64];
-    snprintf(url, sizeof(url), "http://%s:3000/api/device/register", piIp);
-    
-    JsonDocument doc;
-    doc["device_id"] = hostname;
-    doc["hostname"] = hostname;
-    doc["ip_address"] = ip;
-    doc["device_type"] = "greenhouse";
-    
-    String payload;
-    serializeJson(doc, payload);
-    
-    http.begin(client, url);
-    http.addHeader("Content-Type", "application/json");
-    int httpCode = http.POST(payload);
-    
-    if(httpCode == HTTP_CODE_OK) {
-        Serial.printf("[DEVICE] Registered with Pi: %s at %s\n", hostname.c_str(), ip.c_str());
-    } else {
-        Serial.printf("[DEVICE] Registration failed: HTTP %d\n", httpCode);
-    }
-    http.end();
-}
-
-// Verify device registration with Pi server (timer-based check)
-void verifyDeviceRegistration() {
-    if(WiFi.status() != WL_CONNECTED) return;
-    if(strlen(piIp) < 5) {
-        Serial.println("[DEVICE] Pi IP not configured, skipping verification");
-        return;
-    }
-    
-    String hostname = WiFi.getHostname();
-    String currentIP = WiFi.localIP().toString();
-    
-    WiFiClient client;
-    client.setTimeout(2000);
-    HTTPClient http;
-    http.setTimeout(3000);
-    
-    char url[96];
-    snprintf(url, sizeof(url), "http://%s:3000/api/device/verify/%s", piIp, hostname.c_str());
-    
-    http.begin(client, url);
-    int httpCode = http.GET();
-    
-    if(httpCode == 200) {
-        // Device found - verify IP matches
-        String response = http.getString();
-        JsonDocument doc;
-        deserializeJson(doc, response);
-        
-        String registeredIP = doc["device"]["ip"].as<String>();
-        
-        if(registeredIP == currentIP) {
-            Serial.printf("[DEVICE] ✓ Verified: %s at %s\n", hostname.c_str(), currentIP.c_str());
-            lastRegisteredIP = currentIP;
-            lastIPCheck = millis();
-        } else {
-            Serial.printf("[DEVICE] IP mismatch: registered=%s, current=%s. Re-registering...\n", 
-                registeredIP.c_str(), currentIP.c_str());
-            registerDeviceWithPi();
-        }
-    } else if(httpCode == 404) {
-        // Device not found in database - register it
-        Serial.printf("[DEVICE] Not found in database (HTTP 404). Registering...\n");
-        registerDeviceWithPi();
-    } else {
-        Serial.printf("[DEVICE] Verification failed: HTTP %d\n", httpCode);
-    }
-    
-    http.end();
-}
-
-// FreeRTOS Task: Periodic device registration verification (low priority)
-void deviceRegistrationTask(void *pvParameters) {
-    const unsigned long CHECK_INTERVAL = 30000; // 30 seconds
-    unsigned long lastCheck = 0;
-    
-    for(;;) {
-        if(millis() - lastCheck >= CHECK_INTERVAL) {
-            lastCheck = millis();
-            verifyDeviceRegistration();
-        }
-        vTaskDelay(pdMS_TO_TICKS(5000)); // Check every 5 seconds if timer expired
     }
 }
 
@@ -1596,6 +1617,11 @@ void setup()
 
     // Use loaded config for NTP
     configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+    
+    // Register device with Pi server after WiFi and config are ready
+    if (WiFi.status() == WL_CONNECTED && strlen(piIp) > 5) {
+        registerDeviceWithPi();
+    }
 
     /*
      * ====== FREERTOS TASK ARCHITECTURE ======
@@ -1911,6 +1937,8 @@ void setup()
                             Serial.printf("\n[WIFI] Reconnected! IP: %s\n", WiFi.localIP().toString().c_str());
                             wifiReconnectAttempts = 0;
                             lastWeatherUpdate = 0;
+                            // Register device with Pi server
+                            registerDeviceWithPi();
                         }
                     } else {
                         Serial.println("[WIFI] Max reconnection attempts reached. Switching to AP-only mode.");
@@ -1926,6 +1954,9 @@ void setup()
             if(!isAPMode && WiFi.status() == WL_CONNECTED) {
                 syncSettingsFromPi();
             }
+            
+            // Check for IP address changes and re-register if needed
+            checkIPAddressChange();
 
             // Pending weather refresh (triggered 5s after WebSocket connect) - ONLY if Pi is NOT connected
             if(pendingWeatherRefresh > 0 && millis() >= pendingWeatherRefresh) {
