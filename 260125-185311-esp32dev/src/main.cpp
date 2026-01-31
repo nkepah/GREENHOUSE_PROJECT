@@ -2059,7 +2059,7 @@ void setup()
             routineMgr.processRoutines(deviceMgr, relays, progressCallback);
             
             // Process alert message queue
-            alertMgr.processQueue();
+            // alertMgr.processQueue();
 
             if(isAPMode) dnsServer.processNextRequest();
             web.cleanup();
