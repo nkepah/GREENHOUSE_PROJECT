@@ -1834,13 +1834,18 @@
                 for (let i = 0; i < Math.min(24, hourly.time.length); i++) {
                     const time = new Date(hourly.time[i]);
                     const hour = time.getHours().toString().padStart(2, '0');
+                    const minute = time.getMinutes().toString().padStart(2, '0');
                     const temp = convertTemp(hourly.temperature_2m[i]);
                     const code = hourly.weather_code?.[i] || 0;
+                    
+                    // First card shows "Now", others show time
+                    const timeLabel = i === 0 ? 'Now' : `${hour}:${minute}`;
+                    const timeClass = i === 0 ? 'now' : '';
                     
                     const card = document.createElement('div');
                     card.className = 'hourly-card';
                     card.innerHTML = `
-                        <div class="hourly-time">${hour}:00</div>
+                        <div class="hourly-time ${timeClass}">${timeLabel}</div>
                         <div class="hourly-icon">${getWeatherIcon(code)}</div>
                         <div class="hourly-temp">${temp}${tempSymbol}</div>
                     `;
