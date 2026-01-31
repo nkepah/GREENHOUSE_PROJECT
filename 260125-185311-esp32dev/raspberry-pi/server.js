@@ -591,7 +591,7 @@ app.get('/api/weather-convert', async (req, res) => {
         });
     } catch (err) {
         console.error('[API] Weather convert error:', err);
-        res.status(500).json({ error: 'Conversion failed' });
+        res.status(500).json({ error: 'Failed to update unit preference' });
     }
 });
 // --- Health Check ---
