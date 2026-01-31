@@ -134,7 +134,7 @@ module.exports = {
                 );
             });
         });
-    }
+    },
     
     getWeatherCache: () => {
         return new Promise((resolve, reject) => {
