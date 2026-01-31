@@ -169,7 +169,7 @@ app.use(express.static(path.join(__dirname, 'dashboard')));
 // API ROUTES
 // =============================================================================
 
-// --- Weather API (for ESP32s and dashboard) ---
+// --- zzzzzWeather API (for ESP32s and dashboard) ---
 app.get('/api/weather', async (req, res) => {
     try {
         const lat = req.query.lat || config.location.lat;
