@@ -127,6 +127,54 @@ async function fetchWeather(lat, lon) {
 }
 
 // =============================================================================
+// NTP TIME SYNCHRONIZATION
+// =============================================================================
+
+// Sync time with NTP server and store in database
+async function syncTimeWithNTP() {
+    try {
+        const ntpServers = ['pool.ntp.org', 'time.nist.gov', 'time.google.com'];
+        
+        for (const server of ntpServers) {
+            try {
+                // Use system ntpdate command (if available on Linux/Pi)
+                const { exec } = require('child_process');
+                
+                exec(`ntpdate -u ${server}`, (error, stdout, stderr) => {
+                    if (!error) {
+                        const now = new Date();
+                        const timestamp = Math.floor(now.getTime() / 1000);
+                        
+                        // Save to database
+                        db.set('systemTime', JSON.stringify({
+                            unix: timestamp,
+                            iso: now.toISOString(),
+                            synced: true,
+                            source: server
+                        }))
+                        .then(() => {
+                            console.log(`[NTP] Time synced with ${server}: ${now.toISOString()}`);
+                        })
+                        .catch(err => console.error('[NTP] Failed to save time:', err));
+                    }
+                });
+                
+                // Try next if this one fails
+                continue;
+            } catch (err) {
+                console.warn(`[NTP] Failed with ${server}:`, err.message);
+            }
+        }
+    } catch (err) {
+        console.error('[NTP] Sync error:', err.message);
+    }
+}
+
+// Sync time on startup and every 6 hours
+syncTimeWithNTP();
+setInterval(syncTimeWithNTP, 6 * 60 * 60 * 1000);
+
+// =============================================================================
 // DEVICE STATUS AGGREGATION
 // =============================================================================
 
