@@ -210,6 +210,43 @@ void syncSettingsFromPi() {
     http.end();
 }
 
+// Register this device with the Pi server
+void registerDeviceWithPi() {
+    if(WiFi.status() != WL_CONNECTED) return;
+    if(strlen(piIp) < 5) return; // No Pi IP configured
+    
+    String hostname = WiFi.getHostname();
+    String ip = WiFi.localIP().toString();
+    
+    WiFiClient client;
+    client.setTimeout(2000);
+    HTTPClient http;
+    http.setTimeout(3000);
+    
+    char url[64];
+    snprintf(url, sizeof(url), "http://%s:3000/api/device/register", piIp);
+    
+    JsonDocument doc;
+    doc["device_id"] = hostname;
+    doc["hostname"] = hostname;
+    doc["ip_address"] = ip;
+    doc["device_type"] = "greenhouse";
+    
+    String payload;
+    serializeJson(doc, payload);
+    
+    http.begin(client, url);
+    http.addHeader("Content-Type", "application/json");
+    int httpCode = http.POST(payload);
+    
+    if(httpCode == HTTP_CODE_OK) {
+        Serial.printf("[DEVICE] Registered with Pi: %s at %s\n", hostname.c_str(), ip.c_str());
+    } else {
+        Serial.printf("[DEVICE] Registration failed: HTTP %d\n", httpCode);
+    }
+    http.end();
+}
+
 void fetchWeather() {
     // Only fetch weather if NOT connected to Pi proxy
     if (proxyConnected) {
