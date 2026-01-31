@@ -2214,8 +2214,21 @@
                 99: '⛈️'      // Thunderstorm with heavy hail
             };
             
-            // Return mapped icon or default to cloud
-            return iconMap[code] || '☁️';
+            // Check if code exists in map, otherwise try to determine by range
+            if (iconMap.hasOwnProperty(code)) {
+                return iconMap[code];
+            }
+            
+            // Fallback: determine by code ranges for any unmapped codes
+            if (code >= 71 && code <= 86) {
+                // All 70-86 range codes are snow/snow showers
+                if ((code >= 71 && code <= 77) || (code >= 85 && code <= 86)) {
+                    return '🌨️'; // Snow icon
+                }
+            }
+            
+            // Default to cloud
+            return '☁️';
         }
         
         function getWeatherDesc(code) {
