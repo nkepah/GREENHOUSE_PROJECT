@@ -1,5 +1,4 @@
-.pio/build/esp32dev/src/WiFiProvisioning.cpp.o: src/WiFiProvisioning.cpp \
- include/WiFiProvisioning.h \
+.pio/build/esp32dev/src/main.cpp.o: src/main.cpp \
  C:/Users/ngoma/.platformio/packages/framework-arduinoespressif32/cores/esp32/Arduino.h \
  C:/Users/ngoma/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp_arduino_version.h \
  C:/Users/ngoma/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/freertos/include/freertos/FreeRTOS.h \
@@ -235,7 +234,6 @@
  C:/Users/ngoma/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/mbedtls/port/include/aes/esp_aes.h \
  C:/Users/ngoma/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/hal/include/hal/aes_types.h \
  C:/Users/ngoma/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/mbedtls/mbedtls/include/mbedtls/error.h \
- include/Secrets.h \
  C:/Users/ngoma/.platformio/packages/framework-arduinoespressif32/libraries/LittleFS/src/LittleFS.h \
  C:/Users/ngoma/.platformio/packages/framework-arduinoespressif32/libraries/FS/src/FS.h \
  .pio/libdeps/esp32dev/ArduinoJson/src/ArduinoJson.h \
@@ -244,6 +242,19 @@
  C:/Users/ngoma/.platformio/packages/framework-arduinoespressif32/libraries/Preferences/src/Preferences.h \
  C:/Users/ngoma/.platformio/packages/framework-arduinoespressif32/libraries/DNSServer/src/DNSServer.h \
  C:/Users/ngoma/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiUdp.h \
+ C:/Users/ngoma/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/nvs_flash/include/nvs_flash.h \
+ C:/Users/ngoma/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/nvs_flash/include/nvs.h \
+ C:/Users/ngoma/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_system/include/esp_task_wdt.h \
+ C:/Users/ngoma/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/include/apps/esp_sntp.h \
+ C:/Users/ngoma/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/apps/sntp.h \
+ C:/Users/ngoma/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/apps/sntp_opts.h \
+ C:/Users/ngoma/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/prot/iana.h \
+ .pio/libdeps/esp32dev/OneWire/OneWire.h \
+ .pio/libdeps/esp32dev/OneWire/util/OneWire_direct_regtype.h \
+ .pio/libdeps/esp32dev/DallasTemperature/DallasTemperature.h \
+ include/Secrets.h include/WiFiProvisioning.h \
+ include/CurrentSensorManager.h include/RelayController.h \
+ include/CurrentSensorManager.h include/WebManager.h \
  .pio/libdeps/esp32dev/ESPAsyncWebServer/src/ESPAsyncWebServer.h \
  C:/Users/ngoma/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/tcpbase.h \
  .pio/libdeps/esp32dev/AsyncTCP/src/AsyncTCP.h \
@@ -259,6 +270,13 @@
  .pio/libdeps/esp32dev/ESPAsyncWebServer/src/WebResponseImpl.h \
  .pio/libdeps/esp32dev/ESPAsyncWebServer/src/AsyncJson.h \
  .pio/libdeps/esp32dev/ESPAsyncWebServer/src/ChunkPrint.h \
+ C:/Users/ngoma/.platformio/packages/framework-arduinoespressif32/libraries/SD/src/SD.h \
+ C:/Users/ngoma/.platformio/packages/framework-arduinoespressif32/libraries/SPI/src/SPI.h \
+ C:/Users/ngoma/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-spi.h \
+ C:/Users/ngoma/.platformio/packages/framework-arduinoespressif32/libraries/SD/src/sd_defines.h \
  C:/Users/ngoma/.platformio/packages/framework-arduinoespressif32/libraries/Update/src/Update.h \
  C:/Users/ngoma/.platformio/packages/framework-arduinoespressif32/cores/esp32/MD5Builder.h \
- C:/Users/ngoma/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_rom/include/esp_rom_md5.h
+ C:/Users/ngoma/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_rom/include/esp_rom_md5.h \
+ include/SDManager.h include/OTA_Manager.h include/DeviceManager.h \
+ include/RoutineManager.h include/DeviceManager.h \
+ include/RelayController.h include/SDManager.h include/AlertManager.h
