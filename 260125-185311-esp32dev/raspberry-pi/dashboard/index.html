@@ -1850,14 +1850,34 @@
                 const container = document.getElementById('hourlyForecast');
                 container.innerHTML = ''; // Clear existing cards
                 
-                // Get current time to show relative times
+                // Get current time to find starting index
                 const now = new Date();
+                const currentHour = now.getHours();
+                const currentDate = now.getDate();
+                const currentMonth = now.getMonth();
+                const currentYear = now.getFullYear();
                 
-                // Display 24 hourly cards
-                for (let i = 0; i < Math.min(24, hourly.time.length); i++) {
-                    const forecastTime = new Date(hourly.time[i]);
-                    const temp = convertTemp(hourly.temperature_2m[i]);
-                    const code = hourly.weather_code?.[i] || 0;
+                // Find the index of the current hour in the API data
+                let startIndex = 0;
+                for (let i = 0; i < hourly.time.length; i++) {
+                    const apiTime = new Date(hourly.time[i]);
+                    if (apiTime.getHours() === currentHour &&
+                        apiTime.getDate() === currentDate &&
+                        apiTime.getMonth() === currentMonth &&
+                        apiTime.getFullYear() === currentYear) {
+                        startIndex = i;
+                        break;
+                    }
+                }
+                
+                // Display 24 hourly cards starting from current hour
+                for (let i = 0; i < 24; i++) {
+                    const apiIndex = startIndex + i;
+                    if (apiIndex >= hourly.time.length) break; // Stop if we run out of data
+                    
+                    const forecastTime = new Date(hourly.time[apiIndex]);
+                    const temp = convertTemp(hourly.temperature_2m[apiIndex]);
+                    const code = hourly.weather_code?.[apiIndex] || 0;
                     
                     // Determine time label
                     let timeLabel = '';
@@ -1865,8 +1885,7 @@
                     const minute = forecastTime.getMinutes().toString().padStart(2, '0');
                     
                     // Check if this is the current hour
-                    const isCurrentHour = (forecastTime.getHours() === now.getHours() && 
-                                          forecastTime.getDate() === now.getDate());
+                    const isCurrentHour = (i === 0); // First card is always "Now"
                     
                     if (isCurrentHour) {
                         timeLabel = 'Now';
