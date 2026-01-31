@@ -1719,13 +1719,13 @@
             
             // Update global settings immediately for instant UI response
             userSettings.units = units;
+            
+            // Update UI immediately with new units
             updateClock(); // Refresh clock display with new format
             
-            // Trigger weather update immediately with new units (async, don't wait)
-            const dashboardSection = document.getElementById('weatherSection');
-            if (dashboardSection) {
-                // Re-fetch dashboard to update weather with new units
-                fetchDashboard().catch(err => console.error('Weather refresh failed:', err));
+            // Re-render weather with new temperature unit
+            if (weather && weather.current) {
+                updateWeather(weather.current, weather.daily, weather.hourly, weather.location);
             }
             
             // Save to database in background (don't block UI)
