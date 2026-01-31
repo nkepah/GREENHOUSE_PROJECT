@@ -1843,15 +1843,25 @@
                 document.getElementById('weatherLocation').textContent = '📍 ' + locDisplay;
             }
             
+            // Get temperature - data comes pre-converted from server
+            // temperature_2m field already has the correct unit (C or F)
+            let displayTemp = current.temperature_2m || current.temperature_2m_c || 0;
+            
             // Use the first hourly data point if available (should be current time)
             // This ensures the main temperature matches the "Now" card
-            let displayTemp = current.temperature_2m;
-            if (hourly && hourly.temperature_2m && hourly.temperature_2m.length > 0) {
+            if (hourly && hourly.temperature_2m_c && hourly.temperature_2m_c.length > 0) {
+                // Use the appropriate temperature array based on unit
+                if (tempUnit === 'F' && hourly.temperature_2m_f) {
+                    displayTemp = hourly.temperature_2m_f[0];
+                } else if (hourly.temperature_2m_c) {
+                    displayTemp = hourly.temperature_2m_c[0];
+                }
+            } else if (hourly && hourly.temperature_2m && hourly.temperature_2m.length > 0) {
                 displayTemp = hourly.temperature_2m[0];
             }
             
             document.getElementById('weatherTemp').textContent = 
-                convertTemp(displayTemp);
+                Math.round(displayTemp);
             document.getElementById('weatherTempUnit').textContent = tempSymbol;
             document.getElementById('weatherHumidity').textContent = 
                 current.relative_humidity_2m || '--';
