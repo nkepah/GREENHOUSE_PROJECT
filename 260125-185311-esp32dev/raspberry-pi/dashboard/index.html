@@ -604,7 +604,22 @@
             animation: spin 1s linear infinite;
             margin: 0 auto 16px;
         }
-        
+            
+                <div style="position: relative;">
+                    <button class="settings-btn" onclick="toggleSettings(event)">⚙️</button>
+                    <div class="settings-dropdown" id="settingsDropdown">
+                        <button class="dropdown-item" onclick="alert('Settings coming soon')">
+                            <span>📏</span> Units & Time
+                        </button>
+                        <button class="dropdown-item" onclick="alert('Logs coming soon')">
+                            <span>📋</span> System Logs
+                        </button>
+                        <button class="dropdown-item" onclick="alert('About')">
+                            <span>ℹ️</span> About
+                        </button>
+                    </div>
+                </div>
+            
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
