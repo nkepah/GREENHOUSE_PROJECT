@@ -1556,9 +1556,12 @@
                     // Simple heuristic to shorten long addresses: check for commas
                     if (displayLoc.includes(',')) {
                         const parts = displayLoc.split(',');
-                        // Use the first part (City/County)
-                        displayLoc = parts[0].trim();
-                        // Optional: Append state code if available? keeping it simple for now.
+                        // Use the first part (City/County) and second (State/Region)
+                        if (parts.length >= 2) {
+                            displayLoc = parts[0].trim() + ', ' + parts[1].trim();
+                        } else {
+                            displayLoc = parts[0].trim();
+                        }
                     }
                     
                     document.getElementById('header-city').textContent = displayLoc;
