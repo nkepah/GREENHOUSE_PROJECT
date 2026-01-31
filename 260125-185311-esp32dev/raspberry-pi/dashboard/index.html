@@ -2323,6 +2323,8 @@
                                 // Reset card opacity
                                 document.querySelectorAll('.hourly-card').forEach(c => c.style.opacity = '1');
                             }
+                            // Fetch fresh data immediately
+                            fetchDashboardData();
                             // Resume the automatic refresh
                             refreshInterval = setInterval(fetchDashboardData, 2500);
                         }, 5000);
