@@ -256,6 +256,46 @@ void registerDeviceWithPi() {
     http.end();
 }
 
+// Update Pi database with current device IP (simplified version using hostname)
+void registerDeviceIP() {
+    if(WiFi.status() != WL_CONNECTED) return;
+    
+    String hostname = WiFi.getHostname();
+    String ip = WiFi.localIP().toString();
+    
+    WiFiClient client;
+    client.setTimeout(2000);
+    HTTPClient http;
+    http.setTimeout(3000);
+    
+    // Use PI_HOSTNAME from Secrets.h for persistent connection
+    char url[128];
+    snprintf(url, sizeof(url), "http://%s:%u/api/device/update-ip", PI_HOSTNAME, PI_PORT);
+    
+    JsonDocument doc;
+    doc["device_id"] = hostname;
+    doc["hostname"] = hostname;
+    doc["ip_address"] = ip;
+    doc["mac_address"] = WiFi.macAddress();
+    doc["rssi"] = WiFi.RSSI();
+    
+    String payload;
+    serializeJson(doc, payload);
+    
+    http.begin(client, url);
+    http.addHeader("Content-Type", "application/json");
+    int httpCode = http.POST(payload);
+    
+    if(httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_CREATED) {
+        Serial.printf("[DEVICE] IP updated with Pi: %s (%s)\n", hostname.c_str(), ip.c_str());
+    } else if(httpCode > 0) {
+        Serial.printf("[DEVICE] IP update HTTP %d\n", httpCode);
+    } else {
+        Serial.printf("[DEVICE] IP update failed (no response)\n");
+    }
+    http.end();
+}
+
 // Check if IP address changed and re-register if needed
 void checkIPAddressChange() {
     if(WiFi.status() != WL_CONNECTED) return;
