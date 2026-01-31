@@ -298,23 +298,73 @@ void registerDeviceIP() {
 // Check if IP address changed and re-register if needed
 void checkIPAddressChange() {
     if(WiFi.status() != WL_CONNECTED) return;
-    if(strlen(piIp) < 5) return; // No Pi IP configured
     
-    // Check every 30 seconds, or force re-register every hour
+    // Check every 30 seconds
     if(lastIPCheck != 0 && (millis() - lastIPCheck) < IP_CHECK_INTERVAL) return;
     
+    String hostname = WiFi.getHostname();
     String currentIP = WiFi.localIP().toString();
     
-    // Re-register if IP changed or if it's been an hour
-    if(currentIP != lastRegisteredIP || (lastIPCheck != 0 && (millis() - lastIPCheck) > IP_REGISTRATION_TIMEOUT)) {
-        if(currentIP != lastRegisteredIP) {
-            Serial.printf("[DEVICE] IP address changed from %s to %s, re-registering...\n", 
-                lastRegisteredIP.c_str(), currentIP.c_str());
-        }
-        registerDeviceWithPi();
-    } else {
+    // Skip if hostname not set
+    if(hostname.length() == 0) {
         lastIPCheck = millis();
+        return;
     }
+    
+    WiFiClient client;
+    client.setTimeout(2000);
+    HTTPClient http;
+    http.setTimeout(3000);
+    
+    // Verify registration with Pi via API
+    char url[128];
+    snprintf(url, sizeof(url), "http://%s:3000/api/device/verify", PI_DOMAIN);
+    
+    JsonDocument doc;
+    doc["device_id"] = hostname;
+    doc["current_ip"] = currentIP;
+    
+    String payload;
+    serializeJson(doc, payload);
+    
+    http.begin(client, url);
+    http.addHeader("Content-Type", "application/json");
+    int httpCode = http.POST(payload);
+    
+    bool needsReregister = false;
+    String reason = "";
+    
+    if(httpCode == 200) {
+        // Device found and verified
+        JsonDocument response;
+        deserializeJson(response, http.getString());
+        
+        if(response["ip_match"] == true) {
+            // Device registered with correct IP - all good
+            Serial.printf("[DEVICE] ✓ Verified: %s at %s\n", hostname.c_str(), currentIP.c_str());
+            lastRegisteredIP = currentIP;
+        } else {
+            // IP mismatch - need to re-register
+            needsReregister = true;
+            reason = "IP mismatch";
+        }
+    } else if(httpCode == 404) {
+        // Device not found in database - register it
+        needsReregister = true;
+        reason = "Not in database (HTTP 404)";
+    } else {
+        Serial.printf("[DEVICE] Verification failed: HTTP %d\n", httpCode);
+    }
+    
+    http.end();
+    
+    // Re-register if needed
+    if(needsReregister) {
+        Serial.printf("[DEVICE] Re-registering: %s\n", reason.c_str());
+        registerDeviceWithPi();
+    }
+    
+    lastIPCheck = millis();
 }
 
 // Verify device registration with Pi server (timer-based check)
