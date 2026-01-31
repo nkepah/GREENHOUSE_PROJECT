@@ -16,7 +16,7 @@ static constexpr const char* AP_SSID = "Greenhouse-Setup";
 static constexpr const char* AP_PASSWORD = "greenhouse123";  // TODO: Make random or use device MAC
 
 // Default Network Credentials (fallback if provisioning fails)
-static constexpr const char* DEFAULT_SSID = "Ba
+static constexpr const char* DEFAULT_SSID = "Bamini
 static constexpr const char* DEFAULT_PASS = "Jesus2023";
 
 // Default Raspberry Pi IP (will be overridden by provisioning)
