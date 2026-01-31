@@ -1251,6 +1251,33 @@
             }
         };
 
+        function showSettingsPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.settings-page').forEach(page => {
+                page.style.display = 'none';
+            });
+            
+            // Show target page
+            const target = document.getElementById('page-' + pageId);
+            if (target) target.style.display = 'block';
+            
+            // Update Header
+            const titleEl = document.getElementById('settings-title');
+            const backBtn = document.getElementById('settings-back-btn');
+            
+            if (pageId === 'main') {
+                titleEl.textContent = 'Settings';
+                backBtn.style.display = 'none';
+            } else {
+                 backBtn.style.display = 'block';
+                 // Set title based on page
+                 if(pageId === 'units') titleEl.textContent = 'Units';
+                 if(pageId === 'location') titleEl.textContent = 'Location';
+                 if(pageId === 'themes') titleEl.textContent = 'Themes';
+                 if(pageId === 'about') titleEl.textContent = 'About';
+            }
+        }
+
         function toggleSettings(event) {
             if (event) event.stopPropagation();
             const modal = document.getElementById('settings-modal');
