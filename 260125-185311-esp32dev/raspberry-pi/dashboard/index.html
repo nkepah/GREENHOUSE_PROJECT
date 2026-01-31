@@ -1854,33 +1854,46 @@
                 // Get current time in user's timezone to find starting index
                 const timezone = userSettings.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
                 const now = new Date();
-                const formatter = new Intl.DateTimeFormat('en-US', {
+                
+                // Create formatter for timezone time
+                const tzFormatter = new Intl.DateTimeFormat('en-US', {
                     timeZone: timezone,
                     year: 'numeric',
                     month: '2-digit',
                     day: '2-digit',
                     hour: '2-digit',
                     minute: '2-digit',
-                    second: '2-digit',
                     hour12: false
                 });
-                const parts = formatter.formatToParts(now);
+                
+                // Get current time parts in selected timezone
+                const nowParts = tzFormatter.formatToParts(now);
                 let currentHour, currentDate, currentMonth, currentYear;
-                parts.forEach(part => {
+                nowParts.forEach(part => {
                     if (part.type === 'hour') currentHour = parseInt(part.value);
                     if (part.type === 'day') currentDate = parseInt(part.value);
-                    if (part.type === 'month') currentMonth = parseInt(part.value) - 1; // JavaScript months are 0-indexed
+                    if (part.type === 'month') currentMonth = parseInt(part.value); // formatToParts returns 1-indexed months
                     if (part.type === 'year') currentYear = parseInt(part.value);
                 });
                 
                 // Find the index of the current hour in the API data
                 let startIndex = 0;
                 for (let i = 0; i < hourly.time.length; i++) {
-                    const apiTime = new Date(hourly.time[i]);
-                    if (apiTime.getHours() === currentHour &&
-                        apiTime.getDate() === currentDate &&
-                        apiTime.getMonth() === currentMonth &&
-                        apiTime.getFullYear() === currentYear) {
+                    // Format each API time in the selected timezone
+                    const apiDate = new Date(hourly.time[i]);
+                    const apiParts = tzFormatter.formatToParts(apiDate);
+                    let apiHour, apiDate_day, apiMonth, apiYear;
+                    apiParts.forEach(part => {
+                        if (part.type === 'hour') apiHour = parseInt(part.value);
+                        if (part.type === 'day') apiDate_day = parseInt(part.value);
+                        if (part.type === 'month') apiMonth = parseInt(part.value);
+                        if (part.type === 'year') apiYear = parseInt(part.value);
+                    });
+                    
+                    if (apiHour === currentHour &&
+                        apiDate_day === currentDate &&
+                        apiMonth === currentMonth &&
+                        apiYear === currentYear) {
                         startIndex = i;
                         break;
                     }
@@ -1892,13 +1905,20 @@
                     if (apiIndex >= hourly.time.length) break; // Stop if we run out of data
                     
                     const forecastTime = new Date(hourly.time[apiIndex]);
+                    
+                    // Format forecast time in user's timezone
+                    const forecastParts = tzFormatter.formatToParts(forecastTime);
+                    let forecastHour, forecastMinute;
+                    forecastParts.forEach(part => {
+                        if (part.type === 'hour') forecastHour = part.value;
+                        if (part.type === 'minute') forecastMinute = part.value;
+                    });
+                    
                     const temp = convertTemp(hourly.temperature_2m[apiIndex]);
                     const code = hourly.weather_code?.[apiIndex] || 0;
                     
                     // Determine time label
                     let timeLabel = '';
-                    const hour = forecastTime.getHours().toString().padStart(2, '0');
-                    const minute = forecastTime.getMinutes().toString().padStart(2, '0');
                     
                     // Check if this is the current hour
                     const isCurrentHour = (i === 0); // First card is always "Now"
