@@ -1521,7 +1521,7 @@
         // Persistence
         async function loadSettings() {
             try {
-                const res = await fetch('/api/settings');
+                const res = await fetch('/api/settings', { credentials: 'same-origin' });
                 if (!res.ok) throw new Error('Failed to fetch settings');
                 const settings = await res.json();
                 
