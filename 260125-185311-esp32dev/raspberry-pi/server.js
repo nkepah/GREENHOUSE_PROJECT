@@ -154,6 +154,16 @@ async function convertAndCacheWeather(sourceData, isFromAPI = true) {
             temperature_2m_f: hourly.temperature_2m.map(c => Math.round((c * 9/5) + 32))
         } : null;
         
+        // Get user's preferred temperature unit for storage
+        let preferredUnit = 'C';
+        try {
+            const settings = await db.getAll();
+            const units = settings.units || {};
+            preferredUnit = units.temp || 'C';
+        } catch (err) {
+            console.warn('[CONVERT] Could not get preferred unit, using C:', err.message);
+        }
+        
         // Store converted data in database (only write to DB, no return)
         await db.saveWeatherCache(
             tempC,
@@ -161,10 +171,11 @@ async function convertAndCacheWeather(sourceData, isFromAPI = true) {
             weatherCode,
             JSON.stringify(dailyConverted),
             JSON.stringify(hourlyConverted),
-            timezone
+            timezone,
+            preferredUnit
         );
         
-        console.log(`[CONVERT] Stored in DB: ${tempC}°C / ${tempF}°F${isFromAPI ? ' (from API)' : ' (from DB)'}`);
+        console.log(`[CONVERT] Stored in DB: ${tempC}°C / ${tempF}°F (preferred: ${preferredUnit})${isFromAPI ? ' (from API)' : ' (from DB)'}`);
         
     } catch (err) {
         console.error('[CONVERT] Error during conversion:', err);
