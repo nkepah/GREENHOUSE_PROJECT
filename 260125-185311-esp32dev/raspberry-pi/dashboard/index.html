@@ -1894,9 +1894,32 @@
         // Clock
         function updateClock() {
             const now = new Date();
-            const dateStr = now.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
-            const hours = now.getHours().toString().padStart(2, '0');
-            const minutes = now.getMinutes().toString().padStart(2, '0');
+            
+            // Get user's date format setting
+            const dateFormat = userSettings.units?.date || 'short';
+            let dateStr;
+            if (dateFormat === 'short') {
+                dateStr = now.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+            } else {
+                dateStr = now.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: '2-digit', year: '2-digit' });
+            }
+            
+            // Get user's time format setting
+            const timeFormat = userSettings.units?.time || '24h';
+            let timeStr, hourStr, minuteStr;
+            
+            if (timeFormat === '12h') {
+                hourStr = now.getHours().toString().padStart(2, '0');
+                let hour12 = now.getHours() % 12 || 12;
+                hourStr = hour12.toString().padStart(2, '0');
+                const ampm = now.getHours() >= 12 ? 'PM' : 'AM';
+                minuteStr = now.getMinutes().toString().padStart(2, '0');
+                timeStr = `${hourStr}${minuteStr}${ampm}`;
+            } else {
+                hourStr = now.getHours().toString().padStart(2, '0');
+                minuteStr = now.getMinutes().toString().padStart(2, '0');
+                timeStr = `${hourStr}${minuteStr}`;
+            }
             
             const clockEl = document.getElementById('clock');
             
@@ -1907,16 +1930,29 @@
             if (clockEl) {
                 // Use class for styling instead of inline
                 clockEl.className = 'clock-widget';
-                clockEl.innerHTML = `
-                    <span class="clock-date">${dateStr}</span>
-                    <span class="clock-time"><span class="clock-number">${hours}</span><span class="clock-colon">:</span><span class="clock-number">${minutes}</span></span>
-                    <!-- Mobile only location display (controlled by CSS) -->
-                    <div id="mobile-location-container" onclick="openSettingsPage('location')">
-                        📍 <span>${currentLoc}</span>
-                    </div>
-                `;
+                if (timeFormat === '12h') {
+                    const hour12 = now.getHours() % 12 || 12;
+                    const ampm = now.getHours() >= 12 ? 'PM' : 'AM';
+                    clockEl.innerHTML = `
+                        <span class="clock-date">${dateStr}</span>
+                        <span class="clock-time"><span class="clock-number">${hour12.toString().padStart(2, '0')}</span><span class="clock-colon">:</span><span class="clock-number">${minuteStr}</span><small style="margin-left:2px;">${ampm}</small></span>
+                        <!-- Mobile only location display (controlled by CSS) -->
+                        <div id="mobile-location-container" onclick="openSettingsPage('location')">
+                            📍 <span>${currentLoc}</span>
+                        </div>
+                    `;
+                } else {
+                    clockEl.innerHTML = `
+                        <span class="clock-date">${dateStr}</span>
+                        <span class="clock-time"><span class="clock-number">${hourStr}</span><span class="clock-colon">:</span><span class="clock-number">${minuteStr}</span></span>
+                        <!-- Mobile only location display (controlled by CSS) -->
+                        <div id="mobile-location-container" onclick="openSettingsPage('location')">
+                            📍 <span>${currentLoc}</span>
+                        </div>
+                    `;
+                }
             }
-            console.log('[CLOCK] Updated with colon styling');
+            console.log('[CLOCK] Updated with format:', timeFormat, dateFormat);
         }
 
         // Initialize
