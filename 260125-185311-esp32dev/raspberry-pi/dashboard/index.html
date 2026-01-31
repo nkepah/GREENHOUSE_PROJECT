@@ -1230,7 +1230,7 @@
             }
         }
         
-        function applyTheme(themeName) {
+        function applyTheme(themeName, save = true) {
             const t = themes[themeName];
             if (!t) return;
             
@@ -1242,8 +1242,14 @@
             root.style.setProperty('--text-secondary', t.textSec);
             root.style.setProperty('--accent', t.accent);
             
-            // Persist
-            localStorage.setItem('farm_theme', themeName);
+            // Persist to Server DB
+            if (save) {
+                fetch('/api/settings', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ key: 'theme', value: themeName })
+                }).catch(e => console.error('Failed to save theme', e));
+            }
             
             // Visualize selection
             document.querySelectorAll('.theme-btn').forEach(btn => {
