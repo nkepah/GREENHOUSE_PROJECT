@@ -1067,9 +1067,18 @@
         // Clock
         function updateClock() {
             const now = new Date();
-            const dateStr = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+            const dateStr = now.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
             const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            document.getElementById('clock').innerHTML = `<span>${dateStr}</span> <span style="opacity:0.6">|</span> <span>${timeStr}</span>`;
+            
+            const clockEl = document.getElementById('clock');
+            if (clockEl) {
+                // Use class for styling instead of inline
+                clockEl.className = 'clock-widget';
+                clockEl.innerHTML = `
+                    <span class="clock-date">${dateStr}</span>
+                    <span class="clock-time">${timeStr}</span>
+                `;
+            }
         }
 
         // Initialize
