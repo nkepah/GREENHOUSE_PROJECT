@@ -62,7 +62,10 @@ private:
     static const unsigned long WIFI_CONNECT_TIMEOUT_MS = 15000;
     static const unsigned long HANDSHAKE_TIMEOUT_MS = 5000;
     static const unsigned long AP_MODE_TIMEOUT_MS = 600000; // 10 minutes
+    static const unsigned long RETRY_DELAY_MS = 5000;
+    static const unsigned long OTA_DOWNLOAD_TIMEOUT_MS = 60000;
     static const uint8_t MAX_ATTEMPTS = 3;
+    static constexpr const char* AP_PASS = "GreenHub2024";
 };
 
 #endif
