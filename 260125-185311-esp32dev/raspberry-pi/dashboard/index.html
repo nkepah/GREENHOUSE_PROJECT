@@ -1457,7 +1457,16 @@
                      const res = await fetch(`/api/geocode?lat=${lat}&lon=${lon}`);
                      if (res.ok) {
                          const data = await res.json();
-                         address = `${data.city}, ${data.country}`;
+                         // Construct address: City, State (No Country)
+                         // server.js returns 'cityComponent' and 'stateComponent' now
+                         if (data.cityComponent) {
+                              address = data.cityComponent;
+                              if (data.stateComponent) address += `, ${data.stateComponent}`;
+                         } else {
+                              // Fallback to legacy
+                              address = data.city; 
+                         }
+                         
                          // Update display
                          if(display) display.textContent = '📍 ' + address;
                          window.detectedAddress = address;
