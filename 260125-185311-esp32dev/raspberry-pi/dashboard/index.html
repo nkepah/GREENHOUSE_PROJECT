@@ -1954,6 +1954,7 @@
             // Check for temperature warnings (Frost/Heat)
             const warningEl = document.getElementById('tempWarning');
             const warningIcon = document.getElementById('warningIcon');
+            const warningText = document.getElementById('warningText');
             const tempThreshold = userSettings?.units?.temp === 'F' ? 32 : 0; // Frost threshold
             const heatThreshold = userSettings?.units?.temp === 'F' ? 95 : 35; // Heat threshold
             const roundedTemp = Math.round(displayTemp);
@@ -1962,13 +1963,15 @@
                 // Frost warning
                 warningEl.classList.remove('heat');
                 warningIcon.textContent = '❄️';
-                warningEl.style.display = 'block';
+                warningText.textContent = 'FROST WARNING';
+                warningEl.style.display = 'flex';
                 warningEl.title = 'Frost Warning: Temperature at or below freezing!';
             } else if (roundedTemp >= heatThreshold) {
                 // Heat warning
                 warningEl.classList.add('heat');
                 warningIcon.textContent = '🔥';
-                warningEl.style.display = 'block';
+                warningText.textContent = 'HEAT WARNING';
+                warningEl.style.display = 'flex';
                 warningEl.title = 'Heat Warning: High temperature alert!';
             } else {
                 // No warning
