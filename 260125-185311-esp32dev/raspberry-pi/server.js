@@ -187,6 +187,32 @@ async function fetchWeather(lat, lon) {
 // DEVICE STATUS AGGREGATION
 // =============================================================================
 
+// Helper function to transform hourly parallel arrays into objects
+function applyHourlyTransformation(data) {
+    if (!data.hourly || data.hourly.array) return; // Already transformed or no hourly data
+    
+    // Transform parallel arrays into hourly objects for UI
+    // UI expects: [{time: "...", temp: X, code: Y, is_day: Z, wind_speed: W}, ...]
+    const hourlyArray = [];
+    const times = data.hourly.time || [];
+    const temps = data.hourly.temperature_2m || [];
+    const codes = data.hourly.weather_code || [];
+    const winds = data.hourly.wind_speed_10m || [];
+    
+    for (let i = 0; i < Math.min(times.length, temps.length); i++) {
+        hourlyArray.push({
+            time: times[i],
+            temp: temps[i],
+            code: codes[i] || 0,
+            is_day: 1,  // Open-Meteo doesn't provide this in hourly, default to day
+            wind_speed: winds[i] || 0
+        });
+    }
+    
+    // Store objects for UI
+    data.hourly.array = hourlyArray;
+}
+
 let deviceStatus = {};
 
 async function fetchDeviceStatus(deviceId, deviceInfo) {
