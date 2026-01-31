@@ -828,6 +828,15 @@
             <div class="logo">
                 <span class="logo-icon">🌾</span>
                 <h1 id="farmName">Smart Farm <span>Hub</span></h1>
+                
+                <!-- NEW: Integrated Location Badge in Header -->
+                <div id="header-location" onclick="showSettingsPage('location')" 
+                     style="display:inline-flex; align-items:center; gap:5px; margin-left:15px; 
+                            background:rgba(255,255,255,0.1); padding:4px 8px; border-radius:6px; 
+                            font-size:0.8rem; cursor:pointer; vertical-align:middle;">
+                    <span>📍</span>
+                    <span id="header-city">--</span>
+                </div>
             </div>
             <div class="header-status">
                 <div id="clock" style="color: var(--text-primary); font-weight: 500;">--:--:--</div>
