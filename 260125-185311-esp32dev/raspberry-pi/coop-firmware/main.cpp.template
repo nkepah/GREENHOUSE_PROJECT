@@ -57,6 +57,7 @@ bool weatherValid = false;
 // Timers
 unsigned long lastTempRead = 0;
 unsigned long lastWeatherFetch = 0;
+unsigned long lastSettingsSync = 0;
 unsigned long lastScheduleCheck = 0;
 
 // =============================================================================
