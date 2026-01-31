@@ -2018,9 +2018,7 @@
         
         // Fetch initial data
         // Request management for performance
-        let pendingFetch = null;
         let fetchAbortController = null;
-        let lastFetchTime = 0;
         
         async function fetchDashboardData() {
             try {
@@ -2028,11 +2026,6 @@
                 if (fetchAbortController) {
                     fetchAbortController.abort();
                 }
-                
-                // Cancel if a fetch just completed recently (debounce)
-                const now = Date.now();
-                if (now - lastFetchTime < 1500) return;
-                lastFetchTime = now;
                 
                 fetchAbortController = new AbortController();
                 const response = await fetch(`/api/dashboard?v=${Math.random()}`, {
