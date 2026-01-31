@@ -272,8 +272,12 @@ app.get('/api/devices', (req, res) => {
     const devices = {};
     
     for (const [id, info] of Object.entries(config.devices)) {
+        // Use IP from deviceStatus if available (from registration), otherwise from config
+        const ip = info.ip || (deviceStatus[id]?.ip);
         devices[id] = {
             ...info,
+            ip: ip || null,
+            online: deviceStatus[id]?.online || false,
             status: deviceStatus[id] || { online: false }
         };
     }
