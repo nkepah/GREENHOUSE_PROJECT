@@ -146,6 +146,22 @@ async function fetchWeather(lat, lon) {
         
         const data = await response.json();
         
+        // Convert temperature_2m to both C and F for hourly data
+        if (data.hourly && data.hourly.temperature_2m) {
+            data.hourly.temperature_2m_c = data.hourly.temperature_2m;
+            data.hourly.temperature_2m_f = data.hourly.temperature_2m.map(c => (c * 9/5) + 32);
+        }
+        
+        // Convert daily temperatures to both C and F
+        if (data.daily && data.daily.temperature_2m_max) {
+            data.daily.temperature_2m_max_c = data.daily.temperature_2m_max;
+            data.daily.temperature_2m_max_f = data.daily.temperature_2m_max.map(c => (c * 9/5) + 32);
+        }
+        if (data.daily && data.daily.temperature_2m_min) {
+            data.daily.temperature_2m_min_c = data.daily.temperature_2m_min;
+            data.daily.temperature_2m_min_f = data.daily.temperature_2m_min.map(c => (c * 9/5) + 32);
+        }
+        
         // Cache the result
         weatherCache.data = data;
         weatherCache.timestamp = now;
