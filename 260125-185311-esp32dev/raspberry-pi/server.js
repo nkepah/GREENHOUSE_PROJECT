@@ -326,6 +326,33 @@ app.get('/api/health', (req, res) => {
     });
 });
 
+// --- Settings API (Load/Save from SQLite) ---
+app.get('/api/settings', async (req, res) => {
+    try {
+        const settings = await db.getAll();
+        res.json(settings);
+    } catch (err) {
+        console.error('[API] Failed to load settings:', err.message);
+        res.status(500).json({ error: 'Failed to load settings' });
+    }
+});
+
+app.post('/api/settings', async (req, res) => {
+    try {
+        const { key, value } = req.body;
+        if (!key) {
+            return res.status(400).json({ error: 'Missing key' });
+        }
+        
+        await db.set(key, value);
+        console.log(`[API] Saved setting: ${key} = ${JSON.stringify(value).substring(0, 50)}`);
+        res.json({ success: true, key, value });
+    } catch (err) {
+        console.error('[API] Failed to save settings:', err.message);
+        res.status(500).json({ error: 'Failed to save settings' });
+    }
+});
+
 // =============================================================================
 // WEBSOCKET SERVER
 // =============================================================================
