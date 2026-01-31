@@ -1541,16 +1541,24 @@
                 // Theme
                 if (settings.theme) applyTheme(settings.theme, false); // false = don't save again
                 
-                // Location
+                // Location - Always re-geocode to get fresh address
                 if (settings.location) {
                     const loc = typeof settings.location === 'string' ? JSON.parse(settings.location) : settings.location;
                     if(document.getElementById('loc-lat')) document.getElementById('loc-lat').value = loc.lat || '';
                     if(document.getElementById('loc-lon')) document.getElementById('loc-lon').value = loc.lon || '';
                     if(document.getElementById('loc-timezone')) document.getElementById('loc-timezone').value = loc.timezone || 'UTC';
                     
-                    if(loc.address && document.getElementById('location-display')) {
-                         document.getElementById('location-display').textContent = '📍 ' + loc.address;
-                         window.detectedAddress = loc.address;
+                    // Always fetch fresh address from geocode endpoint
+                    if (loc.lat && loc.lon && document.getElementById('location-display')) {
+                        try {
+                            const geoRes = await fetch(`/api/geocode?lat=${loc.lat}&lon=${loc.lon}`);
+                            if (geoRes.ok) {
+                                const geoData = await geoRes.json();
+                                const address = geoData.cityComponent || geoData.city || 'Location';
+                                document.getElementById('location-display').textContent = '📍 ' + address;
+                                window.detectedAddress = address;
+                            }
+                        } catch(e) { console.log('Fresh geocode failed, using stored:', e); }
                     }
                 }
                 
