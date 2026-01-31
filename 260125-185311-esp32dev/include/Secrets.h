@@ -7,21 +7,21 @@
  * 
  * NETWORK ARCHITECTURE:
  * ────────────────────────────────────────────────────────────────────────
- * ESP32 (field device) ←→ farm-hub (Pi server)
+ * ESP32 (field device) ←→ smartfarmshub (Pi server)
  * 
  * Connection Method: mDNS hostname resolution (recommended)
- *   • Pi Hostname: farm-hub
- *   • mDNS Domain: farm-hub.local
+ *   • Pi Hostname: smartfarmshub
+ *   • mDNS Domain: smartfarmshub.local
  *   • Local Network IP: 10.0.0.3
  *   • Tailscale VPN IP: 100.92.151.67
  *   
  * Benefit: If Pi's IP address changes, ESP32 automatically reconnects
- *          using the persistent hostname (farm-hub)
+ *          using the persistent hostname (smartfarmshub)
  * 
  * ESP32 Connection Flow:
  *   1. Connects to WiFi: "Baminyam2.0_EXT2.4G"
- *   2. Resolves PI_HOSTNAME ("farm-hub") via mDNS
- *   3. Connects to farm-hub:3000
+ *   2. Resolves PI_HOSTNAME ("smartfarmshub") via mDNS
+ *   3. Connects to smartfarmshub:3000
  *   4. Registers device IP every 30 seconds
  *   5. Receives routine commands via WebSocket
  *   6. Sends sensor data and alerts to Pi
@@ -40,14 +40,14 @@ static constexpr const char* AP_PASSWORD = "greenhouse123";  // TODO: Make rando
 static constexpr const char* DEFAULT_SSID = "Baminyam2.0_EXT2.4G";
 static constexpr const char* DEFAULT_PASS = "Jesus2023";
 
-// Raspberry Pi Configuration (farm-hub server)
+// Raspberry Pi Configuration (smartfarmshub server)
 // Using hostname instead of IP ensures persistent connection even if Pi IP changes
-// mDNS Resolution: farm-hub → 10.0.0.3 (local network)
+// mDNS Resolution: smartfarmshub → 10.0.0.3 (local network)
 // Direct IP (Tailscale): 100.92.151.67
-// mDNS Domain: farm-hub.local
-static constexpr const char* PI_HOSTNAME = "farm-hub";      // Resolves via mDNS to 10.0.0.3
-static constexpr const uint16_t PI_PORT = 3000;             // Node.js backend port
-static constexpr const char* PI_DOMAIN = "farm-hub.local";  // Full mDNS domain (optional)
+// mDNS Domain: smartfarmshub.local
+static constexpr const char* PI_HOSTNAME = "smartfarmshub";      // Resolves via mDNS to 10.0.0.3
+static constexpr const uint16_t PI_PORT = 3000;                   // Node.js backend port
+static constexpr const char* PI_DOMAIN = "smartfarmshub.local";  // Full mDNS domain (optional)
 
 // OTA Update Server
 static constexpr const char* OTA_SERVER = "updates.farm.local";
