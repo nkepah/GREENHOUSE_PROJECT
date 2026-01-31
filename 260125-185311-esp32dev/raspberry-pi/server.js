@@ -75,6 +75,17 @@ async function initializeSettingsFromDatabase() {
             console.log(`[CONFIG] Loaded from database: ${config.location.lat}, ${config.location.lon} (${config.weather.timezone}) - ${config.location.address}`);
         }
         
+        // Load devices from database
+        if (settings.devices) {
+            try {
+                config.devices = typeof settings.devices === 'string' ? JSON.parse(settings.devices) : settings.devices;
+                console.log(`[CONFIG] Loaded ${Object.keys(config.devices).length} devices from database`);
+            } catch (err) {
+                console.warn('[CONFIG] Could not parse devices from database:', err.message);
+                config.devices = {};
+            }
+        }
+        
         // Load cached weather from database to memory
         try {
             const cachedWeather = await db.getWeatherCache();
