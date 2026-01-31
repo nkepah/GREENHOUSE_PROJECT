@@ -1203,6 +1203,7 @@
         }
         
         function toggleSettings(event) {
+            console.log('toggleSettings called, showSettingsPage is:', typeof showSettingsPage);
             if (event) event.stopPropagation();
             const modal = document.getElementById('settings-modal');
             
