@@ -327,6 +327,43 @@ app.get('/api/health', (req, res) => {
     });
 });
 
+// --- Reverse Geocode (Convert Lat/Lon to Address) ---
+app.get('/api/geocode', async (req, res) => {
+    const { lat, lon } = req.query;
+    
+    if (!lat || !lon) {
+        return res.status(400).json({ error: 'Missing lat or lon' });
+    }
+    
+    try {
+        // Use OpenStreetMap Nominatim for reverse geocoding
+        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+        const data = await response.json();
+        
+        const address = data.address || {};
+        const city = address.city || address.town || address.village || 'Unknown';
+        const state = address.state || '';
+        const country = address.country || '';
+        
+        res.json({
+            city,
+            state,
+            country,
+            cityComponent: state ? `${city}, ${state}` : city,
+            stateComponent: state,
+            full: data.display_name
+        });
+    } catch (err) {
+        console.error('[API] Geocode failed:', err.message);
+        res.status(500).json({ 
+            error: 'Geocoding failed',
+            city: 'Location',
+            state: '',
+            country: ''
+        });
+    }
+});
+
 // --- Settings API (Load/Save from SQLite) ---
 app.get('/api/settings', async (req, res) => {
     try {
