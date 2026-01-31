@@ -793,6 +793,16 @@ app.post('/api/settings', async (req, res) => {
             }
         }
         
+        // If devices were updated, reload into config
+        if (key === 'devices') {
+            try {
+                config.devices = typeof value === 'string' ? JSON.parse(value) : value;
+                console.log(`[CONFIG] Updated ${Object.keys(config.devices).length} devices from database`);
+            } catch (err) {
+                console.warn('[CONFIG] Could not parse devices:', err.message);
+            }
+        }
+        
         res.json({ success: true, key, value });
     } catch (err) {
         console.error('[API] Failed to save settings:', err.message);
