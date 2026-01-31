@@ -2004,19 +2004,19 @@
                 document.getElementById('weatherLocation').textContent = '📍 ' + locDisplay;
             }
             
-            // Get temperature - data comes pre-converted from server
-            // temperature_2m field has the correct unit (C or F) based on preferred_unit
-            let displayTemp = current.temperature_2m || 0;
-            
-            // Use the first hourly data point if available (should be current time)
-            // This ensures the main temperature matches the "Now" card
+            // Get temperature - ALWAYS use the first hourly data point
+            // This is the current "Now" temperature and matches the hourly forecast
+            let displayTemp = 0;
             if (hourly && hourly.temperature_2m_c && hourly.temperature_2m_c.length > 0) {
                 // Use the appropriate temperature array based on unit
-                if (tempUnit === 'F' && hourly.temperature_2m_f) {
+                if (tempUnit === 'F' && hourly.temperature_2m_f && hourly.temperature_2m_f.length > 0) {
                     displayTemp = hourly.temperature_2m_f[0];
                 } else if (hourly.temperature_2m_c) {
                     displayTemp = hourly.temperature_2m_c[0];
                 }
+            } else {
+                // Fallback to current.temperature_2m if hourly data not available
+                displayTemp = current.temperature_2m || 0;
             }
             
             document.getElementById('weatherTemp').textContent = 
