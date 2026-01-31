@@ -1961,8 +1961,16 @@
                     if (isCurrentHour) {
                         timeLabel = 'Now';
                     } else {
-                        // Show time in selected format
-                        timeLabel = `${forecastHour}:${forecastMinute}`;
+                        // Get user's time format setting for hourly display
+                        const timeFormat = userSettings.units?.time || '24h';
+                        if (timeFormat === '12h') {
+                            let hour12 = parseInt(forecastHour) % 12 || 12;
+                            const ampm = parseInt(forecastHour) >= 12 ? 'PM' : 'AM';
+                            timeLabel = `${hour12}:${forecastMinute}${ampm}`;
+                        } else {
+                            // Show time in 24h format
+                            timeLabel = `${forecastHour}:${forecastMinute}`;
+                        }
                     }
                     
                     const timeClass = isCurrentHour ? 'now' : '';
