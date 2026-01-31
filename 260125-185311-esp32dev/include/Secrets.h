@@ -19,9 +19,14 @@ static constexpr const char* AP_PASSWORD = "greenhouse123";  // TODO: Make rando
 static constexpr const char* DEFAULT_SSID = "Baminyam2.0_EXT2.4G";
 static constexpr const char* DEFAULT_PASS = "Jesus2023";
 
-// Raspberry Pi Hostname (use hostname instead of IP for persistence)
-static constexpr const char* PI_HOSTNAME = "farm-hub";
-static constexpr const uint16_t PI_PORT = 3000;
+// Raspberry Pi Configuration (farm-hub server)
+// Using hostname instead of IP ensures persistent connection even if Pi IP changes
+// mDNS Resolution: farm-hub → 10.0.0.3 (local network)
+// Direct IP (Tailscale): 100.92.151.67
+// mDNS Domain: farm-hub.local
+static constexpr const char* PI_HOSTNAME = "farm-hub";      // Resolves via mDNS to 10.0.0.3
+static constexpr const uint16_t PI_PORT = 3000;             // Node.js backend port
+static constexpr const char* PI_DOMAIN = "farm-hub.local";  // Full mDNS domain (optional)
 
 // OTA Update Server
 static constexpr const char* OTA_SERVER = "updates.farm.local";
