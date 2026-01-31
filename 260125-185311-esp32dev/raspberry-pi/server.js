@@ -172,6 +172,61 @@ app.use(express.static(path.join(__dirname, 'dashboard')));
 // API ROUTES
 // =============================================================================
 
+// --- Settings API (SQLite) ---
+app.get('/api/settings', async (req, res) => {
+    try {
+        const settings = await db.getAll();
+        res.json(settings);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/settings', async (req, res) => {
+    try {
+        const { key, value } = req.body;
+        if (!key || value === undefined) {
+             return res.status(400).json({ error: 'Missing key or value' });
+        }
+        await db.set(key, value);
+        
+        // Refresh local config cache
+        await loadConfig();
+        
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// --- Geocoding Proxy (Reverse Lookup) ---
+app.get('/api/geocode', async (req, res) => {
+    try {
+        const { lat, lon } = req.query;
+        if (!lat || !lon) return res.status(400).json({ error: 'Missing lat/lon' });
+        
+        const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10`;
+        const response = await fetch(url, {
+            headers: { 'User-Agent': 'SmartFarmHub/2.0' }
+        });
+        
+        if (!response.ok) throw new Error('Geocoding service unavailable');
+        const data = await response.json();
+        
+        // Simplify response
+        const location = {
+            city: data.address.city || data.address.town || data.address.village || 'Unknown',
+            country: data.address.country || '',
+            display_name: data.display_name
+        };
+        
+        res.json(location);
+    } catch (err) {
+        console.error('Geocode error:', err.message);
+        res.status(500).json({ error: 'Failed to lookup address' });
+    }
+});
+
 // --- Weather API (for ESP32s and dashboard) ---
 app.get('/api/weather', async (req, res) => {
     try {
