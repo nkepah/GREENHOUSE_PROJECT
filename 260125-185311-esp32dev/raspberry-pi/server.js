@@ -598,6 +598,24 @@ app.get('/api/weather-convert', async (req, res) => {
         res.set('Pragma', 'no-cache');
         res.set('Expires', '0');
         
+        // Get speed unit preference
+        let speedUnit = 'kmh';
+        try {
+            const settings = await db.getAll();
+            const units = settings.units || {};
+            speedUnit = units.speed || 'kmh';
+        } catch (err) {
+            console.warn('[API] Could not get speed unit, using kmh');
+        }
+        
+        // Convert wind speed if needed
+        let windSpeedDisplay = cachedData.wind_speed || 0;
+        let speedLabel = 'km/h';
+        if (speedUnit === 'mph') {
+            windSpeedDisplay = Math.round(windSpeedDisplay / 1.609);
+            speedLabel = 'mph';
+        }
+        
         // Parse cached data and return with correct display temperature
         const daily = cachedData.daily_data ? JSON.parse(cachedData.daily_data) : null;
         const hourly = cachedData.hourly_data ? JSON.parse(cachedData.hourly_data) : null;
