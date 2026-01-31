@@ -1180,6 +1180,30 @@
             fetchDashboardData();
         }
         
+        // Toggle Settings
+        function toggleSettings(event) {
+            console.log("Toggling settings menu");
+            event.stopPropagation();
+            const dropdown = document.getElementById('settingsDropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('show');
+                // Force layout recalculation for mobile transition
+                if (window.innerWidth <= 768 && dropdown.classList.contains('show')) {
+                    dropdown.style.display = 'block'; // Ensure it's part of layout
+                }
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (event) => {
+            const dropdown = document.getElementById('settingsDropdown');
+            if (dropdown && dropdown.classList.contains('show')) {
+                if (!dropdown.contains(event.target)) {
+                    dropdown.classList.remove('show');
+                }
+            }
+        });
+
         // Clock
         function updateClock() {
             const now = new Date();
