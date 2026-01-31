@@ -1926,8 +1926,8 @@
                     if (isCurrentHour) {
                         timeLabel = 'Now';
                     } else {
-                        // Show full time for clarity
-                        timeLabel = `${hour}:${minute}`;
+                        // Show time in selected format
+                        timeLabel = `${forecastHour}:${forecastMinute}`;
                     }
                     
                     const timeClass = isCurrentHour ? 'now' : '';
