@@ -1290,7 +1290,7 @@
             }
         };
 
-        window.openSettingsPage = function(pageId) {
+        function showSettingsPage(pageId) {
             // Hide all pages
             document.querySelectorAll('.settings-page').forEach(page => {
                 page.style.display = 'none';
@@ -1317,10 +1317,10 @@
                      if(pageId === 'about') titleEl.textContent = 'About';
                  }
             }
-        };
+        }
         
-        // Backward compatibility alias to prevent "showSettingsPage is not defined" errors from cache or old listeners
-        window.showSettingsPage = window.openSettingsPage;
+        // Alias for openSettingsPage if needed
+        window.openSettingsPage = showSettingsPage;
 
         function toggleSettings(event) {
             if (event) event.stopPropagation();
@@ -1329,7 +1329,7 @@
             if (modal.classList.contains('open')) {
                 modal.classList.remove('open');
             } else {
-                if(window.openSettingsPage) window.openSettingsPage('main');
+                showSettingsPage('main');
                 modal.classList.add('open');
                 loadSettings();
             }
