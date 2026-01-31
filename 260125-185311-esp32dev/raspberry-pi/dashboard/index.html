@@ -1305,39 +1305,7 @@
             }
         });
 
-                dropdown.classList.remove('show');
-                dropdown.style.visibility = 'hidden';
-                dropdown.style.opacity = '0';
-                
-                // Reset transform for animation if we want it, but for now just hide
-                if (isMobile) {
-                    dropdown.style.transform = 'translateY(100%)';
-                } else {
-                    dropdown.style.transform = 'translateY(-10px)';
-                }
-            }
-        }
 
-        // Close dropdown when clicking outside
-        document.addEventListener('click', (event) => {
-            const dropdown = document.getElementById('settingsDropdown');
-            const btn = document.getElementById('settingsBtn'); // Don't close if clicking button (handled by toggle)
-            
-            if (dropdown && dropdown.classList.contains('show')) {
-                 if (btn && btn.contains(event.target)) {
-                     return;
-                 }
-                 
-                if (!dropdown.contains(event.target)) {
-                    dropdown.classList.remove('show');
-                    dropdown.style.visibility = 'hidden';
-                    dropdown.style.opacity = '0';
-                    if (window.innerWidth <= 768) {
-                        dropdown.style.transform = 'translateY(100%)';
-                    }
-                }
-            }
-        });
 
         // Clock
         function updateClock() {
