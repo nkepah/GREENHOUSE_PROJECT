@@ -644,28 +644,32 @@
                 grid-area: clock;
                 display: flex !important;
                 flex-wrap: nowrap !important; 
-                gap: 6px;
+                gap: 5px;
                 background: none !important;
                 border: none !important;
                 padding: 0 !important;
                 margin-top: 4px;
                 align-items: center;
                 overflow: hidden;
+                width: 100%;
             }
             
-            /* Scale down for mobile to fit on one line */
+            /* Scale down for mobile */
             #clock .clock-time {
-                font-size: 0.95rem !important;
+                font-size: 0.85rem !important;
                 white-space: nowrap;
             }
             
-            /* Hide date on mobile to prevent overcrowding */
+            /* Show date again but smaller */
             #clock .clock-date {
-                display: none !important;
+                display: inline-block !important;
+                font-size: 0.8rem !important;
+                white-space: nowrap;
             }
             
             #mobile-location-container {
                 display: inline-flex !important;
+                margin-left: auto; /* Push to far right */
                 font-size: 0.75rem !important;
                 color: var(--text-secondary);
                 background: var(--bg-card); 
@@ -675,7 +679,7 @@
                 align-items: center;
                 gap: 3px;
                 white-space: nowrap;
-                max-width: 50vw; /* Prevent overflow */
+                max-width: 40vw; 
                 overflow: hidden;
                 text-overflow: ellipsis;
             }
