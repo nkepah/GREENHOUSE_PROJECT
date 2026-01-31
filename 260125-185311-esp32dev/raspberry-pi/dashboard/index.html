@@ -1546,6 +1546,17 @@
                         data.farmName.replace(/(\w+)$/, '<span>$1</span>');
                     document.title = `🌾 ${data.farmName}`;
                 }
+
+                // Update Header Location
+                if (data.location) {
+                    const loc = data.location;
+                    // Extract city from full address/display name if simple city field is generic
+                    let city = loc.city || 'Unknown';
+                    // Heuristic: If city contains comma, take first part
+                    if (city.includes(',')) city = city.split(',')[0];
+                    
+                    document.getElementById('header-city').textContent = city;
+                }
                 
                 if (data.weather) updateWeather(data.weather, data.daily);
                 if (data.devices) renderDevices(data.devices);
