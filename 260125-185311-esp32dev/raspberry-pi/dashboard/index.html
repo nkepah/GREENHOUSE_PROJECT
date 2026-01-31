@@ -675,18 +675,36 @@
             #mobile-location-container {
                 display: inline-flex !important;
                 margin-left: auto; /* Push to far right */
-                font-size: 0.75rem !important;
+                font-size: 0.7rem !important;
                 color: var(--text-secondary);
                 background: var(--bg-card); 
-                padding: 2px 6px;
+                padding: 1px 4px;
                 border: 1px solid var(--border);
-                border-radius: 6px;
+                border-radius: 4px;
                 align-items: center;
-                gap: 3px;
+                gap: 2px;
                 white-space: nowrap;
-                max-width: 40vw; 
+                max-width: 35vw; 
                 overflow: hidden;
                 text-overflow: ellipsis;
+            }
+            
+            /* Pulsating glowing orange colon */
+            .clock-colon {
+                color: #ff8c00;
+                font-weight: bold;
+                animation: pulse-glow 1s infinite;
+            }
+            
+            @keyframes pulse-glow {
+                0%, 100% {
+                    opacity: 1;
+                    text-shadow: 0 0 5px #ff8c00;
+                }
+                50% {
+                    opacity: 0.3;
+                    text-shadow: 0 0 10px #ff8c00;
+                }
             }
         }
         
@@ -868,9 +886,9 @@
                 <div id="header-location" onclick="openSettingsPage('location')" 
                      style="display:inline-flex; align-items:center; gap:5px; margin-left:15px; 
                             background:rgba(255,255,255,0.1); padding:4px 8px; border-radius:6px; 
-                            font-size:0.8rem; cursor:pointer; vertical-align:middle;">
+                            font-size:0.8rem; cursor:pointer; vertical-align:middle; min-width:100px; overflow:hidden; text-overflow:ellipsis;">
                     <span>📍</span>
-                    <span id="header-city">--</span>
+                    <span id="header-city" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1;">--</span>
                 </div>
             </div>
             <div class="header-status">
@@ -1866,7 +1884,8 @@
         function updateClock() {
             const now = new Date();
             const dateStr = now.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
-            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
             
             const clockEl = document.getElementById('clock');
             
@@ -1879,7 +1898,7 @@
                 clockEl.className = 'clock-widget';
                 clockEl.innerHTML = `
                     <span class="clock-date">${dateStr}</span>
-                    <span class="clock-time">${timeStr}</span>
+                    <span class="clock-time">${hours}<span class="clock-colon">:</span>${minutes}</span>
                     <!-- Mobile only location display (controlled by CSS) -->
                     <div id="mobile-location-container" onclick="openSettingsPage('location')">
                         📍 <span>${currentLoc}</span>
