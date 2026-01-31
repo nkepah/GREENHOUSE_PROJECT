@@ -695,7 +695,7 @@ app.post('/api/device/verify', (req, res) => {
     
     const storedIP = config.devices[device_id].ip;
     
-    if (storedIP === current_ip) {
+    if (storedIP && storedIP === current_ip) {
         // Device found and IP matches
         console.log(`[DEVICE] Verification OK: ${device_id} at ${current_ip}`);
         return res.json({ 
@@ -705,12 +705,12 @@ app.post('/api/device/verify', (req, res) => {
             message: 'Device verified - IP matches'
         });
     } else {
-        // Device found but IP mismatch
+        // Device found but IP mismatch or not registered yet
         console.log(`[DEVICE] Verification MISMATCH: ${device_id} - stored=${storedIP}, current=${current_ip}`);
         return res.json({ 
             found: true, 
             ip_match: false,
-            stored_ip: storedIP,
+            stored_ip: storedIP || null,
             current_ip: current_ip,
             message: 'IP mismatch - re-register required'
         });
