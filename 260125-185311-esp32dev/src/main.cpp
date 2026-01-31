@@ -64,6 +64,12 @@ volatile bool proxyConnected = false; // True if Pi WebSocket is up
 unsigned long lastProxyPing = 0;
 static constexpr unsigned long PROXY_TIMEOUT_MS = 15000; // 15s timeout
 
+// IP address monitoring for DHCP changes
+String lastRegisteredIP = "";
+unsigned long lastIPCheck = 0;
+static constexpr unsigned long IP_CHECK_INTERVAL = 30000UL; // Check every 30 seconds
+static constexpr unsigned long IP_REGISTRATION_TIMEOUT = 3600000UL; // Re-register every hour anyway
+
 // Time Config
 static constexpr char NTP_SERVER_DEFAULT[] PROGMEM = "pool.ntp.org";
 char ntpServer[48] = "pool.ntp.org";
