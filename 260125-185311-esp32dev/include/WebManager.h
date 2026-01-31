@@ -63,29 +63,8 @@ public:
             }
         });
         
-        // alerts.html with GZIP support
-        server.on("/alerts.html", HTTP_GET, [](AsyncWebServerRequest *request) {
-            if(LittleFS.exists("/alerts.html.gz")) {
-                AsyncWebServerResponse *response = request->beginResponse(LittleFS, "/alerts.html.gz", F("text/html"));
-                response->addHeader(F("Content-Encoding"), F("gzip"));
-                response->addHeader(F("Cache-Control"), F("no-store"));
-                request->send(response);
-            } else {
-                request->send(LittleFS, "/alerts.html", F("text/html"));
-            }
-        });
-        
-        // routines.html with GZIP support
-        server.on("/routines.html", HTTP_GET, [](AsyncWebServerRequest *request) {
-            if(LittleFS.exists("/routines.html.gz")) {
-                AsyncWebServerResponse *response = request->beginResponse(LittleFS, "/routines.html.gz", F("text/html"));
-                response->addHeader(F("Content-Encoding"), F("gzip"));
-                response->addHeader(F("Cache-Control"), F("no-store"));
-                request->send(response);
-            } else {
-                request->send(LittleFS, "/routines.html", F("text/html"));
-            }
-        });
+        // Note: alerts.html and routines.html are handled by Pi server
+        // ESP32 only serves minimal index.html as backup field UI
         
         // setup.html - Minimal setup page for direct ESP32 access
         server.on("/setup", HTTP_GET, [](AsyncWebServerRequest *request) {
