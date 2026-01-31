@@ -456,6 +456,110 @@ void handleWiFiProvisioning() {
     }
 }
 
+// Register device with Pi server on WiFi connection
+void registerDeviceWithPi() {
+    if(WiFi.status() != WL_CONNECTED) return;
+    if(strlen(piIp) < 5) return; // No Pi IP configured
+    
+    String hostname = WiFi.getHostname();
+    String ip = WiFi.localIP().toString();
+    
+    lastRegisteredIP = ip;
+    lastIPCheck = millis();
+    
+    WiFiClient client;
+    client.setTimeout(2000);
+    HTTPClient http;
+    http.setTimeout(3000);
+    
+    char url[64];
+    snprintf(url, sizeof(url), "http://%s:3000/api/device/register", piIp);
+    
+    JsonDocument doc;
+    doc["device_id"] = hostname;
+    doc["hostname"] = hostname;
+    doc["ip_address"] = ip;
+    doc["device_type"] = "greenhouse";
+    
+    String payload;
+    serializeJson(doc, payload);
+    
+    http.begin(client, url);
+    http.addHeader("Content-Type", "application/json");
+    int httpCode = http.POST(payload);
+    
+    if(httpCode == HTTP_CODE_OK) {
+        Serial.printf("[DEVICE] Registered with Pi: %s at %s\n", hostname.c_str(), ip.c_str());
+    } else {
+        Serial.printf("[DEVICE] Registration failed: HTTP %d\n", httpCode);
+    }
+    http.end();
+}
+
+// Verify device registration with Pi server (timer-based check)
+void verifyDeviceRegistration() {
+    if(WiFi.status() != WL_CONNECTED) return;
+    if(strlen(piIp) < 5) {
+        Serial.println("[DEVICE] Pi IP not configured, skipping verification");
+        return;
+    }
+    
+    String hostname = WiFi.getHostname();
+    String currentIP = WiFi.localIP().toString();
+    
+    WiFiClient client;
+    client.setTimeout(2000);
+    HTTPClient http;
+    http.setTimeout(3000);
+    
+    char url[96];
+    snprintf(url, sizeof(url), "http://%s:3000/api/device/verify/%s", piIp, hostname.c_str());
+    
+    http.begin(client, url);
+    int httpCode = http.GET();
+    
+    if(httpCode == 200) {
+        // Device found - verify IP matches
+        String response = http.getString();
+        JsonDocument doc;
+        deserializeJson(doc, response);
+        
+        String registeredIP = doc["device"]["ip"].as<String>();
+        
+        if(registeredIP == currentIP) {
+            Serial.printf("[DEVICE] ✓ Verified: %s at %s\n", hostname.c_str(), currentIP.c_str());
+            lastRegisteredIP = currentIP;
+            lastIPCheck = millis();
+        } else {
+            Serial.printf("[DEVICE] IP mismatch: registered=%s, current=%s. Re-registering...\n", 
+                registeredIP.c_str(), currentIP.c_str());
+            registerDeviceWithPi();
+        }
+    } else if(httpCode == 404) {
+        // Device not found in database - register it
+        Serial.printf("[DEVICE] Not found in database (HTTP 404). Registering...\n");
+        registerDeviceWithPi();
+    } else {
+        Serial.printf("[DEVICE] Verification failed: HTTP %d\n", httpCode);
+    }
+    
+    http.end();
+}
+
+// FreeRTOS Task: Periodic device registration verification (low priority)
+void deviceRegistrationTask(void *pvParameters) {
+    const unsigned long CHECK_INTERVAL = 30000; // 30 seconds
+    unsigned long lastCheck = 0;
+    
+    for(;;) {
+        if(millis() - lastCheck >= CHECK_INTERVAL) {
+            lastCheck = millis();
+            verifyDeviceRegistration();
+        }
+        vTaskDelay(pdMS_TO_TICKS(5000)); // Check every 5 seconds if timer expired
+    }
+}
+
 void loadConfig() {
     Preferences prefs;
     prefs.begin("gh-config", false); // Read/Write for possible migration
