@@ -1342,13 +1342,13 @@ void setup()
     Serial.printf("[BOOT] Free Heap: %d bytes\n", ESP.getFreeHeap());
     deviceMgr.begin();
     Serial.printf("[BOOT] Devices: %d\n", deviceMgr.devices.size());
-    routineMgr.init();
+    // routineMgr.init();  // TODO: Feature not yet implemented
     
     loadConfig(); // Load Saved Config!
     
     // Apply configurable amp threshold to all systems
     relays.setAmpThreshold(cfgAmpThreshold);
-    routineMgr.setAmpThreshold(cfgAmpThreshold);
+    // routineMgr.setAmpThreshold(cfgAmpThreshold);  // TODO: Feature not yet implemented
     
     // Initialize current sensor BEFORE relays
     currentSensor.begin(CURRENT_SENSOR_PIN);
