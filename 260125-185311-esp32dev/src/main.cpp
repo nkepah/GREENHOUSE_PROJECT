@@ -1522,6 +1522,11 @@ void setup()
 
     // Use loaded config for NTP
     configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+    
+    // Register device with Pi server after WiFi and config are ready
+    if (WiFi.status() == WL_CONNECTED && strlen(piIp) > 5) {
+        registerDeviceWithPi();
+    }
 
     /*
      * ====== FREERTOS TASK ARCHITECTURE ======
