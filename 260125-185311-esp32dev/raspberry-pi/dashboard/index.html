@@ -2083,7 +2083,7 @@
         let lastWeatherDataHash = null;
         
         function hashWeatherData(current, hourly) {
-            // Create a simple hash of critical weather values to detect changes
+            // Create a hash of critical weather values AND settings to detect changes
             if (!current || !hourly) return null;
             const values = [
                 current.temperature_2m,
@@ -2091,7 +2091,15 @@
                 current.weather_code,
                 hourly.temperature_2m_c?.[0],
                 hourly.weather_code?.[0],
-                hourly.temperature_2m_c?.slice(0, 24).join(',')
+                hourly.temperature_2m_c?.slice(0, 24).join(','),
+                // Include settings that affect display
+                userSettings?.units?.temp,
+                userSettings?.units?.time,
+                userSettings?.timezone,
+                userSettings?.thresholds?.frost_c,
+                userSettings?.thresholds?.frost_f,
+                userSettings?.thresholds?.heat_c,
+                userSettings?.thresholds?.heat_f
             ].join('|');
             return values;
         }
