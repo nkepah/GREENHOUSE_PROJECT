@@ -29,16 +29,7 @@ const PORT = 3000;
 let config = {
     farmName: "My Farm Hub",
     location: { lat: null, lon: null }, // Will be loaded from database settings
-    devices: {
-        greenhouse: { ip: "10.0.0.163", name: "Greenhouse", type: "greenhouse" },
-        coop1: { ip: "192.168.1.101", name: "Coop 1", type: "coop" },
-        coop2: { ip: "192.168.1.102", name: "Coop 2", type: "coop" },
-        coop3: { ip: "192.168.1.103", name: "Coop 3", type: "coop" }
-    },
-    weather: {
-        cacheMinutes: 10,
-        timezone: "UTC" // Will be loaded from database settings
-    }
+    devices: {} // Will be loaded from database settings
 };
 
 const CONFIG_FILE = path.join(__dirname, 'farm-config.json');
