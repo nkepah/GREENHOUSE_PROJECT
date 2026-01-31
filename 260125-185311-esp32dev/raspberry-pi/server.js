@@ -216,9 +216,18 @@ app.get('/api/geocode', async (req, res) => {
         // Simplify response
         const addr = data.address || {};
         
-        // Prioritize meaningful names - Explicitly excluding 'county' per user request to avoid county names
-        // Added 'municipality' which often captures the city/town level better in some regions
-        const mainName = addr.city || addr.town || addr.municipality || addr.village || addr.city_district || addr.hamlet || addr.suburb || addr.neighbourhood || 'Unknown Location';
+        // Priority list for "City" component
+        // 1. Precise settlement names
+        let mainName = addr.city || addr.town || addr.village || addr.municipality || addr.city_district || addr.hamlet || addr.suburb || addr.neighbourhood;
+        
+        // 2. Fallback to County if no settlement found (better than 'Unknown')
+        // User prefers City, but if we are in the middle of nowhere, County is the best we have.
+        if (!mainName && addr.county) {
+            mainName = addr.county;
+        }
+        
+        if (!mainName) mainName = 'Unknown Location';
+
         const secondary = addr.state || addr.region || addr.province || addr.state_district || '';
         
         let cityDisplay = mainName;
