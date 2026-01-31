@@ -1162,9 +1162,62 @@
     </div>
     
     <script>
-        // Version 2.2.1 - Settings Fix - Force Update
-        // State
+        // Version 2.3 - Complete Settings Function Rewrite
+        
+        // ==== DECLARE ALL GLOBALS FIRST ====
         let devices = {};
+        let weather = null;
+        let ws = null;
+        
+        // ==== DEFINE ALL FUNCTIONS IMMEDIATELY ====
+        function showSettingsPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.settings-page').forEach(page => {
+                page.style.display = 'none';
+            });
+            
+            // Show target page
+            const target = document.getElementById('page-' + pageId);
+            if (target) target.style.display = 'block';
+            
+            // Update Header
+            const titleEl = document.getElementById('settings-title');
+            const backBtn = document.getElementById('settings-back-btn');
+            
+            if (pageId === 'main') {
+                if(titleEl) titleEl.textContent = 'Settings';
+                if(backBtn) backBtn.style.display = 'none';
+            } else {
+                 if(backBtn) backBtn.style.display = 'block';
+                 // Set title based on page
+                 if(titleEl) {
+                     if(pageId === 'units') titleEl.textContent = 'Units';
+                     if(pageId === 'location') titleEl.textContent = 'Location';
+                     if(pageId === 'themes') titleEl.textContent = 'Themes';
+                     if(pageId === 'about') titleEl.textContent = 'About';
+                 }
+            }
+        }
+        
+        function toggleSettings(event) {
+            if (event) event.stopPropagation();
+            const modal = document.getElementById('settings-modal');
+            
+            if (modal.classList.contains('open')) {
+                modal.classList.remove('open');
+            } else {
+                showSettingsPage('main');
+                modal.classList.add('open');
+                loadSettings();
+            }
+        }
+        
+        function openSettingsPage(pageId) {
+            showSettingsPage(pageId);
+        }
+        
+        // State
+        // State
         let weather = null;
         let ws = null;
         
