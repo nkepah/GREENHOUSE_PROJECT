@@ -1177,18 +1177,78 @@
         
         // --- Smart Controller Settings System ---
         
-        // Theme Definitions
+        // Theme Definitions - Expanded for full UI coverage
         const themes = {
-            'default':          { bg: '#0d1117', card: '#161b22', border: '#30363d', text: '#e6edf3', textSec: '#8b949e', accent: '#238636' },
-            'dark-ocean':       { bg: '#0f172a', card: '#1e293b', border: '#334155', text: '#f1f5f9', textSec: '#94a3b8', accent: '#0ea5e9' },
-            'dark-forest':      { bg: '#14532d', card: '#166534', border: '#15803d', text: '#f0fdf4', textSec: '#86efac', accent: '#22c55e' },
-            'dark-purple':      { bg: '#3b0764', card: '#581c87', border: '#7e22ce', text: '#faf5ff', textSec: '#d8b4fe', accent: '#a855f7' },
-            'dark-orange':      { bg: '#431407', card: '#7c2d12', border: '#ea580c', text: '#fff7ed', textSec: '#fdba74', accent: '#f97316' },
-            'light-default':    { bg: '#f8fafc', card: '#ffffff', border: '#e2e8f0', text: '#0f172a', textSec: '#64748b', accent: '#0f172a' },
-            'light-blue':       { bg: '#eff6ff', card: '#ffffff', border: '#bfdbfe', text: '#1e3a8a', textSec: '#60a5fa', accent: '#2563eb' },
-            'light-green':      { bg: '#f0fdf4', card: '#ffffff', border: '#bbf7d0', text: '#14532d', textSec: '#4ade80', accent: '#16a34a' },
-            'light-lilac':      { bg: '#faf5ff', card: '#ffffff', border: '#e9d5ff', text: '#581c87', textSec: '#c084fc', accent: '#9333ea' },
-            'light-solar':      { bg: '#fefce8', card: '#fffbeb', border: '#fde68a', text: '#713f12', textSec: '#facc15', accent: '#ca8a04' }
+            'default': { 
+                bg: '#0d1117', bgSec: '#161b22', card: '#21262d', border: '#30363d', 
+                text: '#f0f6fc', textSec: '#8b949e', accent: '#4ecca3',
+                widget: 'rgba(255,255,255,0.08)', input: 'rgba(0,0,0,0.3)',
+                badgeSuccess: 'rgba(78, 204, 163, 0.15)', badgeError: 'rgba(248, 81, 73, 0.15)',
+                banner: 'linear-gradient(135deg, #1a365d 0%, #2d3748 100%)'
+            },
+            'dark-ocean': { 
+                bg: '#0f172a', bgSec: '#1e293b', card: '#334155', border: '#475569', 
+                text: '#f1f5f9', textSec: '#94a3b8', accent: '#38bdf8',
+                widget: 'rgba(255,255,255,0.1)', input: 'rgba(0,0,0,0.25)',
+                badgeSuccess: 'rgba(56, 189, 248, 0.15)', badgeError: 'rgba(248, 113, 113, 0.15)',
+                banner: 'linear-gradient(135deg, #0c4a6e 0%, #0369a1 100%)'
+            },
+            'dark-forest': { 
+                bg: '#022c22', bgSec: '#064e3b', card: '#065f46', border: '#115e59', 
+                text: '#ecfdf5', textSec: '#6ee7b7', accent: '#34d399',
+                widget: 'rgba(255,255,255,0.1)', input: 'rgba(0,0,0,0.25)',
+                badgeSuccess: 'rgba(52, 211, 153, 0.2)', badgeError: 'rgba(248, 113, 113, 0.2)',
+                banner: 'linear-gradient(135deg, #064e3b 0%, #047857 100%)'
+            },
+            'dark-purple': { 
+                bg: '#2e1065', bgSec: '#4c1d95', card: '#5b21b6', border: '#6d28d9', 
+                text: '#f3e8ff', textSec: '#d8b4fe', accent: '#c084fc',
+                widget: 'rgba(255,255,255,0.1)', input: 'rgba(0,0,0,0.25)',
+                badgeSuccess: 'rgba(192, 132, 252, 0.2)', badgeError: 'rgba(248, 113, 113, 0.2)',
+                banner: 'linear-gradient(135deg, #4c1d95 0%, #6d28d9 100%)'
+            },
+            'dark-orange': { 
+                bg: '#431407', bgSec: '#7c2d12', card: '#9a3412', border: '#c2410c', 
+                text: '#fff7ed', textSec: '#fdba74', accent: '#fb923c',
+                widget: 'rgba(255,255,255,0.1)', input: 'rgba(0,0,0,0.25)',
+                badgeSuccess: 'rgba(251, 146, 60, 0.2)', badgeError: 'rgba(248, 113, 113, 0.2)',
+                banner: 'linear-gradient(135deg, #7c2d12 0%, #c2410c 100%)'
+            },
+            'light-default': { 
+                bg: '#f1f5f9', bgSec: '#ffffff', card: '#ffffff', border: '#cbd5e1', 
+                text: '#0f172a', textSec: '#64748b', accent: '#0f172a',
+                widget: '#e2e8f0', input: '#f8fafc',
+                badgeSuccess: 'rgba(15, 23, 42, 0.1)', badgeError: 'rgba(220, 38, 38, 0.1)',
+                banner: 'linear-gradient(135deg, #475569 0%, #1e293b 100%)'
+            },
+            'light-blue': { 
+                bg: '#eff6ff', bgSec: '#bfdbfe', card: '#ffffff', border: '#93c5fd', 
+                text: '#1e3a8a', textSec: '#3b82f6', accent: '#2563eb',
+                widget: '#dbeafe', input: '#f0f9ff',
+                badgeSuccess: 'rgba(37, 99, 235, 0.1)', badgeError: 'rgba(220, 38, 38, 0.1)',
+                banner: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'
+            },
+            'light-green': { 
+                bg: '#f0fdf4', bgSec: '#bbf7d0', card: '#ffffff', border: '#86efac', 
+                text: '#064e3b', textSec: '#22c55e', accent: '#16a34a',
+                widget: '#dcfce7', input: '#f0fdf9',
+                badgeSuccess: 'rgba(22, 163, 74, 0.1)', badgeError: 'rgba(220, 38, 38, 0.1)',
+                banner: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)'
+            },
+            'light-lilac': { 
+                bg: '#faf5ff', bgSec: '#e9d5ff', card: '#ffffff', border: '#d8b4fe', 
+                text: '#581c87', textSec: '#9333ea', accent: '#7c3aed',
+                widget: '#f3e8ff', input: '#faf5ff',
+                badgeSuccess: 'rgba(124, 58, 237, 0.1)', badgeError: 'rgba(220, 38, 38, 0.1)',
+                banner: 'linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)'
+            },
+            'light-solar': { 
+                bg: '#fffbeb', bgSec: '#fde68a', card: '#ffffff', border: '#fcd34d', 
+                text: '#78350f', textSec: '#d97706', accent: '#d97706',
+                widget: '#fef3c7', input: '#fffbeb',
+                badgeSuccess: 'rgba(217, 119, 6, 0.1)', badgeError: 'rgba(220, 38, 38, 0.1)',
+                banner: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)'
+            }
         };
 
         function toggleSettings(event) {
@@ -1203,44 +1263,27 @@
                 loadSettings();
             }
         }
-
-        function showSettingsPage(pageId) {
-            console.log('Navigating to settings page:', pageId);
-            const headers = {
-                'main': 'Settings',
-                'units': 'Units & Formats',
-                'location': 'Location',
-                'themes': 'Appearance',
-                'about': 'System Info'
-            };
-            
-            // Hide all pages
-            document.querySelectorAll('.settings-page').forEach(el => el.style.display = 'none');
-            
-            // Show target
-            document.getElementById('page-' + pageId).style.display = 'block';
-            
-            // Update header
-            document.getElementById('settings-title').textContent = headers[pageId];
-            
-            // Handle Back Button
-            const backBtn = document.getElementById('settings-back-btn');
-            if (pageId === 'main') {
-                backBtn.style.visibility = 'hidden';
-            } else {
-                backBtn.style.visibility = 'visible';
-                backBtn.onclick = () => showSettingsPage('main');
-            }
-        }
         
         function applyTheme(themeName, save = true) {
             const t = themes[themeName];
             if (!t) return;
             
             const root = document.documentElement;
+            // Backgrounds
             root.style.setProperty('--bg-primary', t.bg);
+            root.style.setProperty('--bg-secondary', t.bgSec || t.card); // Fallback
             root.style.setProperty('--bg-card', t.card);
+            root.style.setProperty('--bg-card-hover', t.border); // Use lighter/darker border color for hover
+            
+            // UI Elements
             root.style.setProperty('--border', t.border);
+            root.style.setProperty('--widget-bg', t.widget);
+            root.style.setProperty('--input-bg', t.input);
+            root.style.setProperty('--badge-bg-success', t.badgeSuccess);
+            root.style.setProperty('--badge-bg-error', t.badgeError);
+            root.style.setProperty('--banner-gradient', t.banner);
+            
+            // Text & Accents
             root.style.setProperty('--text-primary', t.text);
             root.style.setProperty('--text-secondary', t.textSec);
             root.style.setProperty('--accent', t.accent);
