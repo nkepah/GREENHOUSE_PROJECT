@@ -2491,8 +2491,28 @@
         }
         
         // Device rendering
+        // Device data caching
+        let lastDeviceHash = null;
+        
+        function hashDeviceData(devicesData) {
+            // Create hash of device statuses to detect changes
+            if (!devicesData) return null;
+            const values = Object.entries(devicesData).map(([id, device]) => {
+                const status = device.status || {};
+                return `${id}:${status.online}:${status.temperature}:${status.humidity}:${status.door}:${status.feed_level}`;
+            }).join('|');
+            return values;
+        }
+        
         function renderDevices(devicesData) {
             devices = devicesData;
+            
+            // Skip render if device data hasn't changed
+            const deviceHash = hashDeviceData(devicesData);
+            if (deviceHash === lastDeviceHash) {
+                return; // No changes, skip DOM updates
+            }
+            lastDeviceHash = deviceHash;
             
             const greenhouseContainer = document.getElementById('greenhouseDevices');
             const coopContainer = document.getElementById('coopDevices');
