@@ -525,59 +525,59 @@ void listFiles()
 }
 
 void startWiFi() {
-    // Use new WiFi Provisioning System
-    // Determine device type from config or use GENERIC
-    int deviceTypeVal = 255;  // GENERIC
-    Preferences prefs;
-    prefs.begin("gh-config", true);
-    if (prefs.isKey("deviceType")) {
-        deviceTypeVal = prefs.getInt("deviceType", 255);
+    // Start in AP mode for setup
+    Serial.println("[WIFI] Starting AP mode for setup...");
+    WiFi.mode(WIFI_AP_STA);
+    WiFi.softAP(AP_SSID, AP_PASSWORD);
+    Serial.printf("[AP] SSID: %s, IP: %s\n", AP_SSID, WiFi.softAPIP().toString().c_str());
+    
+    // Auto-connect to default network credentials
+    Serial.printf("[WIFI] Connecting to: %s\n", DEFAULT_SSID);
+    WiFi.begin(DEFAULT_SSID, DEFAULT_PASS);
+    
+    // Wait for connection with timeout
+    int attempts = 0;
+    while (WiFi.status() != WL_CONNECTED && attempts < 20) {
+        delay(500);
+        Serial.print(".");
+        attempts++;
     }
-    prefs.end();
+    Serial.println();
     
-    WiFiProvisioning::DeviceType devType = static_cast<WiFiProvisioning::DeviceType>(deviceTypeVal);
-    WiFiProvisioning::begin(devType);
-    
-    Serial.println("[WIFI] WiFi Provisioning System Started");
+    if (WiFi.status() == WL_CONNECTED) {
+        isAPMode = false;
+        Serial.printf("[WIFI] ✓ Connected!\n");
+        Serial.printf("[WIFI] IP Address: %s\n", WiFi.localIP().toString().c_str());
+        Serial.printf("[WIFI] Gateway: %s\n", WiFi.gatewayIP().toString().c_str());
+        Serial.printf("[WIFI] DNS: %s\n", WiFi.dnsIP().toString().c_str());
+        
+        // Update Pi database with new IP
+        registerDeviceIP();
+    } else {
+        isAPMode = true;
+        Serial.printf("[WIFI] ✗ Connection failed, staying in AP mode\n");
+        Serial.printf("[WIFI] Connect to AP '%s' to configure\n", AP_SSID);
+    }
 }
 
 void handleWiFiProvisioning() {
-    // Call periodically from main loop to handle provisioning state machine
-    WiFiProvisioning::update();
+    // Periodic WiFi status check and reconnection
+    static unsigned long lastWiFiCheck = 0;
+    static unsigned long lastPiUpdate = 0;
     
-    // Once ready, update legacy global variables for backward compatibility
-    if (WiFiProvisioning::isReady()) {
-        isAPMode = false;
-        if (WiFi.status() == WL_CONNECTED) {
-            wifiReconnectAttempts = 0;
-        }
+    if (millis() - lastWiFiCheck > 10000) {
+        lastWiFiCheck = millis();
         
-        // Report network status to Pi every 10 seconds
-        static unsigned long lastNetworkReport = 0;
-        if (millis() - lastNetworkReport > 10000) {
-            lastNetworkReport = millis();
-            
-            // Get Pi address and OTA settings from config
-            Preferences prefs;
-            prefs.begin("gh-config", true);
-            String piIP = prefs.getString("pi", "");
-            unsigned long otaCheckInterval = prefs.getULong("ota_interval", 3600000);  // Default: 1 hour
-            prefs.end();
-            
-            if (piIP.length() > 0) {
-                WiFiProvisioning::reportNetworkStatus(piIP.c_str());
-                
-                // Check for OTA updates at configured interval
-                static unsigned long lastOTACheck = 0;
-                if (millis() - lastOTACheck > otaCheckInterval) {
-                    lastOTACheck = millis();
-                    Serial.printf("[Main] Checking for OTA firmware updates (interval: %lu ms)...\n", otaCheckInterval);
-                    WiFiProvisioning::checkAndDownloadOTA(piIP.c_str());
-                }
-            }
+        if (WiFi.status() != WL_CONNECTED && !isAPMode) {
+            Serial.println("[WIFI] Reconnecting to network...");
+            WiFi.reconnect();
         }
-    } else if (WiFiProvisioning::isAPMode()) {
-        isAPMode = true;
+    }
+    
+    // Update Pi with device IP every 30 seconds if connected
+    if (WiFi.status() == WL_CONNECTED && millis() - lastPiUpdate > 30000) {
+        lastPiUpdate = millis();
+        registerDeviceIP();
     }
 }
 
