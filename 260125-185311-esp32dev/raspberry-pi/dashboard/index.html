@@ -1182,14 +1182,36 @@
         
         // Toggle Settings
         function toggleSettings(event) {
-            console.log("Toggling settings menu");
-            event.stopPropagation();
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            
             const dropdown = document.getElementById('settingsDropdown');
-            if (dropdown) {
-                dropdown.classList.toggle('show');
-                // Force layout recalculation for mobile transition
-                if (window.innerWidth <= 768 && dropdown.classList.contains('show')) {
-                    dropdown.style.display = 'block'; // Ensure it's part of layout
+            if (!dropdown) return;
+
+            const isMobile = window.innerWidth <= 768;
+            
+            // Toggle logic
+            const willShow = !dropdown.classList.contains('show');
+            
+            if (willShow) {
+                dropdown.classList.add('show');
+                
+                // Mobile specific forcing
+                if (isMobile) {
+                    dropdown.style.visibility = 'visible';
+                    dropdown.style.opacity = '1';
+                    dropdown.style.transform = 'translateY(0)';
+                }
+            } else {
+                dropdown.classList.remove('show');
+                
+                // Cleanup inline styles for mobile to let CSS take over (or reset)
+                if (isMobile) {
+                    dropdown.style.removeProperty('visibility');
+                    dropdown.style.removeProperty('opacity');
+                    dropdown.style.removeProperty('transform');
                 }
             }
         }
@@ -1198,8 +1220,18 @@
         document.addEventListener('click', (event) => {
             const dropdown = document.getElementById('settingsDropdown');
             if (dropdown && dropdown.classList.contains('show')) {
+                // If the click is NOT inside the dropdown
                 if (!dropdown.contains(event.target)) {
+                    // And checking if the click was on the button is handled by stopPropagation in toggleSettings
+                    // But if for some reason it bubbled here...
+                    
+                    // We just close it
                     dropdown.classList.remove('show');
+                    
+                    // Cleanup inline styles if any
+                    dropdown.style.removeProperty('visibility');
+                    dropdown.style.removeProperty('opacity');
+                    dropdown.style.removeProperty('transform');
                 }
             }
         });
