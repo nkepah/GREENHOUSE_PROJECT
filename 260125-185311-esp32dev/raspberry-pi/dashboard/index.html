@@ -2286,10 +2286,22 @@
                     
                     // Add click handler to update display with this hour's data
                     card.addEventListener('click', () => {
+                        // Clear any existing reset timeout
+                        if (hourlyResetTimeout) clearTimeout(hourlyResetTimeout);
+                        
                         updateWeatherForTimestamp(hourlyDataForClicks, hourlyDataForClicks.length - 24 + i, timeLabel);
                         // Visual feedback - highlight selected card
                         document.querySelectorAll('.hourly-card').forEach(c => c.style.opacity = '0.7');
                         card.style.opacity = '1';
+                        
+                        // Reset to "Now" values after 5 seconds
+                        hourlyResetTimeout = setTimeout(() => {
+                            if (currentWeatherSnapshot) {
+                                updateWeatherForTimestamp([currentWeatherSnapshot], 0, 'Now');
+                                // Reset card opacity
+                                document.querySelectorAll('.hourly-card').forEach(c => c.style.opacity = '1');
+                            }
+                        }, 5000);
                     });
                     
                     container.appendChild(card);
