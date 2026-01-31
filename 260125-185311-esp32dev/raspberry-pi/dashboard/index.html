@@ -2109,6 +2109,21 @@
             document.getElementById('weatherHumidity').textContent = 
                 current.relative_humidity_2m || '--';
             
+            // Save the current "Now" weather data for reverting after hourly tile clicks
+            if (hourly) {
+                currentWeatherSnapshot = {
+                    temperature_c: hourly.temperature_2m_c ? hourly.temperature_2m_c[0] : 0,
+                    temperature_f: hourly.temperature_2m_f ? hourly.temperature_2m_f[0] : 0,
+                    humidity: hourly.relative_humidity_2m ? hourly.relative_humidity_2m[0] : '--',
+                    wind_speed: hourly.wind_speed_10m ? hourly.wind_speed_10m[0] : '--',
+                    wind_speed_unit: current.wind_speed_unit || 'km/h',
+                    weather_code: hourly.weather_code ? hourly.weather_code[0] : 0,
+                    pressure_msl: hourly.pressure_msl ? hourly.pressure_msl[0] : null,
+                    cloudcover: hourly.cloudcover ? hourly.cloudcover[0] : null,
+                    wind_direction: hourly.wind_direction_10m ? hourly.wind_direction_10m[0] : null
+                };
+            }
+            
             // Display wind speed with correct unit from API response
             const windSpeedUnit = current.wind_speed_unit || 'km/h';
             document.getElementById('windSpeed').textContent = 
