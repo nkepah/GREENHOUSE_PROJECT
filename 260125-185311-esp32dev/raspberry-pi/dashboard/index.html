@@ -745,7 +745,7 @@
         
         .settings-modal-box {
             background: var(--bg-card);
-            width: 100%;
+            width: 90%;
             max-width: 500px;
             height: auto;
             max-height: 85vh;
@@ -758,6 +758,14 @@
             border: 1px solid var(--border);
             box-shadow: 0 10px 40px rgba(0,0,0,0.5);
             animation: modalSlideUp 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+        
+        @media (max-width: 768px) {
+            .settings-modal-box {
+                width: 85vw;
+                max-width: 90%;
+                margin: 0 10px;
+            }
         }
 
         .settings-header {
