@@ -2678,7 +2678,7 @@
             updateClock();
             loadSettings(); // Load settings first
             setInterval(updateClock, 1000);
-            setInterval(fetchDashboardData, 2500); // Refresh every 2.5 seconds (async/await handles priority)
+            refreshInterval = setInterval(fetchDashboardData, 2500); // Refresh every 2.5 seconds (async/await handles priority)
             setInterval(syncUnitsToDatabase, 10000); // Sync units every 10 seconds for ESP32 routines
         });
         
