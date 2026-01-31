@@ -1163,14 +1163,17 @@
     
     <script>
         // Version 2.3 - Complete Settings Function Rewrite
+        console.log('🌾 Farm Hub Dashboard v2.3-LIVE LOADED');
+        console.log('showSettingsPage function:', typeof showSettingsPage);
         
         // ==== DECLARE ALL GLOBALS FIRST ====
         let devices = {};
         let weather = null;
         let ws = null;
-        
+
         // ==== DEFINE ALL FUNCTIONS IMMEDIATELY ====
         function showSettingsPage(pageId) {
+            console.log('showSettingsPage called with pageId:', pageId);
             // Hide all pages
             document.querySelectorAll('.settings-page').forEach(page => {
                 page.style.display = 'none';
