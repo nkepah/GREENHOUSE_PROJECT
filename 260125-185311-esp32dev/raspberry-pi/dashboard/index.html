@@ -1924,6 +1924,8 @@
         
         // Global variable to store hourly data for click interactions
         let hourlyDataForClicks = [];
+        let hourlyResetTimeout = null;
+        let currentWeatherSnapshot = null; // Store current "Now" data for reverting
         
         // Update weather display with data from a specific hourly timestamp
         function updateWeatherForTimestamp(hourlyData, index, timeLabel) {
