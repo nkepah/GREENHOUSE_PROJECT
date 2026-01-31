@@ -98,6 +98,13 @@ float lastWeatherTemp = 0.0f;
 String cachedWeatherJson = "";         // Cached weather data JSON
 unsigned long cachedWeatherTimestamp = 0; // Unix timestamp when cached
 unsigned long pendingWeatherRefresh = 0;  // millis() time to trigger delayed weather refresh (0 = none)
+
+// Device Registration & IP Monitoring
+String lastRegisteredIP = "";           // Last IP we registered with Pi
+unsigned long lastIPCheck = 0;          // Last time we checked/updated IP
+static constexpr unsigned long IP_CHECK_INTERVAL = 30000UL;  // Check every 30 seconds
+static constexpr unsigned long IP_REGISTRATION_TIMEOUT = 3600000UL;  // Re-register every hour
+
 bool weatherCacheStale = true;            // True if cache needs refresh
 volatile bool pendingCacheBroadcast = false; // Flag to broadcast cached weather from SyncTask
 
