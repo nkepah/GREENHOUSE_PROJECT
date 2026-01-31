@@ -267,9 +267,9 @@ void registerDeviceIP() {
     HTTPClient http;
     http.setTimeout(3000);
     
-    // Use PI_HOSTNAME from Secrets.h for persistent connection
+    // Use PI_DOMAIN from Secrets.h for mDNS resolution (.local domain)
     char url[128];
-    snprintf(url, sizeof(url), "http://%s:%u/api/device/update-ip", PI_HOSTNAME, PI_PORT);
+    snprintf(url, sizeof(url), "http://%s:%u/api/device/update-ip", PI_DOMAIN, PI_PORT);
     
     JsonDocument doc;
     doc["device_id"] = hostname;
