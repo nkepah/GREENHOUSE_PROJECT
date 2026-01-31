@@ -1326,12 +1326,31 @@
             );
         }
         
-        async function saveLocation() {
+        async function saveLocation(event) {
+            const lat = document.getElementById('loc-lat').value;
+            const lon = document.getElementById('loc-lon').value;
+            const display = document.getElementById('location-display');
+            
+            // Try to fetch address if not present or changed
+            let address = window.detectedAddress || 'Custom Location';
+            if (lat && lon) {
+                 try {
+                     const res = await fetch(`/api/geocode?lat=${lat}&lon=${lon}`);
+                     if (res.ok) {
+                         const data = await res.json();
+                         address = `${data.city}, ${data.country}`;
+                         // Update display
+                         if(display) display.textContent = '📍 ' + address;
+                         window.detectedAddress = address;
+                     }
+                 } catch(e) { console.log('Address lookup failed', e); }
+            }
+
             const config = {
-                lat: document.getElementById('loc-lat').value,
-                lon: document.getElementById('loc-lon').value,
+                lat: lat,
+                lon: lon,
                 timezone: document.getElementById('loc-timezone').value,
-                address: window.detectedAddress || 'Custom Location'
+                address: address
             };
             
             try {
@@ -1343,10 +1362,12 @@
                 });
                 
                 // Visual feedback
-                const btn = event.target || document.querySelector('#page-location button:last-child');
-                const originalText = btn.textContent;
-                btn.textContent = '✅ Saved';
-                setTimeout(() => btn.textContent = originalText, 1500);
+                const btn = event ? event.target : document.querySelector('#page-location button:last-child');
+                if (btn) {
+                    const originalText = btn.textContent;
+                    btn.textContent = '✅ Saved';
+                    setTimeout(() => btn.textContent = originalText, 1500);
+                }
             } catch(e) {
                 alert('Failed to save settings: ' + e.message);
             }
