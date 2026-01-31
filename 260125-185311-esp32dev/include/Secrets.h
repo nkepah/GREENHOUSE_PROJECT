@@ -15,12 +15,12 @@ static constexpr const char* FIRMWARE_VERSION = "2.0.0";
 static constexpr const char* AP_SSID = "Greenhouse-Setup";
 static constexpr const char* AP_PASSWORD = "greenhouse123";  // TODO: Make random or use device MAC
 
-// Default Network Credentials (fallback if provisioning fails)
+// Default Network Credentials
 static constexpr const char* DEFAULT_SSID = "Baminyam2.0_EXT2.4G";
 static constexpr const char* DEFAULT_PASS = "Jesus2023";
 
-// Default Raspberry Pi IP (will be overridden by provisioning)
-static constexpr const char* DEFAULT_PI_IP = "100.92.151.67";
+// Raspberry Pi Hostname (use hostname instead of IP for persistence)
+static constexpr const char* PI_HOSTNAME = "farm-hub";
 static constexpr const uint16_t PI_PORT = 3000;
 
 // OTA Update Server
