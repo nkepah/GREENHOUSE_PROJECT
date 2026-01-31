@@ -1792,12 +1792,20 @@
             const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             
             const clockEl = document.getElementById('clock');
+            
+            // Get current location text from the header badge
+            const cityEl = document.getElementById('header-city');
+            const currentLoc = cityEl ? cityEl.textContent : '--';
+
             if (clockEl) {
                 // Use class for styling instead of inline
                 clockEl.className = 'clock-widget';
                 clockEl.innerHTML = `
                     <span class="clock-date">${dateStr}</span>
                     <span class="clock-time">${timeStr}</span>
+                    <div id="mobile-location-container" style="display:none;">
+                        📍 <span>${currentLoc}</span>
+                    </div>
                 `;
             }
         }
