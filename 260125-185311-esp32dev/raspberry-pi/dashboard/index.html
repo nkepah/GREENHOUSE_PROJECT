@@ -1428,7 +1428,7 @@
                     // Fetch Address
                     display.textContent = 'Fetching address...';
                     try {
-                        const res = await fetch(`/api/geocode?lat=${lat}&lon=${lon}`, { credentials: 'same-origin' });
+                        const res = await fetch(`/api/geocode?lat=${lat}&lon=${lon}`);
                         if(res.ok) {
                             const data = await res.json();
                             const addr = `${data.city}, ${data.country}`;
@@ -1471,7 +1471,7 @@
             let address = window.detectedAddress || 'Custom Location';
             if (lat && lon) {
                  try {
-                     const res = await fetch(`/api/geocode?lat=${lat}&lon=${lon}`, { credentials: 'same-origin' });
+                     const res = await fetch(`/api/geocode?lat=${lat}&lon=${lon}`);
                      if (res.ok) {
                          const data = await res.json();
                          // Construct address: City, State (No Country)
