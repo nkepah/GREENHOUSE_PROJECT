@@ -1172,22 +1172,192 @@
             console.log('Connection status:', connected ? 'Online' : 'Offline');
         }
         
+        // --- Smart Controller Settings System ---
+        
+        // Theme Definitions
+        const themes = {
+            'default':          { bg: '#0d1117', card: '#161b22', border: '#30363d', text: '#e6edf3', textSec: '#8b949e', accent: '#238636' },
+            'dark-ocean':       { bg: '#0f172a', card: '#1e293b', border: '#334155', text: '#f1f5f9', textSec: '#94a3b8', accent: '#0ea5e9' },
+            'dark-forest':      { bg: '#14532d', card: '#166534', border: '#15803d', text: '#f0fdf4', textSec: '#86efac', accent: '#22c55e' },
+            'dark-purple':      { bg: '#3b0764', card: '#581c87', border: '#7e22ce', text: '#faf5ff', textSec: '#d8b4fe', accent: '#a855f7' },
+            'dark-orange':      { bg: '#431407', card: '#7c2d12', border: '#ea580c', text: '#fff7ed', textSec: '#fdba74', accent: '#f97316' },
+            'light-default':    { bg: '#f8fafc', card: '#ffffff', border: '#e2e8f0', text: '#0f172a', textSec: '#64748b', accent: '#0f172a' },
+            'light-blue':       { bg: '#eff6ff', card: '#ffffff', border: '#bfdbfe', text: '#1e3a8a', textSec: '#60a5fa', accent: '#2563eb' },
+            'light-green':      { bg: '#f0fdf4', card: '#ffffff', border: '#bbf7d0', text: '#14532d', textSec: '#4ade80', accent: '#16a34a' },
+            'light-lilac':      { bg: '#faf5ff', card: '#ffffff', border: '#e9d5ff', text: '#581c87', textSec: '#c084fc', accent: '#9333ea' },
+            'light-solar':      { bg: '#fefce8', card: '#fffbeb', border: '#fde68a', text: '#713f12', textSec: '#facc15', accent: '#ca8a04' }
+        };
+
         function toggleSettings(event) {
-            event.stopPropagation();
-            const dropdown = document.getElementById('settingsDropdown');
-            if (dropdown) {
-                dropdown.classList.toggle('show');
+            if (event) event.stopPropagation();
+            const modal = document.getElementById('settings-modal');
+            
+            if (modal.classList.contains('open')) {
+                modal.classList.remove('open');
+            } else {
+                showSettingsPage('main');
+                modal.classList.add('open');
+                loadSettings();
             }
         }
 
-        // Close dropdown when clicking outside
-        document.addEventListener('click', (event) => {
-            const dropdown = document.getElementById('settingsDropdown');
-            if (dropdown && dropdown.classList.contains('show')) {
-                if (!dropdown.contains(event.target)) {
-                    dropdown.classList.remove('show');
-                }
+        function showSettingsPage(pageId) {
+            console.log('Navigating to settings page:', pageId);
+            const headers = {
+                'main': 'Settings',
+                'units': 'Units & Formats',
+                'location': 'Location',
+                'themes': 'Appearance',
+                'about': 'System Info'
+            };
+            
+            // Hide all pages
+            document.querySelectorAll('.settings-page').forEach(el => el.style.display = 'none');
+            
+            // Show target
+            document.getElementById('page-' + pageId).style.display = 'block';
+            
+            // Update header
+            document.getElementById('modal-title').textContent = headers[pageId];
+            
+            // Handle Back Button
+            const backBtn = document.getElementById('modal-back-btn');
+            if (pageId === 'main') {
+                backBtn.style.visibility = 'hidden';
+            } else {
+                backBtn.style.visibility = 'visible';
+                backBtn.onclick = () => showSettingsPage('main');
             }
+        }
+        
+        function applyTheme(themeName) {
+            const t = themes[themeName];
+            if (!t) return;
+            
+            const root = document.documentElement;
+            root.style.setProperty('--bg-primary', t.bg);
+            root.style.setProperty('--bg-card', t.card);
+            root.style.setProperty('--border', t.border);
+            root.style.setProperty('--text-primary', t.text);
+            root.style.setProperty('--text-secondary', t.textSec);
+            root.style.setProperty('--accent', t.accent);
+            
+            // Persist
+            localStorage.setItem('farm_theme', themeName);
+            
+            // Visualize selection
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                if(btn.onclick.toString().includes(themeName)) {
+                    btn.style.borderColor = 'var(--text-primary)';
+                    btn.style.transform = 'scale(1.05)';
+                } else {
+                    btn.style.borderColor = 'transparent';
+                    btn.style.transform = 'scale(1)';
+                }
+            });
+        }
+        
+        // Location Services
+        function detectLocation() {
+            const btn = document.querySelector('.detect-btn');
+            const originalText = btn.textContent;
+            
+            if (!navigator.geolocation) {
+                alert('Geolocation is not supported by your browser');
+                return;
+            }
+            
+            btn.textContent = '🛰️ Locating...';
+            
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    document.getElementById('loc-lat').value = pos.coords.latitude.toFixed(6);
+                    document.getElementById('loc-lon').value = pos.coords.longitude.toFixed(6);
+                    btn.textContent = originalText;
+                    
+                    // Auto-detect timezone
+                    try {
+                        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                        const select = document.getElementById('loc-timezone');
+                        if (select.querySelector(`option[value="${tz}"]`)) {
+                            select.value = tz;
+                        }
+                    } catch(e) { console.error('Timezone detect failed', e); }
+                },
+                (err) => {
+                    console.error(err);
+                    alert('Unable to retrieve location. Please enter manually.');
+                    btn.textContent = originalText;
+                }
+            );
+        }
+        
+        function saveLocation() {
+            const config = {
+                lat: document.getElementById('loc-lat').value,
+                lon: document.getElementById('loc-lon').value,
+                timezone: document.getElementById('loc-timezone').value
+            };
+            localStorage.setItem('farm_location', JSON.stringify(config));
+            
+            // Visual feedback
+            const btn = event.target || document.querySelector('#page-location button:last-child');
+            const originalText = btn.textContent;
+            btn.textContent = '✅ Saved';
+            setTimeout(() => btn.textContent = originalText, 1500);
+            
+            console.log('Location config saved:', config);
+        }
+
+        // Persistence
+        function loadSettings() {
+            // Load Theme
+            const savedTheme = localStorage.getItem('farm_theme') || 'default';
+            applyTheme(savedTheme);
+            
+            // Load Location
+            const locData = localStorage.getItem('farm_location');
+            if (locData) {
+                const loc = JSON.parse(locData);
+                if(document.getElementById('loc-lat')) document.getElementById('loc-lat').value = loc.lat;
+                if(document.getElementById('loc-lon')) document.getElementById('loc-lon').value = loc.lon;
+                if(document.getElementById('loc-timezone')) document.getElementById('loc-timezone').value = loc.timezone;
+            }
+            
+            // Load Units
+            const unitData = localStorage.getItem('farm_units');
+            if (unitData) {
+                const units = JSON.parse(unitData);
+                // Set dropdowns if they exist
+                ['temp', 'speed', 'pressure', 'date'].forEach(key => {
+                    const el = document.getElementById(`unit-${key}`);
+                    if (el && units[key]) el.value = units[key];
+                });
+            }
+        }
+        
+        function saveUnits() {
+            const units = {
+                temp: document.getElementById('unit-temp').value,
+                speed: document.getElementById('unit-speed').value,
+                pressure: document.getElementById('unit-pressure').value,
+                date: document.getElementById('unit-date').value
+            };
+            localStorage.setItem('farm_units', JSON.stringify(units));
+             // Visual feedback
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = '✅ Saved';
+            setTimeout(() => btn.textContent = originalText, 1500);
+        }
+        
+        // Initializer
+        document.addEventListener('DOMContentLoaded', () => {
+             loadSettings();
+             // Close modal check
+             document.getElementById('settings-modal').addEventListener('click', (e) => {
+                 if (e.target.id === 'settings-modal') toggleSettings();
+             });
         });
         
         // Fetch initial data
