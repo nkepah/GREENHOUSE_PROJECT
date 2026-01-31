@@ -810,6 +810,53 @@ app.post('/api/settings', async (req, res) => {
     }
 });
 
+// Device registration endpoint - ESP32 devices call this to register themselves
+app.post('/api/device/register', async (req, res) => {
+    try {
+        const { device_id, hostname, ip_address, device_type } = req.body;
+        
+        if (!device_id || !ip_address) {
+            return res.status(400).json({ error: 'Missing device_id or ip_address' });
+        }
+        
+        // Load current devices from database
+        const settings = await db.getAll();
+        let devices = {};
+        if (settings.devices) {
+            try {
+                devices = typeof settings.devices === 'string' ? JSON.parse(settings.devices) : settings.devices;
+            } catch (err) {
+                devices = {};
+            }
+        }
+        
+        // Update or add device
+        devices[device_id] = {
+            id: device_id,
+            name: hostname || device_id,
+            ip: ip_address,
+            type: device_type || 'unknown',
+            registered_at: new Date().toISOString(),
+            last_seen: new Date().toISOString()
+        };
+        
+        // Save back to database
+        await db.set('devices', devices);
+        config.devices = devices;
+        
+        console.log(`[DEVICE] Registered: ${device_id} (${hostname}) at ${ip_address}`);
+        
+        res.json({ 
+            success: true, 
+            device_id, 
+            message: `Device ${device_id} registered successfully` 
+        });
+    } catch (err) {
+        console.error('[DEVICE] Registration failed:', err.message);
+        res.status(500).json({ error: 'Failed to register device' });
+    }
+});
+
 // =============================================================================
 // WEBSOCKET SERVER
 // =============================================================================
