@@ -3,8 +3,8 @@
 # OTA Test Script - Push firmware update via OTA
 # Usage: ./test_ota.sh [device_ip] [pi_ip]
 
-DEVICE_IP="${1:?Error: DEVICE_IP required as first argument}"
-PI_IP="${2:?Error: PI_IP required as second argument}"
+DEVICE_IP="${1:-192.168.1.100}"
+PI_IP="${2:-192.168.1.50}"
 FIRMWARE_FILE=".pio/build/esp32dev/firmware.bin"
 
 echo "================================"

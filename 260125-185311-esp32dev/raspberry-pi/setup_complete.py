@@ -184,25 +184,29 @@ def interactive_config() -> Dict:
             "name": "Greenhouse",
             "icon": "🌱",
             "type": "greenhouse",
-            "description": "Main greenhouse - vegetables & seedlings"
+            "description": "Main greenhouse - vegetables & seedlings",
+            "default_ip": "192.168.1.100"
         },
         "coop1": {
             "name": "Coop Alpha",
             "icon": "🐔",
             "type": "chicken_coop", 
-            "description": "Layer hens - egg production"
+            "description": "Layer hens - egg production",
+            "default_ip": "192.168.1.101"
         },
         "coop2": {
             "name": "Coop Beta",
             "icon": "🐓",
             "type": "chicken_coop",
-            "description": "Broilers - meat production"
+            "description": "Broilers - meat production",
+            "default_ip": "192.168.1.102"
         },
         "coop3": {
             "name": "Coop Gamma",
             "icon": "🐣",
             "type": "chicken_coop",
-            "description": "Nursery - chicks & young birds"
+            "description": "Nursery - chicks & young birds",
+            "default_ip": "192.168.1.103"
         }
     }
     

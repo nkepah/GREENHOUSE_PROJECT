@@ -29,7 +29,12 @@ const PORT = 3000;
 let config = {
     farmName: "My Farm Hub",
     location: { lat: null, lon: null }, // Will be loaded from database settings
-    devices: {}, // Will be loaded from database settings
+    devices: {
+        greenhouse: { ip: "192.168.1.100", name: "Greenhouse", type: "greenhouse" },
+        coop1: { ip: "192.168.1.101", name: "Coop 1", type: "coop" },
+        coop2: { ip: "192.168.1.102", name: "Coop 2", type: "coop" },
+        coop3: { ip: "192.168.1.103", name: "Coop 3", type: "coop" }
+    },
     weather: {
         cacheMinutes: 10,
         timezone: "UTC" // Will be loaded from database settings
@@ -69,43 +74,8 @@ async function initializeSettingsFromDatabase() {
             const loc = typeof settings.location === 'string' ? JSON.parse(settings.location) : settings.location;
             config.location.lat = parseFloat(loc.lat);
             config.location.lon = parseFloat(loc.lon);
-            config.location.city = loc.city || '';
-            config.location.address = loc.address || '';
             config.weather.timezone = loc.timezone || 'UTC';
-            console.log(`[CONFIG] Loaded from database: ${config.location.lat}, ${config.location.lon} (${config.weather.timezone}) - ${config.location.address}`);
-        }
-        
-        // Load devices from database
-        if (settings.devices) {
-            try {
-                config.devices = typeof settings.devices === 'string' ? JSON.parse(settings.devices) : settings.devices;
-                console.log(`[CONFIG] Loaded ${Object.keys(config.devices).length} devices from database`);
-            } catch (err) {
-                console.warn('[CONFIG] Could not parse devices from database:', err.message);
-                config.devices = {};
-            }
-        }
-        
-        // Load cached weather from database to memory
-        try {
-            const cachedWeather = await db.getWeatherCache();
-            if (cachedWeather) {
-                console.log(`[CACHE] Loaded cached weather: ${cachedWeather.current_temp_c}°C / ${cachedWeather.current_temp_f}°F`);
-                // Store in weatherCache memory for fast access
-                weatherCache.data = {
-                    current: {
-                        temperature_2m_c: cachedWeather.current_temp_c,
-                        temperature_2m_f: cachedWeather.current_temp_f,
-                        weather_code: cachedWeather.weather_code
-                    },
-                    daily: cachedWeather.daily_data ? JSON.parse(cachedWeather.daily_data) : null,
-                    hourly: cachedWeather.hourly_data ? JSON.parse(cachedWeather.hourly_data) : null,
-                    timezone: cachedWeather.timezone || 'UTC'
-                };
-                weatherCache.timestamp = cachedWeather.timestamp * 1000; // Convert to ms
-            }
-        } catch (err) {
-            console.warn('[CACHE] Could not load weather cache from database:', err.message);
+            console.log(`[CONFIG] Loaded from database: ${config.location.lat}, ${config.location.lon} (${config.weather.timezone})`);
         }
     } catch (err) {
         console.warn('[CONFIG] Could not load location from database:', err.message);
@@ -113,7 +83,7 @@ async function initializeSettingsFromDatabase() {
 }
 
 // =============================================================================
-// WEATHER FETCHING & CACHING
+// WEATHER CACHE
 // =============================================================================
 
 let weatherCache = {
@@ -125,22 +95,14 @@ async function fetchWeather(lat, lon) {
     const now = Date.now();
     const cacheMs = config.weather.cacheMinutes * 60 * 1000;
     
-    // Check if we have recent cache in database (don't fetch if recent)
-    try {
-        const cachedWeather = await db.getWeatherCache();
-        if (cachedWeather && cachedWeather.timestamp) {
-            const cacheAge = now - (cachedWeather.timestamp * 1000);
-            if (cacheAge < cacheMs) {
-                console.log(`[WEATHER] Using database cache (${Math.round(cacheAge / 1000)}s old)`);
-                return; // Cache is fresh, don't fetch
-            }
-        }
-    } catch (err) {
-        console.warn('[WEATHER] Error checking cache age:', err.message);
+    // Use cached data if still valid
+    if (weatherCache.data && (now - weatherCache.timestamp) < cacheMs) {
+        console.log('[WEATHER] Returning cached data');
+        return weatherCache.data;
     }
     
     try {
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=sunrise,sunset,temperature_2m_max,temperature_2m_min&hourly=temperature_2m,weather_code&timezone=${encodeURIComponent(config.weather.timezone)}`;
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=sunrise,sunset,temperature_2m_max,temperature_2m_min&timezone=${encodeURIComponent(config.weather.timezone)}`;
         
         console.log('[WEATHER] Fetching fresh data...');
         
@@ -149,112 +111,20 @@ async function fetchWeather(lat, lon) {
         
         const data = await response.json();
         
-        // INLINE CONVERSION: Convert API data to both C and F only once
-        const tempC = data.current?.temperature_2m || 0;
-        const tempF = Math.round((tempC * 9/5) + 32);
-        const weatherCode = data.current?.weather_code || 0;
-        const humidity = data.current?.relative_humidity_2m || 0;
-        const windSpeed = data.current?.wind_speed_10m || 0;
+        // Cache the result
+        weatherCache.data = data;
+        weatherCache.timestamp = now;
         
-        // Convert daily temperatures (only once, when fetching)
-        const daily = data.daily || null;
-        const dailyConverted = daily ? {
-            temperature_2m_max_c: daily.temperature_2m_max,
-            temperature_2m_max_f: daily.temperature_2m_max.map(c => Math.round((c * 9/5) + 32)),
-            temperature_2m_min_c: daily.temperature_2m_min,
-            temperature_2m_min_f: daily.temperature_2m_min.map(c => Math.round((c * 9/5) + 32)),
-            sunrise: daily.sunrise,
-            sunset: daily.sunset,
-            time: daily.time
-        } : null;
-        
-        // Convert hourly temperatures (only once, when fetching)
-        const hourly = data.hourly || null;
-        const hourlyConverted = hourly ? {
-            temperature_2m_c: hourly.temperature_2m,
-            temperature_2m_f: hourly.temperature_2m.map(c => Math.round((c * 9/5) + 32)),
-            weather_code: hourly.weather_code,
-            time: hourly.time
-        } : null;
-        
-        // Get user's preferred unit from settings
-        let preferredUnit = 'C';
-        try {
-            const settings = await db.getAll();
-            const units = settings.units || {};
-            preferredUnit = units.temp || 'C';
-        } catch (err) {
-            console.warn('[WEATHER] Could not get preferred unit, using C:', err.message);
-        }
-        
-        // Store both C and F in database (ONLY CONVERSION HAPPENS HERE)
-        await db.saveWeatherCache(
-            tempC,
-            tempF,
-            weatherCode,
-            humidity,
-            windSpeed,
-            JSON.stringify(dailyConverted),
-            JSON.stringify(hourlyConverted),
-            data.timezone || 'UTC',
-            preferredUnit
-        );
-        
-        console.log(`[WEATHER] Stored in DB: ${tempC}°C / ${tempF}°F (preferred: ${preferredUnit})`);
-        
+        console.log(`[WEATHER] Cached: ${data.current?.temperature_2m}°C`);
+        return data;
         
     } catch (err) {
         console.error('[WEATHER] Fetch error:', err.message);
+        // Return stale cache if available
+        if (weatherCache.data) return weatherCache.data;
+        throw err;
     }
 }
-
-// =============================================================================
-// NTP TIME SYNCHRONIZATION
-// =============================================================================
-
-// Sync time with NTP server and store in database
-async function syncTimeWithNTP() {
-    try {
-        const ntpServers = ['pool.ntp.org', 'time.nist.gov', 'time.google.com'];
-        
-        for (const server of ntpServers) {
-            try {
-                // Use system ntpdate command (if available on Linux/Pi)
-                const { exec } = require('child_process');
-                
-                exec(`ntpdate -u ${server}`, (error, stdout, stderr) => {
-                    if (!error) {
-                        const now = new Date();
-                        const timestamp = Math.floor(now.getTime() / 1000);
-                        
-                        // Save to database
-                        db.set('systemTime', JSON.stringify({
-                            unix: timestamp,
-                            iso: now.toISOString(),
-                            synced: true,
-                            source: server
-                        }))
-                        .then(() => {
-                            console.log(`[NTP] Time synced with ${server}: ${now.toISOString()}`);
-                        })
-                        .catch(err => console.error('[NTP] Failed to save time:', err));
-                    }
-                });
-                
-                // Try next if this one fails
-                continue;
-            } catch (err) {
-                console.warn(`[NTP] Failed with ${server}:`, err.message);
-            }
-        }
-    } catch (err) {
-        console.error('[NTP] Sync error:', err.message);
-    }
-}
-
-// Sync time on startup and every 6 hours
-syncTimeWithNTP();
-setInterval(syncTimeWithNTP, 6 * 60 * 60 * 1000);
 
 // =============================================================================
 // DEVICE STATUS AGGREGATION
@@ -437,73 +307,16 @@ app.all('/device/:deviceId/*', async (req, res) => {
 // --- Aggregated Dashboard Data ---
 app.get('/api/dashboard', async (req, res) => {
     console.log('[DASHBOARD] Endpoint called');
-    
-    // Trigger background fetch if needed (don't wait for it)
-    if (config.location.lat && config.location.lon) {
-        fetchWeather(config.location.lat, config.location.lon).catch(err => {
-            console.error('[DASHBOARD] Background fetch failed:', err.message);
-        });
-    }
-    
-    // Get weather from database cache (single source of truth)
+    // Fetch fresh weather using coordinates from database
     let weather = null;
-    let cachedWeather = null;
     try {
-        cachedWeather = await db.getWeatherCache();
-        if (cachedWeather) {
-            console.log('[DASHBOARD] Loaded from database cache');
-            // Parse the cached data and reconstruct weather object
-            weather = {
-                current: {
-                    temperature_2m_c: cachedWeather.current_temp_c,
-                    temperature_2m_f: cachedWeather.current_temp_f,
-                    weather_code: cachedWeather.weather_code
-                },
-                daily: cachedWeather.daily_data ? JSON.parse(cachedWeather.daily_data) : null,
-                hourly: cachedWeather.hourly_data ? JSON.parse(cachedWeather.hourly_data) : null,
-                timezone: cachedWeather.timezone || 'UTC'
-            };
+        // Make sure we have coordinates before fetching weather
+        if (!config.location.lat || !config.location.lon) {
+            throw new Error('Location coordinates not configured. Please set location in Settings.');
         }
+        weather = await fetchWeather(config.location.lat, config.location.lon);
     } catch (err) {
-        console.error('[DASHBOARD] Error loading weather from database:', err);
-    }
-    
-    // Get user's preferred temperature unit from database cache (stored during conversion)
-    let tempUnit = 'C';
-    if (cachedWeather && cachedWeather.preferred_unit) {
-        tempUnit = cachedWeather.preferred_unit;
-    }
-    
-    // Build weather response with correct display temperature and unit-converted values
-    let weatherForDisplay = null;
-    if (weather && cachedWeather) {
-        // Get user's speed unit preference
-        let speedUnit = 'kmh';
-        try {
-            const settings = await db.getAll();
-            const units = settings.units || {};
-            speedUnit = units.speed || 'kmh';
-        } catch (err) {
-            console.warn('[DASHBOARD] Could not get speed unit, using kmh');
-        }
-        
-        // Convert wind speed if needed (from km/h to mph: divide by 1.609)
-        let windSpeedDisplay = cachedWeather.wind_speed || 0;
-        let speedLabel = 'km/h';
-        if (speedUnit === 'mph') {
-            windSpeedDisplay = Math.round(windSpeedDisplay / 1.609);
-            speedLabel = 'mph';
-        }
-        
-        weatherForDisplay = {
-            temperature_2m_c: weather.current?.temperature_2m_c,
-            temperature_2m_f: weather.current?.temperature_2m_f,
-            temperature_2m: tempUnit === 'F' ? weather.current?.temperature_2m_f : weather.current?.temperature_2m_c,
-            weather_code: weather.current?.weather_code,
-            relative_humidity_2m: cachedWeather.humidity,
-            wind_speed_10m: windSpeedDisplay,
-            wind_speed_unit: speedLabel
-        };
+        console.error('Weather fetch failed:', err);
     }
     
     // Build response
@@ -518,108 +331,49 @@ app.get('/api/dashboard', async (req, res) => {
         };
     }
     
-    // Use cached location - don't geocode on every request (it's slow!)
+    // Get fresh location display by geocoding current coordinates if available
     let locationDisplay = { city: 'Unknown', address: 'Unknown' };
-    if (config.location.address && config.location.city) {
-        locationDisplay = { city: config.location.city, address: config.location.address };
-    } else if (config.location.lat && config.location.lon) {
-        // Fallback to coordinates display
-        locationDisplay = { city: config.location.city || 'Location', address: `${config.location.lat.toFixed(3)}, ${config.location.lon.toFixed(3)}` };
+    console.log('[DASHBOARD] Checking location:', { lat: config.location.lat, lon: config.location.lon });
+    if (config.location.lat && config.location.lon) {
+        try {
+            console.log('[DASHBOARD] Geocoding fresh location...');
+            const geoResponse = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${config.location.lat}&lon=${config.location.lon}`, {
+                headers: { 'User-Agent': 'FarmHub/2.3' }
+            });
+            if (geoResponse.ok) {
+                const geoData = await geoResponse.json();
+                const address = geoData.address || {};
+                let city = address.city || address.town || address.village || address.suburb;
+                if (!city && address.county) {
+                    city = address.county.replace(' County', '').replace(' Parish', '').replace(' District', '');
+                }
+                city = city || 'Location';
+                const state = address.state || '';
+                const cityComponent = state ? `${city}, ${state}` : city;
+                locationDisplay = { city: city, address: cityComponent };
+                console.log('[DASHBOARD] Fresh geocode result:', locationDisplay);
+            }
+        } catch (err) {
+            console.error('[DASHBOARD] Fresh geocode failed:', err.message);
+            // Fallback to stored address if available
+            if (config.location.address) {
+                locationDisplay = { city: config.location.city || 'Location', address: config.location.address };
+            }
+        }
+    } else {
+        console.log('[DASHBOARD] No coordinates configured');
     }
     
-    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-    res.set('Pragma', 'no-cache');
-    res.set('Expires', '0');
     res.json({
         farmName: config.farmName,
         location: locationDisplay,
-        weather: weatherForDisplay,
+        weather: weather?.current || null,
         daily: weather?.daily || null,
-        hourly: weather?.hourly || null,
         devices,
         timestamp: Date.now()
     });
 });
-// --- API to re-convert weather from cache when units change (CONVERSION SOURCE 2) ---
-app.get('/api/weather-convert', async (req, res) => {
-    try {
-        // Get cached weather data from database
-        const cachedData = await db.getWeatherCache();
-        if (!cachedData) {
-            return res.status(404).json({ error: 'No cached weather data' });
-        }
-        
-        // Get user's new preferred temperature unit
-        let tempUnit = 'C';
-        try {
-            const settings = await db.getAll();
-            const units = settings.units || {};
-            tempUnit = units.temp || 'C';
-        } catch (err) {
-            console.error('[API] Error getting units setting:', err);
-        }
-        
-        // Update preferred unit in database (no conversion - data is already both C and F)
-        await db.saveWeatherCache(
-            cachedData.current_temp_c,
-            cachedData.current_temp_f,
-            cachedData.weather_code,
-            cachedData.humidity,
-            cachedData.wind_speed,
-            cachedData.daily_data,
-            cachedData.hourly_data,
-            cachedData.timezone,
-            tempUnit  // Store the new preferred unit
-        );
-        
-        console.log(`[API] Updated preferred unit to ${tempUnit}`);
-        
-        res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-        res.set('Pragma', 'no-cache');
-        res.set('Expires', '0');
-        
-        // Get speed unit preference
-        let speedUnit = 'kmh';
-        try {
-            const settings = await db.getAll();
-            const units = settings.units || {};
-            speedUnit = units.speed || 'kmh';
-        } catch (err) {
-            console.warn('[API] Could not get speed unit, using kmh');
-        }
-        
-        // Convert wind speed if needed
-        let windSpeedDisplay = cachedData.wind_speed || 0;
-        let speedLabel = 'km/h';
-        if (speedUnit === 'mph') {
-            windSpeedDisplay = Math.round(windSpeedDisplay / 1.609);
-            speedLabel = 'mph';
-        }
-        
-        // Parse cached data and return with correct display temperature
-        const daily = cachedData.daily_data ? JSON.parse(cachedData.daily_data) : null;
-        const hourly = cachedData.hourly_data ? JSON.parse(cachedData.hourly_data) : null;
-        
-        const displayData = {
-            temperature_2m_c: cachedData.current_temp_c,
-            temperature_2m_f: cachedData.current_temp_f,
-            temperature_2m: tempUnit === 'F' ? cachedData.current_temp_f : cachedData.current_temp_c,
-            weather_code: cachedData.weather_code,
-            relative_humidity_2m: cachedData.humidity,
-            wind_speed_10m: windSpeedDisplay,
-            wind_speed_unit: speedLabel
-        };
-        
-        res.json({
-            weather: displayData,
-            daily: daily,
-            hourly: hourly
-        });
-    } catch (err) {
-        console.error('[API] Weather convert error:', err);
-        res.status(500).json({ error: 'Failed to update unit preference' });
-    }
-});
+
 // --- Health Check ---
 app.get('/api/health', (req, res) => {
     const onlineCount = Object.values(deviceStatus).filter(d => d.online).length;
@@ -632,50 +386,6 @@ app.get('/api/health', (req, res) => {
         weatherCacheAge: weatherCache.timestamp ? 
             Math.round((Date.now() - weatherCache.timestamp) / 1000) + 's' : 'none'
     });
-});
-
-// --- System Time API (for ESP32 devices to sync their time) ---
-app.get('/api/time', async (req, res) => {
-    try {
-        const now = new Date();
-        const timestamp = Math.floor(now.getTime() / 1000);
-        const timezone = config.weather.timezone || 'UTC';
-        
-        // Get stored NTP sync info
-        let syncInfo = await db.get('systemTime');
-        let ntpSynced = false;
-        let ntpSource = null;
-        
-        if (syncInfo) {
-            try {
-                const parsed = typeof syncInfo === 'string' ? JSON.parse(syncInfo) : syncInfo;
-                ntpSynced = parsed.synced || false;
-                ntpSource = parsed.source || null;
-            } catch (e) {
-                // JSON parse error, ignore
-            }
-        }
-        
-        res.json({
-            unix: timestamp,
-            iso: now.toISOString(),
-            timestamp: timestamp,
-            timezone: timezone,
-            ntpSynced: ntpSynced,
-            ntpSource: ntpSource,
-            serverTime: {
-                year: now.getFullYear(),
-                month: now.getMonth() + 1,
-                day: now.getDate(),
-                hour: now.getHours(),
-                minute: now.getMinutes(),
-                second: now.getSeconds(),
-                millisecond: now.getMilliseconds()
-            }
-        });
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to get system time' });
-    }
 });
 
 // --- Reverse Geocode (Convert Lat/Lon to Address) ---
@@ -754,164 +464,19 @@ app.post('/api/settings', async (req, res) => {
         await db.set(key, value);
         console.log(`[API] Saved setting: ${key} = ${JSON.stringify(value).substring(0, 50)}`);
         
-        // If location was updated, reload it into config and geocode to get city/state
+        // If location was updated, reload it into config
         if (key === 'location') {
             const loc = typeof value === 'string' ? JSON.parse(value) : value;
             config.location.lat = parseFloat(loc.lat);
             config.location.lon = parseFloat(loc.lon);
             config.weather.timezone = loc.timezone || 'UTC';
-            
-            // Geocode to get city and state (one-time, not on every request)
-            try {
-                const geoResponse = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${config.location.lat}&lon=${config.location.lon}`, {
-                    headers: { 'User-Agent': 'FarmHub/2.3' }
-                });
-                if (geoResponse.ok) {
-                    const geoData = await geoResponse.json();
-                    const address = geoData.address || {};
-                    let city = address.city || address.town || address.village || address.suburb;
-                    if (!city && address.county) {
-                        city = address.county.replace(' County', '').replace(' Parish', '').replace(' District', '');
-                    }
-                    city = city || 'Location';
-                    const state = address.state || '';
-                    const cityComponent = state ? `${city}, ${state}` : city;
-                    
-                    config.location.city = city;
-                    config.location.address = cityComponent;
-                    
-                    // Save geocoded values back to database
-                    const fullLocation = { ...loc, city, address: cityComponent };
-                    await db.set('location', fullLocation);
-                    
-                    console.log(`[GEOCODE] Located: ${cityComponent}`);
-                }
-            } catch (err) {
-                console.warn('[GEOCODE] Failed:', err.message);
-                config.location.city = loc.city || '';
-                config.location.address = loc.address || '';
-            }
-        }
-        
-        // If devices were updated, reload into config
-        if (key === 'devices') {
-            try {
-                config.devices = typeof value === 'string' ? JSON.parse(value) : value;
-                console.log(`[CONFIG] Updated ${Object.keys(config.devices).length} devices from database`);
-            } catch (err) {
-                console.warn('[CONFIG] Could not parse devices:', err.message);
-            }
+            console.log(`[CONFIG] Updated from settings: ${config.location.lat}, ${config.location.lon} (${config.weather.timezone})`);
         }
         
         res.json({ success: true, key, value });
     } catch (err) {
         console.error('[API] Failed to save settings:', err.message);
         res.status(500).json({ error: 'Failed to save settings' });
-    }
-});
-
-// Get all registered devices
-app.get('/api/devices', async (req, res) => {
-    try {
-        const settings = await db.getAll();
-        let devices = {};
-        if (settings.devices) {
-            try {
-                devices = typeof settings.devices === 'string' ? JSON.parse(settings.devices) : settings.devices;
-            } catch (err) {
-                console.warn('[DEVICE] Could not parse devices:', err.message);
-            }
-        }
-        
-        res.json({
-            success: true,
-            devices: devices,
-            count: Object.keys(devices).length
-        });
-    } catch (err) {
-        console.error('[API] Failed to get devices:', err.message);
-        res.status(500).json({ error: 'Failed to get devices' });
-    }
-});
-
-// Device registration endpoint - ESP32 devices call this to register themselves
-app.post('/api/device/register', async (req, res) => {
-    try {
-        const { device_id, hostname, ip_address, device_type } = req.body;
-        
-        if (!device_id || !ip_address) {
-            return res.status(400).json({ error: 'Missing device_id or ip_address' });
-        }
-        
-        // Load current devices from database
-        const settings = await db.getAll();
-        let devices = {};
-        if (settings.devices) {
-            try {
-                devices = typeof settings.devices === 'string' ? JSON.parse(settings.devices) : settings.devices;
-            } catch (err) {
-                devices = {};
-            }
-        }
-        
-        // Update or add device
-        devices[device_id] = {
-            id: device_id,
-            name: hostname || device_id,
-            ip: ip_address,
-            type: device_type || 'unknown',
-            registered_at: new Date().toISOString(),
-            last_seen: new Date().toISOString()
-        };
-        
-        // Save back to database
-        await db.set('devices', devices);
-        config.devices = devices;
-        
-        console.log(`[DEVICE] Registered: ${device_id} (${hostname}) at ${ip_address}`);
-        
-        res.json({ 
-            success: true, 
-            device_id, 
-            message: `Device ${device_id} registered successfully`,
-            registered_device: devices[device_id]
-        });
-    } catch (err) {
-        console.error('[DEVICE] Registration failed:', err.message);
-        res.status(500).json({ error: 'Failed to register device' });
-    }
-});
-
-// Verify device registration - ESP32 can query to check if it's registered
-app.get('/api/device/verify/:device_id', async (req, res) => {
-    try {
-        const { device_id } = req.params;
-        const settings = await db.getAll();
-        let devices = {};
-        if (settings.devices) {
-            try {
-                devices = typeof settings.devices === 'string' ? JSON.parse(settings.devices) : settings.devices;
-            } catch (err) {
-                console.warn('[DEVICE] Could not parse devices:', err.message);
-            }
-        }
-        
-        if (devices[device_id]) {
-            console.log(`[DEVICE] Verified: ${device_id} at ${devices[device_id].ip}`);
-            res.json({
-                success: true,
-                device: devices[device_id],
-                message: 'Device is registered'
-            });
-        } else {
-            res.status(404).json({
-                success: false,
-                message: `Device ${device_id} is not registered`
-            });
-        }
-    } catch (err) {
-        console.error('[DEVICE] Verify failed:', err.message);
-        res.status(500).json({ error: 'Failed to verify device' });
     }
 });
 

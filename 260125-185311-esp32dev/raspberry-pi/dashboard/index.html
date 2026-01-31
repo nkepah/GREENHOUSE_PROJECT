@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <!-- Version timestamp to force cache busting -->
-    <meta name="version" content="2.14-202601311740">
+    <meta name="version" content="2.3-202601311200">
     <title>🌾 Smart Farm Hub - Unified Dashboard</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌾</text></svg>">
     <style>
@@ -249,36 +249,20 @@
             display: grid;
             grid-template-columns: 1fr auto 1fr;
             gap: 24px;
-            align-items: start;
+            align-items: center;
             color: #fff; /* Always white text on banner */
         }
         
-        .weather-current {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        
-        .weather-current .weather-icon {
-            font-size: 3.5rem;
-        }
-        
-        .weather-temp {
-            font-size: 3rem;
-            font-weight: 700;
-            line-height: 1;
-        }
-        
         .weather-banner .weather-details {
-             color: rgba(255, 255, 255, 0.9);
-             font-size: 0.95rem;
+             color: rgba(255, 255, 255, 0.8);
+        }
         }
         
         .weather-sun {
             text-align: center;
             padding: 0 24px;
-            border-left: 1px solid rgba(255,255,255,0.2);
-            border-right: 1px solid rgba(255,255,255,0.2);
+            border-left: 1px solid var(--border);
+            border-right: 1px solid var(--border);
         }
         
         .sun-item {
@@ -286,113 +270,18 @@
             align-items: center;
             gap: 8px;
             margin: 8px 0;
-            font-size: 0.9rem;
         }
         
-        /* 24-Hour Hourly Forecast */
-        .weather-forecast-hourly-container {
-            grid-column: 1 / -1;
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid rgba(255,255,255,0.2);
-            overflow: hidden;
-        }
-        
-        .weather-forecast-hourly {
+        .weather-forecast {
             display: flex;
+            flex-direction: column;
             gap: 8px;
-            overflow-x: auto;
-            scroll-behavior: smooth;
-            padding: 8px 0;
         }
         
-        .hourly-card {
-            flex: 0 0 auto;
-            background: rgba(255,255,255,0.1);
-            border-radius: 12px;
-            padding: 12px 12px;
-            text-align: center;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-            min-width: 80px;
-            white-space: normal;
-            cursor: pointer;
-            border: 2px solid transparent;
-        }
-        
-        .hourly-card:hover {
-            background: rgba(255,255,255,0.15);
-            transform: translateY(-2px);
-            border-color: rgba(79,124,255,0.5);
-        }
-        
-        .hourly-time {
-            font-size: 0.75rem;
-            color: rgba(255,255,255,0.7);
-            margin-bottom: 6px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            min-height: 14px;
-        }
-        
-        .hourly-time.now {
-            color: #ffeb3b;
-            font-weight: 700;
-            font-size: 0.8rem;
-        }
-        
-        .hourly-icon {
-            font-size: 1.8rem;
-            margin: 4px 0;
-            display: block;
-        }
-        
-        .hourly-temp {
+        .forecast-item {
+            display: flex;
+            justify-content: space-between;
             font-size: 0.9rem;
-            font-weight: bold;
-            color: #fff;
-        }
-        
-        /* Scrollbar styling for hourly forecast */
-        .weather-forecast-hourly::-webkit-scrollbar {
-            height: 4px;
-        }
-        
-        .weather-forecast-hourly::-webkit-scrollbar-track {
-            background: rgba(255,255,255,0.1);
-            border-radius: 2px;
-        }
-        
-        .weather-forecast-hourly::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.3);
-            border-radius: 2px;
-        }
-        
-        .weather-forecast-hourly::-webkit-scrollbar-thumb:hover {
-            background: rgba(255,255,255,0.5);
-        }
-        
-        @media (max-width: 768px) {
-            .weather-banner {
-                grid-template-columns: 1fr;
-                gap: 16px;
-            }
-            
-            .weather-sun {
-                padding: 0;
-                border: none;
-                border-bottom: 1px solid rgba(255,255,255,0.2);
-                padding-bottom: 12px;
-            }
-            
-            .hourly-card {
-                min-width: 60px;
-                padding: 10px 8px;
-            }
-            
-            .hourly-icon {
-                font-size: 1.5rem;
-            }
         }
         
         /* Device Grid */
@@ -795,7 +684,9 @@
                 align-items: center;
                 gap: 2px;
                 white-space: nowrap;
-                flex-shrink: 0;
+                max-width: 35vw; 
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
             
             /* Pulsating glowing orange colon */
@@ -992,55 +883,6 @@
         @keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes modalSlideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Temperature Warning Animations */
-        @keyframes frostPulse {
-            0%, 100% {
-                transform: scale(1);
-                filter: drop-shadow(0 0 8px rgba(100, 150, 255, 0.6));
-            }
-            50% {
-                transform: scale(1.15);
-                filter: drop-shadow(0 0 20px rgba(100, 150, 255, 1));
-            }
-        }
-
-        @keyframes heatPulse {
-            0%, 100% {
-                transform: scale(1);
-                filter: drop-shadow(0 0 8px rgba(255, 100, 100, 0.8)) drop-shadow(0 0 16px rgba(255, 165, 0, 0.3));
-            }
-            50% {
-                transform: scale(1.15);
-                filter: drop-shadow(0 0 20px rgba(255, 50, 50, 1)) drop-shadow(0 0 30px rgba(255, 165, 0, 0.7));
-            }
-        }
-
-        .temp-warning-banner {
-            width: 100%;
-            padding: 12px 20px;
-            margin-top: 12px;
-            background: rgba(100, 150, 255, 0.15);
-            border: 2px solid rgba(100, 150, 255, 0.8);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            font-size: 1.3rem;
-            color: rgba(100, 200, 255, 1);
-            font-weight: 700;
-            white-space: nowrap;
-            animation: frostPulse 1.5s ease-in-out infinite;
-            backdrop-filter: blur(4px);
-        }
-
-        .temp-warning-banner.heat {
-            background: rgba(255, 100, 50, 0.15);
-            border: 2px solid rgba(255, 100, 50, 0.9);
-            color: rgba(255, 150, 100, 1);
-            animation: heatPulse 1.5s ease-in-out infinite;
-        }
-
         /* Navigation Bar */
     </style>
 </head>
@@ -1055,9 +897,9 @@
                 <div id="header-location" onclick="openSettingsPage('location')" 
                      style="display:inline-flex; align-items:center; gap:5px; margin-left:15px; 
                             background:rgba(255,255,255,0.1); padding:4px 8px; border-radius:6px; 
-                            font-size:0.8rem; cursor:pointer; vertical-align:middle; flex-shrink:0;">
+                            font-size:0.8rem; cursor:pointer; vertical-align:middle; min-width:100px; overflow:hidden; text-overflow:ellipsis;">
                     <span>📍</span>
-                    <span id="header-city" style="white-space:nowrap;">--</span>
+                    <span id="header-city" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1;">--</span>
                 </div>
             </div>
             <div class="header-status">
@@ -1095,14 +937,9 @@
                             <div class="text">Location & Time Zone</div>
                             <span style="color:var(--text-secondary)">›</span>
                         </div>
-                        <div class="settings-item" onclick="openSettingsPage('thresholds')">
+                        <div class="settings-item" onclick="alert('Thresholds settings reserved for future use')">
                             <span class="icon">🌡️</span>
                             <div class="text">Thresholds</div>
-                            <span style="color:var(--text-secondary)">›</span>
-                        </div>
-                        <div class="settings-item" onclick="openSettingsPage('devices')">
-                            <span class="icon">📱</span>
-                            <div class="text">Devices</div>
                             <span style="color:var(--text-secondary)">›</span>
                         </div>
                         <div class="settings-item" onclick="openSettingsPage('themes')">
@@ -1217,135 +1054,6 @@
                     </div>
                 </div>
 
-                <!-- THRESHOLDS PAGE -->
-                <div id="page-thresholds" class="settings-page" style="display:none; padding:20px;">
-                    <h3 style="margin-bottom:20px; color:var(--text-primary);">Temperature Alert Thresholds</h3>
-                    
-                    <div style="background:rgba(100, 150, 255, 0.1); border:1px solid rgba(100, 150, 255, 0.3); border-radius:8px; padding:16px; margin-bottom:20px;">
-                        <h4 style="margin-bottom:12px; color:rgba(100, 200, 255, 1); display:flex; align-items:center; gap:8px;">
-                            <span>❄️</span> Frost Warning Threshold
-                        </h4>
-                        <div style="display:flex; gap:12px; align-items:flex-end;">
-                            <div style="flex:1;">
-                                <label style="display:block; margin-bottom:6px; font-size:0.9rem; color:var(--text-secondary);">Celsius (°C)</label>
-                                <input type="number" id="frostThreshold-c" placeholder="0" style="width:100%; padding:10px; border-radius:8px; background:var(--bg-primary); border:1px solid var(--border); color:var(--text-primary);">
-                            </div>
-                            <div style="flex:1;">
-                                <label style="display:block; margin-bottom:6px; font-size:0.9rem; color:var(--text-secondary);">Fahrenheit (°F)</label>
-                                <input type="number" id="frostThreshold-f" placeholder="32" style="width:100%; padding:10px; border-radius:8px; background:var(--bg-primary); border:1px solid var(--border); color:var(--text-primary);">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div style="background:rgba(255, 100, 50, 0.1); border:1px solid rgba(255, 100, 50, 0.3); border-radius:8px; padding:16px; margin-bottom:20px;">
-                        <h4 style="margin-bottom:12px; color:rgba(255, 150, 100, 1); display:flex; align-items:center; gap:8px;">
-                            <span>🔥</span> Heat Warning Threshold
-                        </h4>
-                        <div style="display:flex; gap:12px; align-items:flex-end;">
-                            <div style="flex:1;">
-                                <label style="display:block; margin-bottom:6px; font-size:0.9rem; color:var(--text-secondary);">Celsius (°C)</label>
-                                <input type="number" id="heatThreshold-c" placeholder="35" style="width:100%; padding:10px; border-radius:8px; background:var(--bg-primary); border:1px solid var(--border); color:var(--text-primary);">
-                            </div>
-                            <div style="flex:1;">
-                                <label style="display:block; margin-bottom:6px; font-size:0.9rem; color:var(--text-secondary);">Fahrenheit (°F)</label>
-                                <input type="number" id="heatThreshold-f" placeholder="95" style="width:100%; padding:10px; border-radius:8px; background:var(--bg-primary); border:1px solid var(--border); color:var(--text-primary);">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <button onclick="saveThresholds()" style="width:100%; padding:12px; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:1rem;">
-                        💾 Save Thresholds
-                    </button>
-                </div>
-
-                <!-- DEVICES PAGE -->
-                <div id="page-devices" class="settings-page" style="display:none; padding:20px;">
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px;">
-                        <button onclick="switchDevicesTab('registered')" id="tab-registered" style="padding:12px; background:var(--accent); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600;">📱 Registered Devices</button>
-                        <button onclick="switchDevicesTab('create')" id="tab-create" style="padding:12px; background:rgba(100,150,200,0.3); color:var(--text-primary); border:1px solid var(--border); border-radius:8px; cursor:pointer; font-weight:600;">➕ Add New Device</button>
-                    </div>
-
-                    <!-- REGISTERED DEVICES TAB -->
-                    <div id="tab-content-registered" style="display:block;">
-                        <div id="devicesList" style="display:grid; gap:12px;">
-                            <div style="text-align:center; color:var(--text-secondary); padding:20px;">
-                                <div class="spinner" style="width:30px; height:30px; margin:0 auto 10px;"></div>
-                                Loading devices...
-                            </div>
-                        </div>
-                        
-                        <div style="margin-top:20px; padding:12px; background:rgba(255,200,100,0.1); border:1px solid rgba(255,200,100,0.3); border-radius:8px; font-size:0.85rem; color:var(--text-secondary);">
-                            <strong>ℹ️ Auto-Discovery:</strong> Devices automatically register their IP when connecting to WiFi. The timer checks every 30 seconds and updates if IPs change.
-                        </div>
-                    </div>
-
-                    <!-- ADD NEW DEVICE TAB -->
-                    <div id="tab-content-create" style="display:none;">
-                        <div style="display:grid; gap:12px; margin-bottom:20px;">
-                            <!-- Greenhouse Template -->
-                            <div style="background:var(--bg-primary); border:1px solid var(--border); border-radius:8px; padding:16px; cursor:pointer;" onclick="selectDeviceTemplate('greenhouse')">
-                                <div style="display:grid; grid-template-columns:auto 1fr auto; gap:12px; align-items:center;">
-                                    <div style="font-size:2.5rem;">🌱</div>
-                                    <div>
-                                        <div style="font-weight:600; color:var(--text-primary); margin-bottom:4px;">Greenhouse</div>
-                                        <div style="font-size:0.85rem; color:var(--text-secondary);">Climate-controlled environment with temperature and humidity monitoring</div>
-                                    </div>
-                                    <div style="font-size:1.5rem; color:var(--accent);">›</div>
-                                </div>
-                            </div>
-                            
-                            <!-- Chicken Coop Template -->
-                            <div style="background:var(--bg-primary); border:1px solid var(--border); border-radius:8px; padding:16px; cursor:pointer;" onclick="selectDeviceTemplate('coop')">
-                                <div style="display:grid; grid-template-columns:auto 1fr auto; gap:12px; align-items:center;">
-                                    <div style="font-size:2.5rem;">🐔</div>
-                                    <div>
-                                        <div style="font-weight:600; color:var(--text-primary); margin-bottom:4px;">Chicken Coop</div>
-                                        <div style="font-size:0.85rem; color:var(--text-secondary);">Automated door controls and environmental monitoring for coops</div>
-                                    </div>
-                                    <div style="font-size:1.5rem; color:var(--accent);">›</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Device Creation Form (Hidden by default) -->
-                        <div id="deviceCreateForm" style="display:none; background:var(--bg-primary); border:1px solid var(--border); border-radius:8px; padding:20px;">
-                            <button onclick="selectDeviceTemplate(null)" style="background:none; border:none; color:var(--text-secondary); cursor:pointer; font-size:1rem; margin-bottom:12px;">← Back</button>
-                            
-                            <h4 id="templateTitle" style="margin-bottom:16px; color:var(--text-primary);">Device Configuration</h4>
-                            
-                            <div style="margin-bottom:16px;">
-                                <label style="display:block; margin-bottom:6px; font-size:0.9rem; color:var(--text-secondary);">Device Name</label>
-                                <input type="text" id="deviceName" placeholder="e.g., Main Greenhouse" style="width:100%; padding:10px; border-radius:8px; background:var(--bg-secondary); border:1px solid var(--border); color:var(--text-primary); box-sizing:border-box;">
-                            </div>
-                            
-                            <div style="margin-bottom:16px;">
-                                <label style="display:block; margin-bottom:6px; font-size:0.9rem; color:var(--text-secondary);">Device ID (auto-generated on device)</label>
-                                <input type="text" id="deviceId" placeholder="Device will auto-register with this ID" style="width:100%; padding:10px; border-radius:8px; background:var(--bg-secondary); border:1px solid var(--border); color:var(--text-primary); box-sizing:border-box;" disabled>
-                                <div style="font-size:0.8rem; color:var(--text-secondary); margin-top:4px;">Device IPs will be assigned automatically during registration</div>
-                            </div>
-                            
-                            <div id="templateSpecificFields"></div>
-                            
-                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px;">
-                                <button onclick="selectDeviceTemplate(null)" style="padding:10px; background:rgba(255,100,100,0.2); color:var(--text-primary); border:1px solid rgba(255,100,100,0.5); border-radius:8px; cursor:pointer; font-weight:600;">Cancel</button>
-                                <button onclick="saveNewDevice()" style="padding:10px; background:var(--accent); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600;">➕ Add Device</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- DEVICE DETAILS MODAL -->
-                <div id="deviceDetailsModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.7); z-index:9999; overflow:auto;">
-                    <div style="background:var(--bg-card); margin:20px auto; max-width:600px; border-radius:12px; border:1px solid var(--border); overflow:hidden;">
-                        <div style="background:linear-gradient(135deg, rgba(78, 204, 163, 0.2), rgba(78, 204, 163, 0.05)); padding:20px; display:flex; justify-content:space-between; align-items:center;">
-                            <h3 id="detailsDeviceName" style="margin:0; color:var(--text-primary);">Device Details</h3>
-                            <button onclick="closeDeviceDetails()" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text-secondary);">✕</button>
-                        </div>
-                        <div style="padding:20px;" id="deviceDetailsContent"></div>
-                    </div>
-                </div>
-
-
                 <!-- ABOUT PAGE -->
                 <div id="page-about" class="settings-page" style="display:none; padding:20px;">
                     <div style="text-align:center; margin-bottom:20px;">
@@ -1385,12 +1093,10 @@
             <div class="weather-current">
                 <div class="weather-icon" id="weatherIcon">🌤️</div>
                 <div>
-                    <div id="weatherLocation" style="font-size: 0.85rem; color: rgba(255,255,255,0.7); margin-bottom: 4px;">📍 Location</div>
-                    <div class="weather-temp"><span id="weatherTemp">--</span><span id="weatherTempUnit">°C</span></div>
+                    <div class="weather-temp"><span id="weatherTemp">--</span>°C</div>
                     <div class="weather-details">
                         <div id="weatherDesc">Loading weather...</div>
                         <div>💧 <span id="weatherHumidity">--</span>% humidity</div>
-                        <div>💨 <span id="windSpeed">-- km/h</span></div>
                     </div>
                 </div>
             </div>
@@ -1404,15 +1110,18 @@
                     <span>Sunset: <strong id="sunset">--:--</strong></span>
                 </div>
             </div>
-            <!-- Temperature Warning Banner -->
-            <div id="tempWarning" class="temp-warning-banner" style="display: none;">
-                <span id="warningIcon">❄️</span>
-                <span id="warningText">FROST WARNING</span>
-            </div>
-            <!-- 24-Hour Hourly Forecast -->
-            <div class="weather-forecast-hourly-container">
-                <div class="weather-forecast-hourly" id="hourlyForecast">
-                    <!-- Hourly cards will be populated here -->
+            <div class="weather-forecast">
+                <div class="forecast-item">
+                    <span>Today's High:</span>
+                    <strong id="tempHigh">--°C</strong>
+                </div>
+                <div class="forecast-item">
+                    <span>Today's Low:</span>
+                    <strong id="tempLow">--°C</strong>
+                </div>
+                <div class="forecast-item">
+                    <span>Wind:</span>
+                    <strong id="windSpeed">-- km/h</strong>
                 </div>
             </div>
         </section>
@@ -1502,7 +1211,6 @@
         let devices = {};
         let weather = null;
         let ws = null;
-        let userSettings = { units: { time: '24h', date: 'short' } }; // Store user settings
 
         // ==== DEFINE ALL FUNCTIONS IMMEDIATELY ====
         function showSettingsPage(pageId) {
@@ -1529,14 +1237,6 @@
                  if(titleEl) {
                      if(pageId === 'units') titleEl.textContent = 'Units';
                      if(pageId === 'location') titleEl.textContent = 'Location';
-                     if(pageId === 'thresholds') {
-                         titleEl.textContent = 'Temperature Thresholds';
-                         loadThresholds();
-                     }
-                     if(pageId === 'devices') {
-                         titleEl.textContent = 'Registered Devices';
-                         showDevicesPage();
-                     }
                      if(pageId === 'themes') titleEl.textContent = 'Themes';
                      if(pageId === 'about') titleEl.textContent = 'About';
                  }
@@ -1863,7 +1563,7 @@
         // Persistence
         async function loadSettings() {
             try {
-                const res = await fetch(`/api/settings?v=${Math.random()}`);
+                const res = await fetch('/api/settings?v=2.3');
                 if (!res.ok) throw new Error('Failed to fetch settings');
                 const settings = await res.json();
                 
@@ -1876,7 +1576,6 @@
                     if(document.getElementById('loc-lat')) document.getElementById('loc-lat').value = loc.lat || '';
                     if(document.getElementById('loc-lon')) document.getElementById('loc-lon').value = loc.lon || '';
                     if(document.getElementById('loc-timezone')) document.getElementById('loc-timezone').value = loc.timezone || 'UTC';
-                    userSettings.timezone = loc.timezone || 'UTC'; // Store timezone globally
                     
                     // Always fetch fresh address from geocode endpoint
                     if (loc.lat && loc.lon && document.getElementById('location-display')) {
@@ -1895,12 +1594,10 @@
                 // Units
                 if (settings.units) {
                     const units = typeof settings.units === 'string' ? JSON.parse(settings.units) : settings.units;
-                    userSettings.units = units; // Store in global
                     ['temp', 'speed', 'pressure', 'date', 'time'].forEach(key => {
                         const el = document.getElementById(`unit-${key}`);
                         if (el && units[key]) el.value = units[key];
                     });
-                    updateClock(); // Refresh clock with new format
                 }
             } catch (err) {
                 console.warn('Could not load settings from server, falling back to local defaults', err);
@@ -1916,302 +1613,24 @@
                 time: document.getElementById('unit-time').value
             };
             
-            // Update global settings immediately for instant UI response
-            userSettings.units = units;
-            
-            // Update UI immediately with new units
-            updateClock(); // Refresh clock display with new format
-            
-            // CONVERSION SOURCE 2: Unit change detected
-            // Fetch from cache and re-convert with new unit preference
             try {
-                const response = await fetch(`/api/weather-convert?v=${Math.random()}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    // Update weather display with new unit conversion
-                    if (data.weather) {
-                        updateWeather(data.weather, data.daily, data.hourly, weather?.location);
-                    }
-                }
-            } catch (err) {
-                console.error('Weather re-conversion failed:', err);
-            }
-            
-            // Save to database in background (don't block UI)
-            fetch('/api/settings', {
-                 method: 'POST',
-                 headers: {'Content-Type': 'application/json'},
-                 body: JSON.stringify({ key: 'units', value: units })
-            })
-            .then(res => {
+                const res = await fetch('/api/settings', {
+                     method: 'POST',
+                     headers: {'Content-Type': 'application/json'},
+                     body: JSON.stringify({ key: 'units', value: units })
+                });
+                
                 if (res.ok) {
-                    console.log('✓ Units saved');
-                    // Show success notification
+                    console.log('Units saved successfully');
+                    // Show success notification in a safe way
                     const notification = document.createElement('div');
-                    notification.textContent = '✅ Units updated';
+                    notification.textContent = '✅ Units saved';
                     notification.style.cssText = 'position:fixed; top:20px; right:20px; background:#4ecca3; color:#0d1117; padding:10px 15px; border-radius:5px; z-index:9999;';
                     document.body.appendChild(notification);
-                    setTimeout(() => {
-                        notification.remove();
-                        showSettingsPage('main');
-                    }, 1500);
+                    setTimeout(() => notification.remove(), 2000);
                 }
-            })
-            .catch(e => console.error('Save failed:', e));
-        }
-        
-        // Load and save temperature thresholds
-        async function loadThresholds() {
-            try {
-                const response = await fetch('/api/settings');
-                const data = await response.json();
-                
-                const thresholds = data.thresholds || {
-                    frost_c: 0,
-                    frost_f: 32,
-                    heat_c: 35,
-                    heat_f: 95
-                };
-                
-                document.getElementById('frostThreshold-c').value = thresholds.frost_c;
-                document.getElementById('frostThreshold-f').value = thresholds.frost_f;
-                document.getElementById('heatThreshold-c').value = thresholds.heat_c;
-                document.getElementById('heatThreshold-f').value = thresholds.heat_f;
-                
-                // Store in global for warning detection
-                userSettings.thresholds = thresholds;
-            } catch (err) {
-                console.error('Failed to load thresholds:', err);
-            }
-        }
-        
-        async function saveThresholds() {
-            const thresholds = {
-                frost_c: parseFloat(document.getElementById('frostThreshold-c').value) || 0,
-                frost_f: parseFloat(document.getElementById('frostThreshold-f').value) || 32,
-                heat_c: parseFloat(document.getElementById('heatThreshold-c').value) || 35,
-                heat_f: parseFloat(document.getElementById('heatThreshold-f').value) || 95
-            };
-            
-            // Update global settings immediately
-            userSettings.thresholds = thresholds;
-            
-            // Save to database
-            fetch('/api/settings', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ key: 'thresholds', value: thresholds })
-            })
-            .then(res => {
-                if (res.ok) {
-                    console.log('✓ Thresholds saved:', thresholds);
-                    // Show success notification
-                    const notification = document.createElement('div');
-                    notification.textContent = '✅ Thresholds saved successfully';
-                    notification.style.cssText = 'position:fixed; top:20px; right:20px; background:#4ecca3; color:#0d1117; padding:10px 15px; border-radius:5px; z-index:9999;';
-                    document.body.appendChild(notification);
-                    // Immediate refresh to update warning display
-                    fetchDashboardData();
-                    setTimeout(() => {
-                        notification.remove();
-                        showSettingsPage('main');
-                    }, 1500);
-                }
-            })
-            .catch(e => console.error('Failed to save thresholds:', e));
-        }
-        
-// Switch between tabs in tabs in devices page
-        function switchDevicesTab(tab) {
-            // Hide all tabs
-            document.getElementById('tab-content-registered').style.display = 'none';
-            document.getElementById('tab-content-create').style.display = 'none';
-            
-            // Update button styling
-            document.getElementById('tab-registered').style.background = 'rgba(100,150,200,0.3)';
-            document.getElementById('tab-registered').style.color = 'var(--text-primary)';
-            document.getElementById('tab-registered').style.border = '1px solid var(--border)';
-            document.getElementById('tab-create').style.background = 'rgba(100,150,200,0.3)';
-            document.getElementById('tab-create').style.color = 'var(--text-primary)';
-            document.getElementById('tab-create').style.border = '1px solid var(--border)';
-            
-            // Show selected tab
-            if(tab === 'registered') {
-                document.getElementById('tab-content-registered').style.display = 'block';
-                document.getElementById('tab-registered').style.background = 'var(--accent)';
-                document.getElementById('tab-registered').style.color = 'white';
-                document.getElementById('tab-registered').style.border = 'none';
-                loadDevices();
-            } else if(tab === 'create') {
-                document.getElementById('tab-content-create').style.display = 'block';
-                document.getElementById('tab-create').style.background = 'var(--accent)';
-                document.getElementById('tab-create').style.color = 'white';
-                document.getElementById('tab-create').style.border = 'none';
-                selectDeviceTemplate(null);
-            }
-        }
-        
-        // Load and display registered devices
-        async function loadDevices() {
-            try {
-                const response = await fetch('/api/devices');
-                const data = await response.json();
-                document.deviceListData = data;  // Store for details modal
-                displayDevices(data);
-            } catch (error) {
-                console.error('Error loading devices:', error);
-                if(document.getElementById('devicesList')) {
-                    document.getElementById('devicesList').innerHTML = '<div style="text-align:center; color:var(--text-secondary); padding:20px;">❌ Failed to load devices</div>';
-                }
-            }
-        }
-        
-        // Display devices in the UI
-        function displayDevices(data) {
-            const devicesList = document.getElementById('devicesList');
-            if(!devicesList) return;
-            
-            const devices = data.devices || {};
-            const deviceCount = Object.keys(devices).length;
-            
-            if (deviceCount === 0) {
-                devicesList.innerHTML = '<div style="text-align:center; color:var(--text-secondary); padding:20px;">📱 No devices registered yet</div>';
-                return;
-            }
-            
-            let html = '';
-            for (const [deviceId, device] of Object.entries(devices)) {
-                const lastSeen = new Date(device.last_seen);
-                const now = new Date();
-                const minutesAgo = Math.floor((now - lastSeen) / 60000);
-                let statusText = 'Online';
-                let statusColor = '#4ecca3';
-                
-                if (minutesAgo > 5) {
-                    statusText = minutesAgo < 60 ? `${minutesAgo}m ago` : 'Offline';
-                    statusColor = minutesAgo > 10 ? '#f85149' : '#fb8500';
-                }
-                
-                const registeredDate = new Date(device.registered_at);
-                const registerTime = registeredDate.toLocaleDateString() + ' ' + registeredDate.toLocaleTimeString();
-                
-                html += `
-                    <div style="background:var(--bg-primary); border:1px solid var(--border); border-radius:8px; padding:16px; display:grid; grid-template-columns:auto 1fr auto; gap:16px; align-items:start; cursor:pointer;" onclick="showDeviceDetails('${deviceId}')">
-                        <div style="font-size:2rem;">
-                            ${device.type === 'greenhouse' ? '🌱' : device.type === 'coop' ? '🐔' : '📱'}
-                        </div>
-                        <div>
-                            <div style="font-weight:600; color:var(--text-primary); margin-bottom:4px;">${device.name || device.id}</div>
-                            <div style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:6px;">
-                                <strong>IP:</strong> <span style="font-family:monospace;">${device.ip}</span>
-                            </div>
-                            <div style="font-size:0.8rem; color:var(--text-secondary);">
-                                <strong>Type:</strong> ${device.type} · <strong>Registered:</strong> ${registerTime}
-                            </div>
-                        </div>
-                        <div style="text-align:right;">
-                            <div style="display:inline-flex; align-items:center; gap:6px; background:rgba(${statusColor === '#4ecca3' ? '78, 204, 163' : statusColor === '#fb8500' ? '251, 133, 0' : '248, 81, 73'}, 0.1); padding:8px 12px; border-radius:6px; border:1px solid rgba(${statusColor === '#4ecca3' ? '78, 204, 163' : statusColor === '#fb8500' ? '251, 133, 0' : '248, 81, 73'}, 0.3);">
-                                <div style="width:8px; height:8px; border-radius:50%; background:${statusColor}; animation:${statusColor === '#4ecca3' ? 'pulse 2s infinite' : 'none'};"></div>
-                                <span style="font-size:0.8rem; font-weight:600;">${statusText}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-            
-            devicesList.innerHTML = html;
-        }
-        
-        // Load devices when devices page is opened
-        function showDevicesPage() {
-            loadDevices();
-            // Auto-refresh every 5 seconds
-            if (!window.devicesRefreshInterval) {
-                window.devicesRefreshInterval = setInterval(loadDevices, 5000);
-            }
-        }
-
-        let hourlyDataForClicks = [];
-        let hourlyResetTimeout = null;
-        let currentWeatherSnapshot = null; // Store current "Now" data for reverting
-        let refreshInterval = null; // Store the refresh interval ID for pausing
-        
-        // Update weather display with data from a specific hourly timestamp
-        function updateWeatherForTimestamp(hourlyData, index, timeLabel) {
-            if (!hourlyData || !hourlyData[index]) return;
-            
-            const data = hourlyData[index];
-            const tempUnit = userSettings?.units?.temp || 'C';
-            const tempSymbol = tempUnit === 'F' ? '°F' : '°C';
-            
-            // Update temperature
-            const temp = tempUnit === 'F' ? data.temperature_f : data.temperature_c;
-            document.getElementById('weatherTemp').textContent = Math.round(temp);
-            
-            // Update description
-            const code = data.weather_code || 0;
-            document.getElementById('weatherDesc').textContent = getWeatherDesc(code);
-            document.getElementById('weatherIcon').textContent = getWeatherIcon(code);
-            
-            // Update humidity and wind
-            document.getElementById('weatherHumidity').textContent = data.humidity || '--';
-            
-            const windSpeedUnit = data.wind_speed_unit || 'km/h';
-            document.getElementById('windSpeed').textContent = (data.wind_speed || '--') + ' ' + windSpeedUnit;
-            
-            // Update pressure if available (try both ID names)
-            if (data.pressure_msl) {
-                const pressEl = document.getElementById('weatherPressure') || document.getElementById('out-pressure');
-                if (pressEl) pressEl.textContent = Math.round(data.pressure_msl) + ' hPa';
-            }
-            
-            // Update cloud cover if available (try both ID names)
-            if (data.cloudcover !== undefined && data.cloudcover !== null) {
-                const cloudEl = document.getElementById('weatherCloud') || document.getElementById('out-cloud');
-                if (cloudEl) cloudEl.textContent = data.cloudcover + '%';
-            }
-            
-            // Update wind direction if available (try both ID names)
-            if (data.wind_direction !== undefined && data.wind_direction !== null) {
-                const windDirEl = document.getElementById('weatherWindDir') || document.getElementById('out-wind-dir');
-                if (windDirEl) windDirEl.textContent = data.wind_direction + '°';
-            }
-            
-            // Update temperature warnings based on hourly data
-            const warningEl = document.getElementById('tempWarning');
-            const warningIcon = document.getElementById('warningIcon');
-            const warningText = document.getElementById('warningText');
-            
-            // Get thresholds from saved settings or use defaults
-            const thresholds = userSettings?.thresholds || {
-                frost_c: 0,
-                frost_f: 32,
-                heat_c: 35,
-                heat_f: 95
-            };
-            
-            // Determine which threshold to use based on temperature unit
-            const tempThreshold = tempUnit === 'F' ? thresholds.frost_f : thresholds.frost_c;
-            const heatThreshold = tempUnit === 'F' ? thresholds.heat_f : thresholds.heat_c;
-            const roundedTemp = Math.round(temp);
-            
-            if (roundedTemp <= tempThreshold) {
-                // Frost warning
-                warningEl.classList.remove('heat');
-                warningIcon.textContent = '❄️';
-                warningText.textContent = 'FROST WARNING @ ' + timeLabel;
-                warningEl.style.display = 'flex';
-                warningEl.title = `Frost Warning at ${timeLabel}: ${roundedTemp}${tempSymbol} (threshold: ${tempThreshold}${tempSymbol})`;
-            } else if (roundedTemp >= heatThreshold) {
-                // Heat warning
-                warningEl.classList.add('heat');
-                warningIcon.textContent = '🔥';
-                warningText.textContent = 'HEAT WARNING @ ' + timeLabel;
-                warningEl.style.display = 'flex';
-                warningEl.title = `Heat Warning at ${timeLabel}: ${roundedTemp}${tempSymbol} (threshold: ${heatThreshold}${tempSymbol})`;
-            } else {
-                // No warning
-                warningEl.style.display = 'none';
+            } catch(e) {
+                console.error('Save failed', e);
             }
         }
         
@@ -2225,20 +1644,9 @@
         });
         
         // Fetch initial data
-        // Request management for performance
-        let fetchAbortController = null;
-        
         async function fetchDashboardData() {
             try {
-                // Abort any pending request before starting a new one
-                if (fetchAbortController) {
-                    fetchAbortController.abort();
-                }
-                
-                fetchAbortController = new AbortController();
-                const response = await fetch(`/api/dashboard?v=${Math.random()}`, {
-                    signal: fetchAbortController.signal
-                });
+                const response = await fetch('/api/dashboard?v=2.3');
                 const data = await response.json();
                 
                 if (data.farmName) {
@@ -2270,393 +1678,73 @@
                     if(headCity) headCity.textContent = displayLoc;
                 }
                 
-                // Store weather data globally for unit changes
-                if (data.weather) {
-                    weather = {
-                        current: data.weather,
-                        daily: data.daily,
-                        hourly: data.hourly,
-                        location: data.location
-                    };
-                    updateWeather(data.weather, data.daily, data.hourly, data.location);
-                }
+                if (data.weather) updateWeather(data.weather, data.daily);
                 if (data.devices) renderDevices(data.devices);
                 
                 document.getElementById('lastUpdate').innerHTML = 
                     `<span class="clock-number">${now.getHours().toString().padStart(2, '0')}</span><span class="clock-colon">:</span><span class="clock-number">${now.getMinutes().toString().padStart(2, '0')}</span><span class="clock-colon">:</span><span class="clock-number">${now.getSeconds().toString().padStart(2, '0')}</span>`;
                     
+                    
             } catch (err) {
-                if (err.name !== 'AbortError') {
-                    console.error('Failed to fetch dashboard:', err);
-                }
+                console.error('Failed to fetch dashboard:', err);
             }
-        }
-        
-        // No conversion needed - server provides pre-converted temperatures
-        function convertTemp(temp) {
-            // Temperatures are already converted on server side
-            // This function now just returns the temperature as-is
-            return Math.round(temp);
         }
         
         // Weather display
-        function updateWeather(current, daily, hourly, location) {
+        function updateWeather(current, daily) {
             if (!current) return;
             
-            const tempUnit = userSettings?.units?.temp || 'C';
-            const tempSymbol = tempUnit === 'F' ? '°F' : '°C';
-            
-            // Display location
-            if (location) {
-                const locDisplay = location.address || location.cityComponent || location.city || 'Unknown Location';
-                document.getElementById('weatherLocation').textContent = '📍 ' + locDisplay;
-            }
-            
-            // Get temperature - ALWAYS use the first hourly data point
-            // This is the current "Now" temperature and matches the hourly forecast
-            let displayTemp = 0;
-            if (hourly && hourly.temperature_2m_c && hourly.temperature_2m_c.length > 0) {
-                // Use the appropriate temperature array based on unit
-                if (tempUnit === 'F' && hourly.temperature_2m_f && hourly.temperature_2m_f.length > 0) {
-                    displayTemp = hourly.temperature_2m_f[0];
-                } else if (hourly.temperature_2m_c) {
-                    displayTemp = hourly.temperature_2m_c[0];
-                }
-            } else {
-                // Fallback to current.temperature_2m if hourly data not available
-                displayTemp = current.temperature_2m || 0;
-            }
-            
             document.getElementById('weatherTemp').textContent = 
-                Math.round(displayTemp);
-            document.getElementById('weatherTempUnit').textContent = tempSymbol;
+                Math.round(current.temperature_2m);
             document.getElementById('weatherHumidity').textContent = 
                 current.relative_humidity_2m || '--';
-            
-            // Save the current "Now" weather data for reverting after hourly tile clicks
-            if (hourly) {
-                currentWeatherSnapshot = {
-                    temperature_c: hourly.temperature_2m_c ? hourly.temperature_2m_c[0] : 0,
-                    temperature_f: hourly.temperature_2m_f ? hourly.temperature_2m_f[0] : 0,
-                    humidity: hourly.relative_humidity_2m ? hourly.relative_humidity_2m[0] : '--',
-                    wind_speed: hourly.wind_speed_10m ? hourly.wind_speed_10m[0] : '--',
-                    wind_speed_unit: current.wind_speed_unit || 'km/h',
-                    weather_code: hourly.weather_code ? hourly.weather_code[0] : 0,
-                    pressure_msl: hourly.pressure_msl ? hourly.pressure_msl[0] : null,
-                    cloudcover: hourly.cloudcover ? hourly.cloudcover[0] : null,
-                    wind_direction: hourly.wind_direction_10m ? hourly.wind_direction_10m[0] : null
-                };
-            }
-            
-            // Display wind speed with correct unit from API response
-            const windSpeedUnit = current.wind_speed_unit || 'km/h';
             document.getElementById('windSpeed').textContent = 
-                (current.wind_speed_10m || '--') + ' ' + windSpeedUnit;
-            
-            // Check for temperature warnings (Frost/Heat) using saved thresholds
-            const warningEl = document.getElementById('tempWarning');
-            const warningIcon = document.getElementById('warningIcon');
-            const warningText = document.getElementById('warningText');
-            
-            // Get thresholds from saved settings or use defaults
-            const thresholds = userSettings?.thresholds || {
-                frost_c: 0,
-                frost_f: 32,
-                heat_c: 35,
-                heat_f: 95
-            };
-            
-            // Determine which threshold to use based on current temperature unit
-            const tempThreshold = tempUnit === 'F' ? thresholds.frost_f : thresholds.frost_c;
-            const heatThreshold = tempUnit === 'F' ? thresholds.heat_f : thresholds.heat_c;
-            const roundedTemp = Math.round(displayTemp);
-            
-            if (roundedTemp <= tempThreshold) {
-                // Frost warning
-                warningEl.classList.remove('heat');
-                warningIcon.textContent = '❄️';
-                warningText.textContent = 'FROST WARNING';
-                warningEl.style.display = 'flex';
-                warningEl.title = `Frost Warning: Temperature at or below ${tempThreshold}${tempSymbol}!`;
-            } else if (roundedTemp >= heatThreshold) {
-                // Heat warning
-                warningEl.classList.add('heat');
-                warningIcon.textContent = '🔥';
-                warningText.textContent = 'HEAT WARNING';
-                warningEl.style.display = 'flex';
-                warningEl.title = `Heat Warning: Temperature at or above ${heatThreshold}${tempSymbol}!`;
-            } else {
-                // No warning
-                warningEl.style.display = 'none';
-            }
+                (current.wind_speed_10m || '--') + ' km/h';
             
             // Weather icon based on code
             const code = current.weather_code;
             document.getElementById('weatherIcon').textContent = getWeatherIcon(code);
             document.getElementById('weatherDesc').textContent = getWeatherDesc(code);
             
-            // Update hourly forecast for next 24 hours
-            if (hourly && hourly.time && hourly.temperature_2m_c && hourly.temperature_2m_f) {
-                const container = document.getElementById('hourlyForecast');
-                container.innerHTML = ''; // Clear existing cards
+            if (daily) {
+                document.getElementById('tempHigh').textContent = 
+                    Math.round(daily.temperature_2m_max?.[0] || 0) + '°C';
+                document.getElementById('tempLow').textContent = 
+                    Math.round(daily.temperature_2m_min?.[0] || 0) + '°C';
                 
-                // Get current time in user's timezone to find starting index
-                const timezone = userSettings.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
-                const now = new Date();
-                
-                // Create formatter for timezone time
-                const tzFormatter = new Intl.DateTimeFormat('en-US', {
-                    timeZone: timezone,
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: false
-                });
-                
-                // Get current time parts in selected timezone
-                const nowParts = tzFormatter.formatToParts(now);
-                let currentHour, currentDate, currentMonth, currentYear;
-                nowParts.forEach(part => {
-                    if (part.type === 'hour') currentHour = parseInt(part.value);
-                    if (part.type === 'day') currentDate = parseInt(part.value);
-                    if (part.type === 'month') currentMonth = parseInt(part.value); // formatToParts returns 1-indexed months
-                    if (part.type === 'year') currentYear = parseInt(part.value);
-                });
-                
-                // Find the index of the current hour in the API data
-                let startIndex = 0;
-                for (let i = 0; i < hourly.time.length; i++) {
-                    // Format each API time in the selected timezone
-                    const apiDate = new Date(hourly.time[i]);
-                    const apiParts = tzFormatter.formatToParts(apiDate);
-                    let apiHour, apiDate_day, apiMonth, apiYear;
-                    apiParts.forEach(part => {
-                        if (part.type === 'hour') apiHour = parseInt(part.value);
-                        if (part.type === 'day') apiDate_day = parseInt(part.value);
-                        if (part.type === 'month') apiMonth = parseInt(part.value);
-                        if (part.type === 'year') apiYear = parseInt(part.value);
-                    });
-                    
-                    if (apiHour === currentHour &&
-                        apiDate_day === currentDate &&
-                        apiMonth === currentMonth &&
-                        apiYear === currentYear) {
-                        startIndex = i;
-                        break;
-                    }
+                if (daily.sunrise?.[0]) {
+                    const sr = new Date(daily.sunrise[0]);
+                    document.getElementById('sunrise').textContent = 
+                        sr.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                 }
-                
-                // Display 24 hourly cards starting from current hour
-                hourlyDataForClicks = []; // Reset for this update
-                for (let i = 0; i < 24; i++) {
-                    const apiIndex = startIndex + i;
-                    if (apiIndex >= hourly.time.length) break; // Stop if we run out of data
-                    
-                    const forecastTime = new Date(hourly.time[apiIndex]);
-                    
-                    // Format forecast time in user's timezone
-                    const forecastParts = tzFormatter.formatToParts(forecastTime);
-                    let forecastHour, forecastMinute;
-                    forecastParts.forEach(part => {
-                        if (part.type === 'hour') forecastHour = part.value;
-                        if (part.type === 'minute') forecastMinute = part.value;
-                    });
-                    
-                    // Use pre-converted temperature data from server
-                    const tempUnit = userSettings?.units?.temp || 'C';
-                    let temp;
-                    if (tempUnit === 'F' && hourly.temperature_2m_f) {
-                        temp = Math.round(hourly.temperature_2m_f[apiIndex]);
-                    } else if (hourly.temperature_2m_c) {
-                        temp = Math.round(hourly.temperature_2m_c[apiIndex]);
-                    } else {
-                        temp = 0;
-                    }
-                    
-                    const code = hourly.weather_code?.[apiIndex] || 0;
-                    
-                    // Determine time label
-                    let timeLabel = '';
-                    
-                    // Check if this is the current hour
-                    const isCurrentHour = (i === 0); // First card is always "Now"
-                    
-                    if (isCurrentHour) {
-                        timeLabel = 'Now';
-                    } else {
-                        // Get user's time format setting for hourly display
-                        const timeFormat = userSettings.units?.time || '24h';
-                        if (timeFormat === '12h') {
-                            let hour12 = parseInt(forecastHour) % 12 || 12;
-                            const ampm = parseInt(forecastHour) >= 12 ? 'PM' : 'AM';
-                            timeLabel = `${hour12}:${forecastMinute}${ampm}`;
-                        } else {
-                            // Show time in 24h format
-                            timeLabel = `${forecastHour}:${forecastMinute}`;
-                        }
-                    }
-                    
-                    const timeClass = isCurrentHour ? 'now' : '';
-                    
-                    // Store hourly data for this timestamp
-                    const hourlyDataPoint = {
-                        temperature_c: hourly.temperature_2m_c ? hourly.temperature_2m_c[apiIndex] : 0,
-                        temperature_f: hourly.temperature_2m_f ? hourly.temperature_2m_f[apiIndex] : 0,
-                        humidity: hourly.relative_humidity_2m ? hourly.relative_humidity_2m[apiIndex] : '--',
-                        wind_speed: hourly.wind_speed_10m ? hourly.wind_speed_10m[apiIndex] : '--',
-                        wind_speed_unit: current.wind_speed_unit || 'km/h',
-                        weather_code: code,
-                        pressure_msl: hourly.pressure_msl ? hourly.pressure_msl[apiIndex] : null,
-                        cloudcover: hourly.cloudcover ? hourly.cloudcover[apiIndex] : null,
-                        wind_direction: hourly.wind_direction_10m ? hourly.wind_direction_10m[apiIndex] : null
-                    };
-                    hourlyDataForClicks.push(hourlyDataPoint);
-                    
-                    const card = document.createElement('div');
-                    card.className = 'hourly-card';
-                    card.style.cursor = 'pointer';
-                    card.setAttribute('data-hourly-index', hourlyDataForClicks.length - 1);
-                    card.setAttribute('data-time-label', timeLabel);
-                    card.innerHTML = `
-                        <div class="hourly-time ${timeClass}">${timeLabel}</div>
-                        <div class="hourly-icon">${getWeatherIcon(code)}</div>
-                        <div class="hourly-temp">${temp}${tempSymbol}</div>
-                    `;
-                    
-                    container.appendChild(card);
+                if (daily.sunset?.[0]) {
+                    const ss = new Date(daily.sunset[0]);
+                    document.getElementById('sunset').textContent = 
+                        ss.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                 }
-                
-                // Single event delegation listener for all hourly cards (much more efficient)
-                if (!container.hasHourlyListener) {
-                    container.addEventListener('click', (e) => {
-                        const card = e.target.closest('.hourly-card');
-                        if (!card) return;
-                        
-                        const hourlyIndex = parseInt(card.getAttribute('data-hourly-index'));
-                        const timeLabel = card.getAttribute('data-time-label');
-                        
-                        if (isNaN(hourlyIndex)) return;
-                        
-                        // Pause the automatic refresh while showing hourly data
-                        if (refreshInterval) clearInterval(refreshInterval);
-                        
-                        // Clear any existing reset timeout
-                        if (hourlyResetTimeout) clearTimeout(hourlyResetTimeout);
-                        
-                        updateWeatherForTimestamp(hourlyDataForClicks, hourlyIndex, timeLabel);
-                        // Visual feedback - highlight selected card
-                        document.querySelectorAll('.hourly-card').forEach(c => c.style.opacity = '0.7');
-                        card.style.opacity = '1';
-                        
-                        // Reset to "Now" values after 5 seconds AND resume refresh
-                        hourlyResetTimeout = setTimeout(() => {
-                            if (currentWeatherSnapshot) {
-                                updateWeatherForTimestamp([currentWeatherSnapshot], 0, 'Now');
-                                // Reset card opacity
-                                document.querySelectorAll('.hourly-card').forEach(c => c.style.opacity = '1');
-                            }
-                            // Fetch fresh data immediately
-                            fetchDashboardData();
-                            // Resume the automatic refresh
-                            refreshInterval = setInterval(fetchDashboardData, 2500);
-                        }, 5000);
-                    });
-                    container.hasHourlyListener = true;
-                }
-            }
-            
-            // Sunrise/Sunset from daily data
-            if (daily && daily.sunrise?.[0]) {
-                const sr = new Date(daily.sunrise[0]);
-                document.getElementById('sunrise').textContent = 
-                    sr.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            }
-            if (daily && daily.sunset?.[0]) {
-                const ss = new Date(daily.sunset[0]);
-                document.getElementById('sunset').textContent = 
-                    ss.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             }
         }
         
         function getWeatherIcon(code) {
-            // WMO Weather codes mapping to emojis (comprehensive)
-            const iconMap = {
-                0: '☀️',      // Clear sky
-                1: '🌤️',      // Mainly clear
-                2: '⛅',      // Partly cloudy
-                3: '☁️',      // Overcast
-                45: '🌫️',     // Foggy
-                48: '🌫️',     // Depositing rime fog
-                51: '🌧️',     // Light drizzle
-                53: '🌧️',     // Moderate drizzle
-                55: '🌧️',     // Dense drizzle
-                61: '🌧️',     // Slight rain
-                63: '🌧️',     // Moderate rain
-                65: '🌧️',     // Heavy rain
-                71: '🌨️',     // Slight snow
-                73: '🌨️',     // Moderate snow
-                75: '🌨️',     // Heavy snow
-                77: '🌨️',     // Snow grains
-                80: '🌦️',     // Slight rain showers
-                81: '🌦️',     // Moderate rain showers
-                82: '🌦️',     // Violent rain showers
-                85: '🌨️',     // Slight snow showers
-                86: '🌨️',     // Heavy snow showers
-                95: '⛈️',     // Thunderstorm
-                96: '⛈️',     // Thunderstorm with slight hail
-                99: '⛈️'      // Thunderstorm with heavy hail
-            };
-            
-            // Check if code exists in map, otherwise try to determine by range
-            if (iconMap.hasOwnProperty(code)) {
-                return iconMap[code];
-            }
-            
-            // Fallback: determine by code ranges for any unmapped codes
-            if (code >= 71 && code <= 86) {
-                // All 70-86 range codes are snow/snow showers
-                if ((code >= 71 && code <= 77) || (code >= 85 && code <= 86)) {
-                    return '🌨️'; // Snow icon
-                }
-            }
-            
-            // Default to cloud
-            return '☁️';
+            if (code === 0) return '☀️';
+            if (code <= 3) return '⛅';
+            if (code <= 49) return '🌫️';
+            if (code <= 59) return '🌧️';
+            if (code <= 69) return '🌨️';
+            if (code <= 79) return '❄️';
+            if (code <= 99) return '⛈️';
+            return '🌤️';
         }
         
         function getWeatherDesc(code) {
-            // WMO Weather codes descriptions (comprehensive)
-            const descMap = {
-                0: 'Clear sky',
-                1: 'Mainly clear',
-                2: 'Partly cloudy',
-                3: 'Overcast',
-                45: 'Foggy',
-                48: 'Depositing rime fog',
-                51: 'Light drizzle',
-                53: 'Moderate drizzle',
-                55: 'Dense drizzle',
-                61: 'Slight rain',
-                63: 'Moderate rain',
-                65: 'Heavy rain',
-                71: 'Slight snow',
-                73: 'Moderate snow',
-                75: 'Heavy snow',
-                77: 'Snow grains',
-                80: 'Slight rain showers',
-                81: 'Moderate rain showers',
-                82: 'Violent rain showers',
-                85: 'Slight snow showers',
-                86: 'Heavy snow showers',
-                95: 'Thunderstorm',
-                96: 'Thunderstorm with slight hail',
-                99: 'Thunderstorm with heavy hail'
-            };
-            
-            // Return mapped description or default
-            return descMap[code] || 'Weather data';
+            if (code === 0) return 'Clear sky';
+            if (code <= 3) return 'Partly cloudy';
+            if (code <= 49) return 'Foggy';
+            if (code <= 59) return 'Drizzle';
+            if (code <= 69) return 'Rain';
+            if (code <= 79) return 'Snow';
+            if (code <= 99) return 'Thunderstorm';
+            return 'Weather data';
         }
         
         // Device rendering
@@ -2807,55 +1895,9 @@
         // Clock
         function updateClock() {
             const now = new Date();
-            const timezone = userSettings.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
-            
-            // Format time in selected timezone
-            const formatter = new Intl.DateTimeFormat('en-US', {
-                timeZone: timezone,
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false
-            });
-            
-            const parts = formatter.formatToParts(now);
-            const tzTime = {};
-            parts.forEach(part => {
-                if (part.type !== 'literal') {
-                    tzTime[part.type] = part.value;
-                }
-            });
-            
-            // Get user's date format setting
-            const dateFormat = userSettings.units?.date || 'short';
-            let dateStr;
-            if (dateFormat === 'short') {
-                dateStr = now.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
-            } else {
-                dateStr = now.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: '2-digit', year: '2-digit' });
-            }
-            
-            // Get user's time format setting
-            const timeFormat = userSettings.units?.time || '24h';
-            let timeStr, hourStr, minuteStr;
-            
-            const tzHour = parseInt(tzTime.hour);
-            const tzMinute = tzTime.minute;
-            
-            if (timeFormat === '12h') {
-                let hour12 = tzHour % 12 || 12;
-                hourStr = hour12.toString().padStart(2, '0');
-                const ampm = tzHour >= 12 ? 'PM' : 'AM';
-                minuteStr = tzMinute;
-                timeStr = `${hourStr}${minuteStr}${ampm}`;
-            } else {
-                hourStr = tzHour.toString().padStart(2, '0');
-                minuteStr = tzMinute;
-                timeStr = `${hourStr}${minuteStr}`;
-            }
+            const dateStr = now.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
             
             const clockEl = document.getElementById('clock');
             
@@ -2866,65 +1908,25 @@
             if (clockEl) {
                 // Use class for styling instead of inline
                 clockEl.className = 'clock-widget';
-                if (timeFormat === '12h') {
-                    const hour12 = tzHour % 12 || 12;
-                    const ampm = now.getHours() >= 12 ? 'PM' : 'AM';
-                    clockEl.innerHTML = `
-                        <span class="clock-date">${dateStr}</span>
-                        <span class="clock-time"><span class="clock-number">${hour12.toString().padStart(2, '0')}</span><span class="clock-colon">:</span><span class="clock-number">${minuteStr}</span><small style="margin-left:2px;">${ampm}</small></span>
-                        <!-- Mobile only location display (controlled by CSS) -->
-                        <div id="mobile-location-container" onclick="openSettingsPage('location')">
-                            📍 <span>${currentLoc}</span>
-                        </div>
-                    `;
-                } else {
-                    clockEl.innerHTML = `
-                        <span class="clock-date">${dateStr}</span>
-                        <span class="clock-time"><span class="clock-number">${hourStr}</span><span class="clock-colon">:</span><span class="clock-number">${minuteStr}</span></span>
-                        <!-- Mobile only location display (controlled by CSS) -->
-                        <div id="mobile-location-container" onclick="openSettingsPage('location')">
-                            📍 <span>${currentLoc}</span>
-                        </div>
-                    `;
-                }
+                clockEl.innerHTML = `
+                    <span class="clock-date">${dateStr}</span>
+                    <span class="clock-time"><span class="clock-number">${hours}</span><span class="clock-colon">:</span><span class="clock-number">${minutes}</span></span>
+                    <!-- Mobile only location display (controlled by CSS) -->
+                    <div id="mobile-location-container" onclick="openSettingsPage('location')">
+                        📍 <span>${currentLoc}</span>
+                    </div>
+                `;
             }
-            console.log('[CLOCK] Updated with format:', timeFormat, dateFormat);
+            console.log('[CLOCK] Updated with colon styling');
         }
 
         // Initialize
-        async function syncUnitsToDatabase() {
-            try {
-                const units = userSettings.units || {
-                    temp: document.getElementById('unit-temp')?.value || 'celsius',
-                    speed: document.getElementById('unit-speed')?.value || 'kmh',
-                    pressure: document.getElementById('unit-pressure')?.value || 'hpa',
-                    date: document.getElementById('unit-date')?.value || 'short',
-                    time: document.getElementById('unit-time')?.value || '24h'
-                };
-                
-                // Sync to database
-                await fetch('/api/settings', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ key: 'units', value: units })
-                });
-                
-                console.log('[SYNC] Units synced to database:', units);
-                // Immediate refresh to show converted values
-                fetchDashboardData();
-            } catch(e) {
-                console.error('[SYNC] Failed to sync units:', e.message);
-            }
-        }
-        
         document.addEventListener('DOMContentLoaded', () => {
             fetchDashboardData();
             connectWebSocket();
             updateClock();
-            loadSettings(); // Load settings first
             setInterval(updateClock, 1000);
-            refreshInterval = setInterval(fetchDashboardData, 5000); // Refresh every 5 seconds instead of 2.5
-            setInterval(syncUnitsToDatabase, 10000); // Sync units every 10 seconds for ESP32 routines
+            setInterval(fetchDashboardData, 60000); // Refresh every minute
         });
         
         // Close modal on overlay click

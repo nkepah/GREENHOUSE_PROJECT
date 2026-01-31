@@ -553,7 +553,7 @@ void WiFiProvisioning::startAPMode() {
             </div>
             <div class="form-group">
                 <label for="piIp">Pi Station IP (Optional)</label>
-                <input type="text" id="piIp" name="piIp" placeholder="Enter Pi IP">
+                <input type="text" id="piIp" name="piIp" placeholder="192.168.1.100">
             </div>
             <div class="form-group">
                 <label for="deviceType">Device Type</label>

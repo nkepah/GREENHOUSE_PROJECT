@@ -28,37 +28,14 @@ function initSchema() {
             });
         }
     });
-    
-    // Create weather cache table with both C and F temperatures + user's preferred unit
-    db.run(`CREATE TABLE IF NOT EXISTS weather_cache (
-        id INTEGER PRIMARY KEY,
-        timestamp INTEGER,
-        current_temp_c REAL,
-        current_temp_f REAL,
-        weather_code INTEGER,
-        humidity REAL,
-        wind_speed REAL,
-        daily_data TEXT,
-        hourly_data TEXT,
-        timezone TEXT DEFAULT 'UTC',
-        preferred_unit TEXT DEFAULT 'C'
-    )`, (err) => {
-        if (err) {
-            console.error('[DB] Error creating weather_cache table:', err.message);
-        }
-    });
 }
 
 function seedDefaults() {
-    const now = new Date();
-    const timestamp = Math.floor(now.getTime() / 1000);
-    
     const defaults = {
         'farm_name': 'Smart Farm Hub',
         'theme': 'default',
         'units': JSON.stringify({temp: 'C', speed: 'km/h', pressure: 'hpa', date: 'DD/MM/YYYY'}),
-        'location': JSON.stringify({lat: -17.8292, lon: 31.0522, timezone: 'Africa/Harare', address: 'Harare, Zimbabwe'}),
-        'systemTime': JSON.stringify({unix: timestamp, iso: now.toISOString(), synced: false, source: 'server'})
+        'location': JSON.stringify({lat: -17.8292, lon: 31.0522, timezone: 'Africa/Harare', address: 'Harare, Zimbabwe'})
     };
     
     const stmt = db.prepare("INSERT INTO settings (key, value) VALUES (?, ?)");
@@ -111,41 +88,5 @@ module.exports = {
                 }
             });
         });
-    },
-    
-    // Weather cache functions - store pre-converted data
-    saveWeatherCache: (current_temp_c, current_temp_f, weather_code, humidity, wind_speed, daily_data, hourly_data, timezone = 'UTC', preferred_unit = 'C') => {
-        return new Promise((resolve, reject) => {
-            const timestamp = Math.floor(Date.now() / 1000);
-            
-            // Delete old cache entries (keep only latest)
-            db.run("DELETE FROM weather_cache", [], (err) => {
-                if (err) {
-                    console.error('[DB] Error clearing old weather cache:', err);
-                    reject(err);
-                    return;
-                }
-                
-                // Insert new weather data with both C and F conversions + humidity + wind speed
-                db.run(
-                    "INSERT INTO weather_cache (timestamp, current_temp_c, current_temp_f, weather_code, humidity, wind_speed, daily_data, hourly_data, timezone, preferred_unit) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                    [timestamp, current_temp_c, current_temp_f, weather_code, humidity, wind_speed, daily_data, hourly_data, timezone, preferred_unit],
-                    (err) => {
-                        if (err) reject(err);
-                        else resolve(true);
-                    }
-                );
-            });
-        });
-    },
-    
-    getWeatherCache: () => {
-        return new Promise((resolve, reject) => {
-            db.get("SELECT * FROM weather_cache ORDER BY timestamp DESC LIMIT 1", [], (err, row) => {
-                if (err) reject(err);
-                else resolve(row || null);
-            });
-        });
     }
 };
-
