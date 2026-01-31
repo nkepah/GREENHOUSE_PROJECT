@@ -377,7 +377,8 @@ app.get('/api/geocode', async (req, res) => {
         const data = await response.json();
         
         const address = data.address || {};
-        const city = address.city || address.town || address.village || 'Unknown';
+        // Try multiple fields for city: city > town > village > county > suburb
+        const city = address.city || address.town || address.village || address.county || address.suburb || 'Location';
         const state = address.state || '';
         const country = address.country || '';
         
