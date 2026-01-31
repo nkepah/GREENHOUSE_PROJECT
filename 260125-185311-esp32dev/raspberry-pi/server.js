@@ -306,6 +306,7 @@ app.all('/device/:deviceId/*', async (req, res) => {
 
 // --- Aggregated Dashboard Data ---
 app.get('/api/dashboard', async (req, res) => {
+    console.log('[DASHBOARD] Endpoint called');
     // Fetch fresh weather using coordinates from database
     let weather = null;
     try {
