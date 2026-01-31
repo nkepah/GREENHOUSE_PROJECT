@@ -17,6 +17,7 @@ const fs = require('fs');
 const http = require('http');
 const WebSocket = require('ws');
 const deviceAPI = require('./device-api');
+const db = require('./database'); // SQLite DB Manager
 
 const app = express();
 const PORT = 3000;
@@ -25,14 +26,15 @@ const PORT = 3000;
 // CONFIGURATION
 // =============================================================================
 
-// Load device configuration from file
+// Default config (will be overwritten by DB)
 let config = {
     farmName: "Smart Farm Hub",
     location: { 
         lat: -17.8292, 
         lon: 31.0522,
         city: 'Harare',
-        region: 'Zimbabwe'
+        region: 'Zimbabwe',
+        timezone: 'Africa/Harare'
     },
     devices: {
         greenhouse: { ip: "10.0.0.163", name: "Greenhouse", type: "greenhouse" }
@@ -43,29 +45,25 @@ let config = {
     }
 };
 
-const CONFIG_FILE = path.join(__dirname, 'farm-config.json');
-
-function loadConfig() {
+async function loadConfig() {
     try {
-        if (fs.existsSync(CONFIG_FILE)) {
-            const data = fs.readFileSync(CONFIG_FILE, 'utf8');
-            config = { ...config, ...JSON.parse(data) };
-            console.log('✓ Configuration loaded');
+        const settings = await db.getAll();
+        console.log('[CONFIG] Loaded settings from DB:', settings);
+        
+        if (settings.farm_name) config.farmName = settings.farm_name;
+        if (settings.location) {
+             // Parse if string, otherwise use as is
+             const loc = typeof settings.location === 'string' ? JSON.parse(settings.location) : settings.location;
+             config.location = { ...config.location, ...loc };
+             config.weather.timezone = loc.timezone || config.weather.timezone;
         }
+        // Add other mappings as needed
     } catch (err) {
-        console.error('Failed to load config:', err.message);
+        console.error('Failed to load config from DB:', err.message);
     }
 }
 
-function saveConfig() {
-    try {
-        fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2));
-        console.log('✓ Configuration saved');
-    } catch (err) {
-        console.error('Failed to save config:', err.message);
-    }
-}
-
+// Initial load
 loadConfig();
 
 // =============================================================================
