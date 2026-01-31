@@ -114,16 +114,7 @@ async function fetchWeather(lat, lon) {
 // DEVICE STATUS AGGREGATION
 // =============================================================================
 
-let deviceStatus = {
-    // Default/mock telemetry data for demonstration
-    greenhouse: {
-        online: true,
-        temp: 24.5,
-        humidity: 65,
-        amps: 2.3,
-        power: { total_amps: 2.3, devices: [] }
-    }
-};
+let deviceStatus = {};
 
 async function fetchDeviceStatus(deviceId, deviceInfo) {
     try {
@@ -146,19 +137,11 @@ async function fetchDeviceStatus(deviceId, deviceInfo) {
             throw new Error(`HTTP ${response.status}`);
         }
     } catch (err) {
-        // Device unavailable - keep existing data or use defaults
-        if (!deviceStatus[deviceId]) {
-            deviceStatus[deviceId] = {
-                online: false,
-                error: err.message,
-                temp: 22 + Math.random() * 5,  // Random temp between 22-27°C
-                humidity: 50 + Math.random() * 30,  // 50-80%
-                amps: Math.random() * 5  // 0-5A
-            };
-        } else {
-            deviceStatus[deviceId].online = false;
-            deviceStatus[deviceId].error = err.message;
-        }
+        deviceStatus[deviceId] = {
+            ...deviceStatus[deviceId],
+            online: false,
+            error: err.message
+        };
     }
 }
 
