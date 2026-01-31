@@ -540,15 +540,28 @@ app.get('/api/weather-convert', async (req, res) => {
             return res.status(404).json({ error: 'No cached weather data' });
         }
         
-        // CONVERSION SOURCE 2: Cached database data
-        // Re-convert using cached data (called when user changes temperature unit in settings)
-        await convertAndCacheWeather(cachedData, false);
-        
-        // Query updated cache from database
-        const updatedCache = await db.getWeatherCache();
-        if (!updatedCache) {
-            return res.status(500).json({ error: 'Failed to retrieve converted data' });
+        // Get user's new preferred temperature unit
+        let tempUnit = 'C';
+        try {
+            const settings = await db.getAll();
+            const units = settings.units || {};
+            tempUnit = units.temp || 'C';
+        } catch (err) {
+            console.error('[API] Error getting units setting:', err);
         }
+        
+        // Update preferred unit in database (no conversion - data is already both C and F)
+        await db.saveWeatherCache(
+            cachedData.current_temp_c,
+            cachedData.current_temp_f,
+            cachedData.weather_code,
+            cachedData.daily_data,
+            cachedData.hourly_data,
+            cachedData.timezone,
+            tempUnit  // Store the new preferred unit
+        );
+        
+        console.log(`[API] Updated preferred unit to ${tempUnit}`);
         
         // Get user's preferred temperature unit
         let tempUnit = 'C';
