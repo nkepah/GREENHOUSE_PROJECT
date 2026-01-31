@@ -2003,25 +2003,69 @@
         }
         
         function getWeatherIcon(code) {
-            if (code === 0) return '☀️';
-            if (code <= 3) return '⛅';
-            if (code <= 49) return '🌫️';
-            if (code <= 59) return '🌧️';
-            if (code <= 69) return '🌨️';
-            if (code <= 79) return '❄️';
-            if (code <= 99) return '⛈️';
-            return '🌤️';
+            // WMO Weather codes mapping to emojis (comprehensive)
+            const iconMap = {
+                0: '☀️',      // Clear sky
+                1: '🌤️',      // Mainly clear
+                2: '⛅',      // Partly cloudy
+                3: '☁️',      // Overcast
+                45: '🌫️',     // Foggy
+                48: '🌫️',     // Depositing rime fog
+                51: '🌧️',     // Light drizzle
+                53: '🌧️',     // Moderate drizzle
+                55: '🌧️',     // Dense drizzle
+                61: '🌧️',     // Slight rain
+                63: '🌧️',     // Moderate rain
+                65: '🌧️',     // Heavy rain
+                71: '🌨️',     // Slight snow
+                73: '🌨️',     // Moderate snow
+                75: '🌨️',     // Heavy snow
+                77: '🌨️',     // Snow grains
+                80: '🌦️',     // Slight rain showers
+                81: '🌦️',     // Moderate rain showers
+                82: '🌦️',     // Violent rain showers
+                85: '🌨️',     // Slight snow showers
+                86: '🌨️',     // Heavy snow showers
+                95: '⛈️',     // Thunderstorm
+                96: '⛈️',     // Thunderstorm with slight hail
+                99: '⛈️'      // Thunderstorm with heavy hail
+            };
+            
+            // Return mapped icon or default to cloud
+            return iconMap[code] || '☁️';
         }
         
         function getWeatherDesc(code) {
-            if (code === 0) return 'Clear sky';
-            if (code <= 3) return 'Partly cloudy';
-            if (code <= 49) return 'Foggy';
-            if (code <= 59) return 'Drizzle';
-            if (code <= 69) return 'Rain';
-            if (code <= 79) return 'Snow';
-            if (code <= 99) return 'Thunderstorm';
-            return 'Weather data';
+            // WMO Weather codes descriptions (comprehensive)
+            const descMap = {
+                0: 'Clear sky',
+                1: 'Mainly clear',
+                2: 'Partly cloudy',
+                3: 'Overcast',
+                45: 'Foggy',
+                48: 'Depositing rime fog',
+                51: 'Light drizzle',
+                53: 'Moderate drizzle',
+                55: 'Dense drizzle',
+                61: 'Slight rain',
+                63: 'Moderate rain',
+                65: 'Heavy rain',
+                71: 'Slight snow',
+                73: 'Moderate snow',
+                75: 'Heavy snow',
+                77: 'Snow grains',
+                80: 'Slight rain showers',
+                81: 'Moderate rain showers',
+                82: 'Violent rain showers',
+                85: 'Slight snow showers',
+                86: 'Heavy snow showers',
+                95: 'Thunderstorm',
+                96: 'Thunderstorm with slight hail',
+                99: 'Thunderstorm with heavy hail'
+            };
+            
+            // Return mapped description or default
+            return descMap[code] || 'Weather data';
         }
         
         // Device rendering
