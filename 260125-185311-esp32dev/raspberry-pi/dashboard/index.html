@@ -1792,7 +1792,16 @@
                     if(headCity) headCity.textContent = displayLoc;
                 }
                 
-                if (data.weather) updateWeather(data.weather, data.daily, data.hourly, data.location);
+                // Store weather data globally for unit changes
+                if (data.weather) {
+                    weather = {
+                        current: data.weather,
+                        daily: data.daily,
+                        hourly: data.hourly,
+                        location: data.location
+                    };
+                    updateWeather(data.weather, data.daily, data.hourly, data.location);
+                }
                 if (data.devices) renderDevices(data.devices);
                 
                 document.getElementById('lastUpdate').innerHTML = 
