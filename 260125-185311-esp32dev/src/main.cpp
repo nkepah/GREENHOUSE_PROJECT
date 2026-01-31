@@ -219,7 +219,6 @@ void syncSettingsFromPi() {
 // Register this device with the Pi server
 void registerDeviceWithPi() {
     if(WiFi.status() != WL_CONNECTED) return;
-    if(strlen(piIp) < 5) return; // No Pi IP configured
     
     String hostname = WiFi.getHostname();
     String ip = WiFi.localIP().toString();
@@ -233,7 +232,7 @@ void registerDeviceWithPi() {
     http.setTimeout(3000);
     
     char url[64];
-    snprintf(url, sizeof(url), "http://%s:3000/api/device/register", piIp);
+    snprintf(url, sizeof(url), "http://%s:3000/api/device/register", PI_HOSTNAME);
     
     JsonDocument doc;
     doc["device_id"] = hostname;
