@@ -200,67 +200,6 @@ public:
             }
         });
 
-        // /api/dashboard - Complete dashboard data for UI
-        server.on("/api/dashboard", HTTP_GET, [](AsyncWebServerRequest *request) {
-            extern float currentTemperature;
-            extern CurrentSensorManager currentSensor;
-            extern DeviceManager deviceMgr;
-            extern float lastWeatherTemp;
-            extern char piIp[40];
-            extern volatile bool proxyConnected;
-            
-            // Build JSON response with dashboard data
-            DynamicJsonDocument doc(2048);
-            doc["farmName"] = "Smart Farm Hub";  // Default name
-            doc["online"] = true;
-            
-            // Location data from NVS (simplified for now)
-            JsonObject loc = doc.createNestedObject("location");
-            loc["address"] = "Farm Location";
-            loc["city"] = "Virginia";
-            loc["country"] = "USA";
-            loc["lat"] = 38.13;
-            loc["lon"] = -77.74;
-            
-            // Weather data (minimal for now)
-            JsonObject weather = doc.createNestedObject("weather");
-            weather["temperature_2m"] = currentTemperature;
-            weather["relative_humidity_2m"] = 50;
-            weather["wind_speed_10m"] = 5;
-            weather["weather_code"] = 0;
-            
-            // Daily weather (minimal)
-            JsonObject daily = doc.createNestedObject("daily");
-            JsonArray temps = daily.createNestedArray("temperature_2m_max");
-            temps.add(25);
-            JsonArray tempLow = daily.createNestedArray("temperature_2m_min");
-            tempLow.add(15);
-            
-            // Devices - build from DeviceManager
-            JsonObject devices = doc.createNestedObject("devices");
-            for(const auto &d : deviceMgr.devices) {
-                if(d.active && d.enabled) {
-                    JsonObject dev = devices.createNestedObject(d.name.c_str());
-                    dev["name"] = d.name;
-                    dev["type"] = d.type.c_str();
-                    dev["ip"] = d.ip.c_str();
-                    
-                    JsonObject status = dev.createNestedObject("status");
-                    status["online"] = true;
-                    status["temperature"] = d.lastValue;
-                    status["humidity"] = 50;
-                    status["active_devices"] = 1;
-                }
-            }
-            
-            // Pi connection status
-            doc["piConnected"] = proxyConnected;
-            
-            String json;
-            serializeJson(doc, json);
-            request->send(200, F("application/json"), json);
-        });
-
         // /api/status - Device status endpoint for Pi polling
         server.on("/api/status", HTTP_GET, [](AsyncWebServerRequest *request) {
             extern float currentTemperature;
