@@ -132,7 +132,12 @@ async function fetchWeather(lat, lon) {
     // Use cached data if still valid
     if (weatherCache.data && (now - weatherCache.timestamp) < cacheMs) {
         console.log('[WEATHER] Returning cached data');
-        return weatherCache.data;
+        // Apply transformation to cached data if not already done
+        const data = weatherCache.data;
+        if (data.hourly && !data.hourly.array) {
+            applyHourlyTransformation(data);
+        }
+        return data;
     }
     
     try {
