@@ -1995,8 +1995,8 @@ void setup()
                 routineMgr.checkTriggers(avgTemp, lastWeatherTemp, deviceMgr, relays, 
                                         hour, minute, dayOfWeek, dayOfMonth, month);
                 
-                // === ALERT SYSTEM CHECKS ===
-                alertMgr.checkConnection(WiFi.status() == WL_CONNECTED);
+                // === ALERT SYSTEM CHECKS === (TODO: methods not yet available in AlertManager header)
+                // alertMgr.checkConnection(WiFi.status() == WL_CONNECTED);
                 
                 uint16_t activeRelayMask = 0;
                 for(const auto &d : deviceMgr.devices) {
@@ -2004,7 +2004,8 @@ void setup()
                         activeRelayMask |= (1 << (d.hardwareChannel - 1));
                     }
                 }
-                alertMgr.checkUnexpectedCurrent(relays.getTotalAmps(), activeRelayMask);
+                // alertMgr.checkUnexpectedCurrent(relays.getTotalAmps(), activeRelayMask);
+
                 
                 bool heatingActive = false, coolingActive = false;
                 for(const auto &d : deviceMgr.devices) {
