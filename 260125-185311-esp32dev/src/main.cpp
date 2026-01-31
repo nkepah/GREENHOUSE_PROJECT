@@ -224,6 +224,9 @@ void registerDeviceWithPi() {
     String hostname = WiFi.getHostname();
     String ip = WiFi.localIP().toString();
     
+    lastRegisteredIP = ip;
+    lastIPCheck = millis();
+    
     WiFiClient client;
     client.setTimeout(2000);
     HTTPClient http;
@@ -251,6 +254,28 @@ void registerDeviceWithPi() {
         Serial.printf("[DEVICE] Registration failed: HTTP %d\n", httpCode);
     }
     http.end();
+}
+
+// Check if IP address changed and re-register if needed
+void checkIPAddressChange() {
+    if(WiFi.status() != WL_CONNECTED) return;
+    if(strlen(piIp) < 5) return; // No Pi IP configured
+    
+    // Check every 30 seconds, or force re-register every hour
+    if(lastIPCheck != 0 && (millis() - lastIPCheck) < IP_CHECK_INTERVAL) return;
+    
+    String currentIP = WiFi.localIP().toString();
+    
+    // Re-register if IP changed or if it's been an hour
+    if(currentIP != lastRegisteredIP || (lastIPCheck != 0 && (millis() - lastIPCheck) > IP_REGISTRATION_TIMEOUT)) {
+        if(currentIP != lastRegisteredIP) {
+            Serial.printf("[DEVICE] IP address changed from %s to %s, re-registering...\n", 
+                lastRegisteredIP.c_str(), currentIP.c_str());
+        }
+        registerDeviceWithPi();
+    } else {
+        lastIPCheck = millis();
+    }
 }
 
 void fetchWeather() {
