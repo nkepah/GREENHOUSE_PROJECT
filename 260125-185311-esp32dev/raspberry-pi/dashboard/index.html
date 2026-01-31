@@ -2021,7 +2021,7 @@
             .catch(e => console.error('Failed to save thresholds:', e));
         }
         
-        // Switch between tabs in devices page
+// Switch between tabs in tabs in devices page
         function switchDevicesTab(tab) {
             // Hide all tabs
             document.getElementById('tab-content-registered').style.display = 'none';
@@ -2051,140 +2051,84 @@
             }
         }
         
-        // Select a device template and show form
-        function selectDeviceTemplate(type) {
-            const form = document.getElementById('deviceCreateForm');
-            if(!type) {
-                form.style.display = 'none';
-                return;
-            }
-            
-            form.style.display = 'block';
-            document.getElementById('deviceName').value = '';
-            
-            if(type === 'greenhouse') {
-                document.getElementById('templateTitle').textContent = '🌱 Add Greenhouse';
-                document.getElementById('templateSpecificFields').innerHTML = `
-                    <div style="background:rgba(78,204,163,0.1); border:1px solid rgba(78,204,163,0.3); border-radius:8px; padding:12px; margin-bottom:16px;">
-                        <div style="font-weight:600; color:rgba(78,204,163,1); margin-bottom:8px;">Greenhouse Features</div>
-                        <div style="font-size:0.85rem; color:var(--text-secondary);">
-                            • Temperature monitoring<br>
-                            • Humidity control<br>
-                            • Automated watering systems<br>
-                            • Climate regulations
-                        </div>
-                    </div>
-                `;
-                document.getElementById('deviceId').value = 'greenhouse-' + Math.random().toString(36).substr(2, 5);
-            } else if(type === 'coop') {
-                document.getElementById('templateTitle').textContent = '🐔 Add Chicken Coop';
-                document.getElementById('templateSpecificFields').innerHTML = `
-                    <div style="background:rgba(251,133,0,0.1); border:1px solid rgba(251,133,0,0.3); border-radius:8px; padding:12px; margin-bottom:16px;">
-                        <div style="font-weight:600; color:rgba(251,133,0,1); margin-bottom:8px;">Coop Features</div>
-                        <div style="font-size:0.85rem; color:var(--text-secondary);">
-                            • Automated door control<br>
-                            • Temperature monitoring<br>
-                            • Lighting schedules<br>
-                            • Feed/water monitoring
-                        </div>
-                    </div>
-                `;
-                document.getElementById('deviceId').value = 'coop-' + Math.random().toString(36).substr(2, 5);
+        // Load and display registered devices
+        async function loadDevices() {
+            try {
+                const response = await fetch('/api/devices');
+                const data = await response.json();
+                document.deviceListData = data;  // Store for details modal
+                displayDevices(data);
+            } catch (error) {
+                console.error('Error loading devices:', error);
+                if(document.getElementById('devicesList')) {
+                    document.getElementById('devicesList').innerHTML = '<div style="text-align:center; color:var(--text-secondary); padding:20px;">❌ Failed to load devices</div>';
+                }
             }
         }
         
-        // Save new device configuration
-        async function saveNewDevice() {
-            const deviceName = document.getElementById('deviceName').value.trim();
-            if(!deviceName) {
-                alert('Please enter a device name');
+        // Display devices in the UI
+        function displayDevices(data) {
+            const devicesList = document.getElementById('devicesList');
+            if(!devicesList) return;
+            
+            const devices = data.devices || {};
+            const deviceCount = Object.keys(devices).length;
+            
+            if (deviceCount === 0) {
+                devicesList.innerHTML = '<div style="text-align:center; color:var(--text-secondary); padding:20px;">📱 No devices registered yet</div>';
                 return;
             }
             
-            // Show success notification
-            const notification = document.createElement('div');
-            notification.textContent = '✅ Device template saved! Device will auto-register when it connects.';
-            notification.style.cssText = 'position:fixed; top:20px; right:20px; background:#4ecca3; color:#0d1117; padding:12px 16px; border-radius:5px; z-index:9999; max-width:300px;';
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-                switchDevicesTab('registered');
-            }, 2000);
-        }
-        
-        // Display device details modal
-        function showDeviceDetails(deviceId) {
-            loadDevices(); // Refresh data
-            setTimeout(() => {
-                const response = document.deviceListData;
-                if(!response || !response.devices || !response.devices[deviceId]) return;
-                
-                const device = response.devices[deviceId];
+            let html = '';
+            for (const [deviceId, device] of Object.entries(devices)) {
                 const lastSeen = new Date(device.last_seen);
-                const registered = new Date(device.registered_at);
+                const now = new Date();
+                const minutesAgo = Math.floor((now - lastSeen) / 60000);
+                let statusText = 'Online';
+                let statusColor = '#4ecca3';
                 
-                let icon = device.type === 'greenhouse' ? '🌱' : device.type === 'coop' ? '🐔' : '📱';
+                if (minutesAgo > 5) {
+                    statusText = minutesAgo < 60 ? `${minutesAgo}m ago` : 'Offline';
+                    statusColor = minutesAgo > 10 ? '#f85149' : '#fb8500';
+                }
                 
-                document.getElementById('detailsDeviceName').textContent = icon + ' ' + (device.name || device.id);
+                const registeredDate = new Date(device.registered_at);
+                const registerTime = registeredDate.toLocaleDateString() + ' ' + registeredDate.toLocaleTimeString();
                 
-                document.getElementById('deviceDetailsContent').innerHTML = `
-                    <div style="display:grid; gap:16px;">
+                html += `
+                    <div style="background:var(--bg-primary); border:1px solid var(--border); border-radius:8px; padding:16px; display:grid; grid-template-columns:auto 1fr auto; gap:16px; align-items:start; cursor:pointer;" onclick="showDeviceDetails('${deviceId}')">
+                        <div style="font-size:2rem;">
+                            ${device.type === 'greenhouse' ? '🌱' : device.type === 'coop' ? '🐔' : '📱'}
+                        </div>
                         <div>
-                            <div style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:4px;">IP Address</div>
-                            <div style="font-weight:600; color:var(--text-primary); font-family:monospace;">${device.ip}</div>
-                        </div>
-                        
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-                            <div>
-                                <div style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:4px;">Type</div>
-                                <div style="font-weight:600; color:var(--text-primary); text-transform:capitalize;">${device.type}</div>
+                            <div style="font-weight:600; color:var(--text-primary); margin-bottom:4px;">${device.name || device.id}</div>
+                            <div style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:6px;">
+                                <strong>IP:</strong> <span style="font-family:monospace;">${device.ip}</span>
                             </div>
-                            <div>
-                                <div style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:4px;">Device ID</div>
-                                <div style="font-weight:600; color:var(--text-primary);">${device.id}</div>
+                            <div style="font-size:0.8rem; color:var(--text-secondary);">
+                                <strong>Type:</strong> ${device.type} · <strong>Registered:</strong> ${registerTime}
                             </div>
                         </div>
-                        
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-                            <div>
-                                <div style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:4px;">Registered</div>
-                                <div style="font-weight:600; color:var(--text-primary); font-size:0.9rem;">${registered.toLocaleString()}</div>
+                        <div style="text-align:right;">
+                            <div style="display:inline-flex; align-items:center; gap:6px; background:rgba(${statusColor === '#4ecca3' ? '78, 204, 163' : statusColor === '#fb8500' ? '251, 133, 0' : '248, 81, 73'}, 0.1); padding:8px 12px; border-radius:6px; border:1px solid rgba(${statusColor === '#4ecca3' ? '78, 204, 163' : statusColor === '#fb8500' ? '251, 133, 0' : '248, 81, 73'}, 0.3);">
+                                <div style="width:8px; height:8px; border-radius:50%; background:${statusColor}; animation:${statusColor === '#4ecca3' ? 'pulse 2s infinite' : 'none'};"></div>
+                                <span style="font-size:0.8rem; font-weight:600;">${statusText}</span>
                             </div>
-                            <div>
-                                <div style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:4px;">Last Seen</div>
-                                <div style="font-weight:600; color:var(--text-primary); font-size:0.9rem;">${lastSeen.toLocaleString()}</div>
-                            </div>
-                        </div>
-                        
-                        <div style="border-top:1px solid var(--border); padding-top:12px;">
-                            <div style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:8px;">Associated Routines & Devices</div>
-                            <div style="background:var(--bg-secondary); border:1px solid var(--border); border-radius:6px; padding:12px; min-height:60px; font-size:0.9rem; color:var(--text-secondary);">
-                                ℹ️ Device details will update when routines are configured
-                            </div>
-                        </div>
-                        
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px;">
-                            <button onclick="refreshDeviceDetails('${deviceId}')" style="padding:10px; background:rgba(78,204,163,0.2); color:var(--text-primary); border:1px solid rgba(78,204,163,0.5); border-radius:6px; cursor:pointer;">🔄 Refresh</button>
-                            <button onclick="closeDeviceDetails()" style="padding:10px; background:var(--accent); color:white; border:none; border-radius:6px; cursor:pointer;">Close</button>
                         </div>
                     </div>
                 `;
-                
-                document.getElementById('deviceDetailsModal').style.display = 'block';
-            }, 100);
+            }
+            
+            devicesList.innerHTML = html;
         }
         
-        // Close device details modal
-        function closeDeviceDetails() {
-            document.getElementById('deviceDetailsModal').style.display = 'none';
-        }
-        
-        // Refresh device details
-        function refreshDeviceDetails(deviceId) {
-            loadDevices().then(() => {
-                setTimeout(() => showDeviceDetails(deviceId), 100);
-            });
+        // Load devices when devices page is opened
+        function showDevicesPage() {
+            loadDevices();
+            // Auto-refresh every 5 seconds
+            if (!window.devicesRefreshInterval) {
+                window.devicesRefreshInterval = setInterval(loadDevices, 5000);
+            }
         }
 
         let hourlyDataForClicks = [];
