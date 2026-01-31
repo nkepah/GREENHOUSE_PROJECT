@@ -27,6 +27,36 @@ const app = express();
 const PORT = 3000;
 
 // =============================================================================
+// PRIORITY MANAGEMENT
+// =============================================================================
+
+// Set high priority at startup
+function setHighPriority() {
+    try {
+        os.setPriority(-20); // HIGH priority (only works on Linux/Unix)
+        console.log('✓ Process priority set to HIGH (-20)');
+    } catch (e) {
+        console.log('⚠ Could not set high priority (requires Linux/Unix)');
+    }
+}
+
+// Drop to lowest priority after 30 seconds
+function setLowestPriority() {
+    setTimeout(() => {
+        try {
+            os.setPriority(19); // LOWEST priority
+            console.log('✓ Process priority dropped to LOWEST (19) for efficiency');
+        } catch (e) {
+            console.log('⚠ Could not set lowest priority');
+        }
+    }, 30000); // 30 seconds
+}
+
+// Initialize priority management
+setHighPriority();
+setLowestPriority();
+
+// =============================================================================
 // CONFIGURATION
 // =============================================================================
 
