@@ -1962,12 +1962,37 @@
         }
 
         // Initialize
+        async function syncUnitsToDatabase() {
+            try {
+                const units = userSettings.units || {
+                    temp: document.getElementById('unit-temp')?.value || 'celsius',
+                    speed: document.getElementById('unit-speed')?.value || 'kmh',
+                    pressure: document.getElementById('unit-pressure')?.value || 'hpa',
+                    date: document.getElementById('unit-date')?.value || 'short',
+                    time: document.getElementById('unit-time')?.value || '24h'
+                };
+                
+                // Sync to database
+                await fetch('/api/settings', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ key: 'units', value: units })
+                });
+                
+                console.log('[SYNC] Units synced to database:', units);
+            } catch(e) {
+                console.error('[SYNC] Failed to sync units:', e.message);
+            }
+        }
+        
         document.addEventListener('DOMContentLoaded', () => {
             fetchDashboardData();
             connectWebSocket();
             updateClock();
+            loadSettings(); // Load settings first
             setInterval(updateClock, 1000);
             setInterval(fetchDashboardData, 60000); // Refresh every minute
+            setInterval(syncUnitsToDatabase, 10000); // Sync units every 10 seconds for ESP32 routines
         });
         
         // Close modal on overlay click
