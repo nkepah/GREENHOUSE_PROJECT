@@ -1262,20 +1262,24 @@
         // Location Services
         function detectLocation() {
             const btn = document.querySelector('.detect-btn');
-            const originalText = btn.textContent;
+            const display = document.getElementById('location-display');
+            const originalText = btn ? btn.textContent : '📍 Detect My Location';
             
             if (!navigator.geolocation) {
                 alert('Geolocation is not supported by your browser');
                 return;
             }
             
-            btn.textContent = '🛰️ Locating...';
+            if(btn) btn.textContent = '🛰️ Locating...';
+            display.textContent = 'Acquiring GPS signal...';
             
             navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    document.getElementById('loc-lat').value = pos.coords.latitude.toFixed(6);
-                    document.getElementById('loc-lon').value = pos.coords.longitude.toFixed(6);
-                    btn.textContent = originalText;
+                async (pos) => {
+                    const lat = pos.coords.latitude.toFixed(6);
+                    const lon = pos.coords.longitude.toFixed(6);
+                    
+                    document.getElementById('loc-lat').value = lat;
+                    document.getElementById('loc-lon').value = lon;
                     
                     // Auto-detect timezone
                     try {
@@ -1285,30 +1289,61 @@
                             select.value = tz;
                         }
                     } catch(e) { console.error('Timezone detect failed', e); }
+                    
+                    // Fetch Address
+                    display.textContent = 'Fetching address...';
+                    try {
+                        const res = await fetch(`/api/geocode?lat=${lat}&lon=${lon}`);
+                        if(res.ok) {
+                            const data = await res.json();
+                            const addr = `${data.city}, ${data.country}`;
+                            display.textContent = '📍 ' + addr;
+                            // Store address in hidden field or state if needed, 
+                            // but for now we just show it. 
+                            // We will save it as part of the location object.
+                            window.detectedAddress = addr; 
+                        } else {
+                             display.textContent = 'Lat: ' + lat + ', Lon: ' + lon;
+                        }
+                    } catch(e) {
+                        display.textContent = 'Lat: ' + lat + ', Lon: ' + lon;
+                    }
+                    
+                    if(btn) btn.textContent = originalText;
                 },
                 (err) => {
                     console.error(err);
                     alert('Unable to retrieve location. Please enter manually.');
-                    btn.textContent = originalText;
+                    if(btn) btn.textContent = originalText;
+                    display.textContent = 'Location detection failed';
                 }
             );
         }
         
-        function saveLocation() {
+        async function saveLocation() {
             const config = {
                 lat: document.getElementById('loc-lat').value,
                 lon: document.getElementById('loc-lon').value,
-                timezone: document.getElementById('loc-timezone').value
+                timezone: document.getElementById('loc-timezone').value,
+                address: window.detectedAddress || 'Custom Location'
             };
-            localStorage.setItem('farm_location', JSON.stringify(config));
             
-            // Visual feedback
-            const btn = event.target || document.querySelector('#page-location button:last-child');
-            const originalText = btn.textContent;
-            btn.textContent = '✅ Saved';
-            setTimeout(() => btn.textContent = originalText, 1500);
-            
-            console.log('Location config saved:', config);
+            try {
+                // Save to Server DB
+                await fetch('/api/settings', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ key: 'location', value: config })
+                });
+                
+                // Visual feedback
+                const btn = event.target || document.querySelector('#page-location button:last-child');
+                const originalText = btn.textContent;
+                btn.textContent = '✅ Saved';
+                setTimeout(() => btn.textContent = originalText, 1500);
+            } catch(e) {
+                alert('Failed to save settings: ' + e.message);
+            }
         }
 
         // Persistence
