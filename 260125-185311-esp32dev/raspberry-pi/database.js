@@ -37,7 +37,8 @@ function initSchema() {
         current_temp_f REAL,
         weather_code INTEGER,
         daily_data TEXT,
-        hourly_data TEXT
+        hourly_data TEXT,
+        timezone TEXT DEFAULT 'UTC'
     )`, (err) => {
         if (err) {
             console.error('[DB] Error creating weather_cache table:', err.message);
@@ -110,7 +111,7 @@ module.exports = {
     },
     
     // Weather cache functions - store pre-converted data
-    saveWeatherCache: (current_temp_c, current_temp_f, weather_code, daily_data, hourly_data) => {
+    saveWeatherCache: (current_temp_c, current_temp_f, weather_code, daily_data, hourly_data, timezone = 'UTC') => {
         return new Promise((resolve, reject) => {
             const timestamp = Math.floor(Date.now() / 1000);
             
@@ -124,8 +125,8 @@ module.exports = {
                 
                 // Insert new weather data with both C and F conversions
                 db.run(
-                    "INSERT INTO weather_cache (timestamp, current_temp_c, current_temp_f, weather_code, daily_data, hourly_data) VALUES (?, ?, ?, ?, ?, ?)",
-                    [timestamp, current_temp_c, current_temp_f, weather_code, daily_data, hourly_data],
+                    "INSERT INTO weather_cache (timestamp, current_temp_c, current_temp_f, weather_code, daily_data, hourly_data, timezone) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    [timestamp, current_temp_c, current_temp_f, weather_code, daily_data, hourly_data, timezone],
                     (err) => {
                         if (err) reject(err);
                         else resolve(true);
@@ -133,7 +134,7 @@ module.exports = {
                 );
             });
         });
-    },
+    }
     
     getWeatherCache: () => {
         return new Promise((resolve, reject) => {
