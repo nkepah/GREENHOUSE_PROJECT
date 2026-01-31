@@ -1592,18 +1592,21 @@
                     // Prefer address if available (from DB settings), otherwise fallback to city
                     let displayLoc = loc.address || loc.city || 'Unknown';
                     
-                    // Simple heuristic to shorten long addresses: check for commas
-                    if (displayLoc.includes(',')) {
-                        const parts = displayLoc.split(',');
-                        // Use the first part (City/County) and second (State/Region)
-                        if (parts.length >= 2) {
-                            displayLoc = parts[0].trim() + ', ' + parts[1].trim();
-                        } else {
-                            displayLoc = parts[0].trim();
-                        }
+                    // Logic to shorten long addresses is now handled by server/client save logic.
+                    // If displayLoc is already formatted as "City, State", we just use it.
+                    // But if it's the raw OpenStreetMap display_name (very long), we might want to trunc.
+                    
+                    // If the address is super long (> 40 chars), try to take first 2 parts
+                    if (displayLoc.length > 40 && displayLoc.includes(',')) {
+                         const parts = displayLoc.split(',');
+                         if (parts.length >= 2) {
+                             displayLoc = parts[0].trim() + ', ' + parts[1].trim();
+                         }
                     }
                     
-                    document.getElementById('header-city').textContent = displayLoc;
+                    // Update the header element which feeds the clock
+                    const headCity = document.getElementById('header-city');
+                    if(headCity) headCity.textContent = displayLoc;
                 }
                 
                 if (data.weather) updateWeather(data.weather, data.daily);
