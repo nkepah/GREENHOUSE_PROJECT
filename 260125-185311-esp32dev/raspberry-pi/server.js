@@ -519,12 +519,49 @@ app.post('/api/settings', async (req, res) => {
 // DEVICE REGISTRATION ENDPOINTS (for ESP32 devices)
 // =============================================================================
 
+// Track device registration startup times for priority management
+const deviceRegistrationTimes = new Map();
+
+// Get current process priority (simulate if on Windows/Mac)
+function getCurrentPriority() {
+    try {
+        const priority = require('os').platform() === 'linux' ? 
+            require('child_process').execSync('nice -p $$').toString().trim() : 
+            'N/A';
+        return priority;
+    } catch (e) {
+        return 'unknown';
+    }
+}
+
+// Set process priority (high = -20, low = 19 on Linux; requires privilege)
+function setProcessPriority(priority) {
+    try {
+        if (require('os').platform() === 'linux') {
+            const { execSync } = require('child_process');
+            // priority: 'high' = -10, 'low' = 10
+            const niceValue = priority === 'high' ? -10 : 10;
+            execSync(`renice ${niceValue} -p $$`);
+            console.log(`[PRIORITY] Set to ${priority} (nice ${niceValue})`);
+        }
+    } catch (err) {
+        console.log(`[PRIORITY] Could not set priority: ${err.message}`);
+    }
+}
+
 // Device registration endpoint - ESP32 sends its info via HTTP POST
 app.post('/api/device/register', (req, res) => {
     const { device_id, hostname, ip_address, device_type, mac_address } = req.body;
     
     if (!device_id) {
         return res.status(400).json({ error: 'Missing device_id' });
+    }
+    
+    // First registration? Set to high priority
+    if (!deviceRegistrationTimes.has(device_id)) {
+        deviceRegistrationTimes.set(device_id, Date.now());
+        console.log(`[DEVICE] 🔴 HIGH PRIORITY: First registration from ${device_id}`);
+        setProcessPriority('high');
     }
     
     console.log(`[DEVICE] Registration from: ${device_id} (${ip_address})`);
@@ -563,6 +600,16 @@ app.post('/api/device/update-ip', (req, res) => {
     
     if (!device_id) {
         return res.status(400).json({ error: 'Missing device_id' });
+    }
+    
+    // Check if we should drop priority after 30 seconds of first registration
+    if (deviceRegistrationTimes.has(device_id)) {
+        const timeSinceFirstReg = Date.now() - deviceRegistrationTimes.get(device_id);
+        if (timeSinceFirstReg > 30000) {
+            console.log(`[DEVICE] 🟢 LOW PRIORITY: ${device_id} (${timeSinceFirstReg}ms since first registration)`);
+            setProcessPriority('low');
+            deviceRegistrationTimes.delete(device_id); // Only drop once
+        }
     }
     
     // Update device status
