@@ -953,14 +953,27 @@
         }
         
         function updateConnectionStatus(connected) {
-            const badge = document.getElementById('connectionBadge');
-            const dot = document.getElementById('statusDot');
-            const text = document.getElementById('connectionText');
-            
-            badge.classList.toggle('offline', !connected);
-            dot.classList.toggle('offline', !connected);
-            text.textContent = connected ? 'Connected' : 'Reconnecting...';
+            // UI elements removed, but we keep the function to avoid breaking listeners
+            console.log('Connection status:', connected ? 'Online' : 'Offline');
         }
+        
+        function toggleSettings(event) {
+            event.stopPropagation();
+            const dropdown = document.getElementById('settingsDropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('show');
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (event) => {
+            const dropdown = document.getElementById('settingsDropdown');
+            if (dropdown && dropdown.classList.contains('show')) {
+                if (!dropdown.contains(event.target)) {
+                    dropdown.classList.remove('show');
+                }
+            }
+        });
         
         // Fetch initial data
         async function fetchDashboardData() {
