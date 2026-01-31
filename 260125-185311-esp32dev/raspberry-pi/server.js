@@ -601,8 +601,8 @@ app.get('/api/weather-convert', async (req, res) => {
         
         res.json({
             weather: displayData,
-            daily: convertedData.daily,
-            hourly: convertedData.hourly
+            daily: daily,
+            hourly: hourly
         });
     } catch (err) {
         console.error('[API] Weather convert error:', err);
