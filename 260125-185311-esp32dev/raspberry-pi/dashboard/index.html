@@ -1941,7 +1941,18 @@
                         if (part.type === 'minute') forecastMinute = part.value;
                     });
                     
-                    const temp = convertTemp(hourly.temperature_2m[apiIndex]);
+                    // Use pre-converted temperature data from server
+                    const tempUnit = userSettings?.units?.temp || 'C';
+                    let temp;
+                    if (tempUnit === 'F' && hourly.temperature_2m_f) {
+                        temp = Math.round(hourly.temperature_2m_f[apiIndex]);
+                    } else if (hourly.temperature_2m_c) {
+                        temp = Math.round(hourly.temperature_2m_c[apiIndex]);
+                    } else {
+                        // Fallback to old format if available
+                        temp = Math.round(hourly.temperature_2m?.[apiIndex] || 0);
+                    }
+                    
                     const code = hourly.weather_code?.[apiIndex] || 0;
                     
                     // Determine time label
