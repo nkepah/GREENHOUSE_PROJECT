@@ -840,31 +840,166 @@
     <div id="settings-modal" class="settings-modal-overlay">
         <div class="settings-modal-box">
             <div class="settings-header">
-                <div>Settings</div>
-                <button onclick="toggleSettingsUtil()" style="background:none;border:none;color:var(--text);font-size:1.5rem;cursor:pointer;">✕</button>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <button id="settings-back-btn" onclick="showSettingsPage('main')" style="display:none; background:none; border:none; color:var(--text-primary); font-size:1.2rem; cursor:pointer;">←</button>
+                    <span id="settings-title">Settings</span>
+                </div>
+                <button onclick="toggleSettingsUtil()" style="background:none; border:none; color:var(--text-secondary); font-size:1.5rem; cursor:pointer;">✕</button>
             </div>
-            <div class="settings-list">
-                <div class="settings-item" onclick="alert('Units & Date settings coming soon')">
-                    <span class="icon">📏</span>
-                    <div class="text">Units & Date Format</div>
+            
+            <div class="settings-body" style="flex:1; overflow-y:auto;">
+                <!-- MAIN MENU -->
+                <div id="page-main" class="settings-page">
+                    <div class="settings-list">
+                        <div class="settings-item" onclick="showSettingsPage('units')">
+                            <span class="icon">📏</span>
+                            <div class="text">Units & Date Format</div>
+                            <span style="color:var(--text-secondary)">›</span>
+                        </div>
+                        <div class="settings-item" onclick="showSettingsPage('location')">
+                            <span class="icon">📍</span>
+                            <div class="text">Location & Time Zone</div>
+                            <span style="color:var(--text-secondary)">›</span>
+                        </div>
+                        <div class="settings-item" onclick="alert('Thresholds settings reserved for future use')">
+                            <span class="icon">🌡️</span>
+                            <div class="text">Thresholds</div>
+                            <span style="color:var(--text-secondary)">›</span>
+                        </div>
+                        <div class="settings-item" onclick="showSettingsPage('themes')">
+                            <span class="icon">🎨</span>
+                            <div class="text">Themes</div>
+                            <span style="color:var(--text-secondary)">›</span>
+                        </div>
+                        <div style="height:1px; background:var(--border); margin:8px 10px;"></div>
+                        <div class="settings-item" onclick="showSettingsPage('about')">
+                            <span class="icon">ℹ️</span>
+                            <div class="text">About</div>
+                            <span style="color:var(--text-secondary)">›</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="settings-item" onclick="alert('Location settings coming soon')">
-                    <span class="icon">📍</span>
-                    <div class="text">Location & Time Zone</div>
+
+                <!-- UNITS PAGE -->
+                <div id="page-units" class="settings-page" style="display:none; padding:20px;">
+                    <div class="form-group" style="margin-bottom:20px;">
+                        <label style="display:block; margin-bottom:8px; color:var(--text-secondary)">Temperature</label>
+                        <select id="unit-temp" class="form-control" onchange="saveUnits()" style="width:100%; padding:10px; border-radius:8px; background:var(--bg-primary); border:1px solid var(--border); color:var(--text-primary);">
+                            <option value="C">Celsius (°C)</option>
+                            <option value="F">Fahrenheit (°F)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom:20px;">
+                        <label style="display:block; margin-bottom:8px; color:var(--text-secondary)">Wind Speed</label>
+                        <select id="unit-speed" class="form-control" onchange="saveUnits()" style="width:100%; padding:10px; border-radius:8px; background:var(--bg-primary); border:1px solid var(--border); color:var(--text-primary);">
+                            <option value="kmh">Kilometers/hour (km/h)</option>
+                            <option value="mph">Miles/hour (mph)</option>
+                            <option value="ms">Meters/second (m/s)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom:20px;">
+                        <label style="display:block; margin-bottom:8px; color:var(--text-secondary)">Pressure</label>
+                        <select id="unit-pressure" class="form-control" onchange="saveUnits()" style="width:100%; padding:10px; border-radius:8px; background:var(--bg-primary); border:1px solid var(--border); color:var(--text-primary);">
+                            <option value="hpa">Hectopascal (hPa)</option>
+                            <option value="inHg">Inches of Mercury (inHg)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label style="display:block; margin-bottom:8px; color:var(--text-secondary)">Date Format</label>
+                        <select id="unit-date" class="form-control" onchange="saveUnits()" style="width:100%; padding:10px; border-radius:8px; background:var(--bg-primary); border:1px solid var(--border); color:var(--text-primary);">
+                            <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                            <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                            <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="settings-item" onclick="alert('Thresholds settings coming soon')">
-                    <span class="icon">🌡️</span>
-                    <div class="text">Thresholds</div>
+
+                <!-- LOCATION PAGE -->
+                <div id="page-location" class="settings-page" style="display:none; padding:20px;">
+                    <div style="background:rgba(78, 204, 163, 0.1); border:1px solid var(--accent); padding:15px; border-radius:8px; margin-bottom:20px;">
+                        <div id="location-display" style="font-weight:bold; color:var(--accent);">Detecting...</div>
+                        <div id="timezone-display" style="font-size:0.9em; color:var(--text-secondary);">--</div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
+                        <div>
+                            <label style="display:block; font-size:0.8em; margin-bottom:5px; color:var(--text-secondary)">Latitude</label>
+                            <input type="text" id="loc-lat" placeholder="0.0000" style="width:100%; padding:10px; border-radius:8px; background:var(--bg-primary); border:1px solid var(--border); color:var(--text-primary);">
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.8em; margin-bottom:5px; color:var(--text-secondary)">Longitude</label>
+                            <input type="text" id="loc-lon" placeholder="0.0000" style="width:100%; padding:10px; border-radius:8px; background:var(--bg-primary); border:1px solid var(--border); color:var(--text-primary);">
+                        </div>
+                    </div>
+                    
+                    <button onclick="detectLocation()" style="width:100%; padding:12px; background:var(--accent); color:var(--bg-primary); border:none; border-radius:8px; font-weight:bold; cursor:pointer; margin-bottom:20px;">📍 Detect My Location</button>
+                    
+                    <div class="form-group" style="margin-top:20px; padding-top:20px; border-top:1px solid var(--border);">
+                        <label style="display:block; margin-bottom:8px; color:var(--text-secondary)">Time Zone</label>
+                        <select id="loc-timezone" onchange="updateTimezone()" style="width:100%; padding:10px; border-radius:8px; background:var(--bg-primary); border:1px solid var(--border); color:var(--text-primary);">
+                            <option value="UTC">UTC</option>
+                            <option value="Africa/Douala">Africa/Douala (WAT)</option>
+                            <option value="Europe/Paris">Europe/Paris (CET)</option>
+                            <option value="America/New_York">America/New_York (EST)</option>
+                            <!-- More can be added -->
+                        </select>
+                        <p style="font-size:0.8em; color:var(--text-secondary); margin-top:8px;">
+                            * System time will sync to this zone. Connected sensors will maintain sync via internal NTP.
+                        </p>
+                    </div>
+                    <button onclick="saveLocation()" style="width:100%; padding:12px; background:var(--bg-card-hover); color:var(--text-primary); border:1px solid var(--border); border-radius:8px; font-weight:bold; cursor:pointer; margin-top:10px;">💾 Save Coordinates</button>
                 </div>
-                <div class="settings-item" onclick="alert('Theme settings coming soon')">
-                    <span class="icon">🎨</span>
-                    <div class="text">Themes</div>
+
+                <!-- THEMES PAGE -->
+                <div id="page-themes" class="settings-page" style="display:none; padding:20px;">
+                    <h4 style="margin-bottom:15px; color:var(--text-secondary)">Dark Themes</h4>
+                    <div class="theme-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(80px, 1fr)); gap:10px; margin-bottom:25px;">
+                        <button onclick="applyTheme('default')" class="theme-btn" style="background:#0d1117; border:2px solid var(--accent); height:60px; border-radius:10px; cursor:pointer;" title="Default Dark"></button>
+                        <button onclick="applyTheme('dark-ocean')" class="theme-btn" style="background:#0f172a; border:1px solid #38bdf8; height:60px; border-radius:10px; cursor:pointer;" title="Deep Ocean"></button>
+                        <button onclick="applyTheme('dark-forest')" class="theme-btn" style="background:#052e16; border:1px solid #4ade80; height:60px; border-radius:10px; cursor:pointer;" title="Forest Night"></button>
+                        <button onclick="applyTheme('dark-purple')" class="theme-btn" style="background:#2e1065; border:1px solid #c084fc; height:60px; border-radius:10px; cursor:pointer;" title="Nebula"></button>
+                        <button onclick="applyTheme('dark-mono')" class="theme-btn" style="background:#000000; border:1px solid #666; height:60px; border-radius:10px; cursor:pointer;" title="OLED Black"></button>
+                    </div>
+
+                    <h4 style="margin-bottom:15px; color:var(--text-secondary)">Light Themes</h4>
+                    <div class="theme-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(80px, 1fr)); gap:10px;">
+                        <button onclick="applyTheme('light-std')" class="theme-btn" style="background:#ffffff; border:1px solid #ccc; height:60px; border-radius:10px; cursor:pointer;" title="Standard Light"></button>
+                        <button onclick="applyTheme('light-blue')" class="theme-btn" style="background:#e0f2fe; border:1px solid #0ea5e9; height:60px; border-radius:10px; cursor:pointer;" title="Sky"></button>
+                        <button onclick="applyTheme('light-mint')" class="theme-btn" style="background:#ecfdf5; border:1px solid #10b981; height:60px; border-radius:10px; cursor:pointer;" title="Mint"></button>
+                        <button onclick="applyTheme('light-warm')" class="theme-btn" style="background:#fffbeb; border:1px solid #f59e0b; height:60px; border-radius:10px; cursor:pointer;" title="Warm Sun"></button>
+                        <button onclick="applyTheme('light-rose')" class="theme-btn" style="background:#fff1f2; border:1px solid #f43f5e; height:60px; border-radius:10px; cursor:pointer;" title="Rose"></button>
+                    </div>
                 </div>
-                <div style="height:1px;background:var(--border);margin:8px 10px;"></div>
-                <div class="settings-item" onclick="alert('About Farm Hub')">
-                    <span class="icon">ℹ️</span>
-                    <div class="text">About</div>
+
+                <!-- ABOUT PAGE -->
+                <div id="page-about" class="settings-page" style="display:none; padding:20px;">
+                    <div style="text-align:center; margin-bottom:20px;">
+                        <div style="font-size:3rem; margin-bottom:10px;">🌾</div>
+                        <h2 style="margin-bottom:5px;">Smart Farm Hub</h2>
+                        <div style="color:var(--text-secondary); font-size:0.9rem;">Version 2.0.1</div>
+                    </div>
+                    
+                    <div style="background:var(--bg-primary); padding:20px; border-radius:12px; border:1px solid var(--border); line-height:1.6; color:var(--text-primary);">
+                        <p style="margin-bottom:15px;">
+                            Welcome to <strong>Our Organic Farm</strong> data center. This system manages the automated climate control, irrigation, and monitoring for our greenhouse and chicken coops.
+                        </p>
+                        <p style="margin-bottom:15px;">
+                            <strong>Our Mission:</strong> To produce high-quality, sustainable food using advanced technology while respecting nature. We believe in transparency and precision agriculture.
+                        </p>
+                        <div style="border-top:1px solid var(--border); margin:15px 0; padding-top:10px;">
+                            <strong>System Specs:</strong><br>
+                            • Core: Raspberry Pi 4 (Server)<br>
+                            • Nodes: ESP32 Microcontrollers<br>
+                            • Network: Private Mesh<br>
+                            • Protocol: WebSocket over WiFi
+                        </div>
+                    </div>
+                    
+                    <div style="text-align:center; margin-top:20px; color:var(--text-secondary); font-size:0.8rem;">
+                        &copy; 2026 Smart Farm Hub. All rights reserved.
+                    </div>
                 </div>
+
             </div>
         </div>
     </div>
