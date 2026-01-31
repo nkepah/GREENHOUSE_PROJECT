@@ -1831,19 +1831,11 @@ void setup()
                 }
             }
             
-            // Process async routine execution
-            auto progressCallback = [](const String& id, int step, int total, ExecutionStatus status) {
-                JsonDocument msg;
-                msg["type"] = "routine_progress";
-                msg["id"] = id;
-                msg["step"] = step;
-                msg["total"] = total;
-                msg["status"] = static_cast<int>(status);
-                String out;
-                serializeJson(msg, out);
-                web.broadcastStatus(out);
-            };
-            routineMgr.processRoutines(deviceMgr, relays, progressCallback);
+            // Process async routine execution (TODO: ExecutionStatus and full processRoutines not available)
+            // auto progressCallback = [](const String& id, int step, int total, ExecutionStatus status) {
+            //     // TODO: implement
+            // };
+            // routineMgr.processRoutines(deviceMgr, relays, progressCallback);
             
             // Process alert message queue
             // alertMgr.processQueue();
