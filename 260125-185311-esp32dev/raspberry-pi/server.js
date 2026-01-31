@@ -16,7 +16,6 @@ const path = require('path');
 const fs = require('fs');
 const http = require('http');
 const WebSocket = require('ws');
-const deviceAPI = require('./device-api');
 
 const app = express();
 const PORT = 3000;
@@ -30,7 +29,7 @@ let config = {
     farmName: "My Farm Hub",
     location: { lat: -17.8292, lon: 31.0522 }, // Default: Harare, Zimbabwe
     devices: {
-        greenhouse: { ip: "10.0.0.163", name: "Greenhouse", type: "greenhouse" },
+        greenhouse: { ip: "192.168.1.100", name: "Greenhouse", type: "greenhouse" },
         coop1: { ip: "192.168.1.101", name: "Coop 1", type: "coop" },
         coop2: { ip: "192.168.1.102", name: "Coop 2", type: "coop" },
         coop3: { ip: "192.168.1.103", name: "Coop 3", type: "coop" }
@@ -164,7 +163,7 @@ setInterval(updateAllDeviceStatus, 30000);
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'dashboard')));
 
 // =============================================================================
 // API ROUTES
@@ -314,40 +313,6 @@ app.get('/api/health', (req, res) => {
         weatherCacheAge: weatherCache.timestamp ? 
             Math.round((Date.now() - weatherCache.timestamp) / 1000) + 's' : 'none'
     });
-});
-
-// =============================================================================
-// OTA LOGGING ENDPOINTS
-// =============================================================================
-
-// Get OTA logs with filtering
-app.get('/api/logs/ota', (req, res) => {
-    deviceAPI.getOTALogs(req, res);
-});
-
-// Get OTA statistics
-app.get('/api/logs/ota/stats', (req, res) => {
-    deviceAPI.getOTAStatsEndpoint(req, res);
-});
-
-// Get OTA history for specific device
-app.get('/api/device/:device_id/ota-history', (req, res) => {
-    deviceAPI.getDeviceOTAHistoryEndpoint(req, res);
-});
-
-// Export OTA logs (JSON or CSV)
-app.get('/api/logs/ota/export', (req, res) => {
-    deviceAPI.exportOTALogs(req, res);
-});
-
-// Push OTA update to device (scheduled)
-app.post('/api/device/:device_id/ota-push', (req, res) => {
-    deviceAPI.pushOTAUpdate(req, res);
-});
-
-// Push OTA update immediately (if device online)
-app.post('/api/device/:device_id/ota-push-immediate', (req, res) => {
-    deviceAPI.pushOTAUpdateImmediate(req, res);
 });
 
 // =============================================================================
