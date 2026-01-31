@@ -1682,7 +1682,7 @@
                 if (data.devices) renderDevices(data.devices);
                 
                 document.getElementById('lastUpdate').innerHTML = 
-                    `${now.getHours().toString().padStart(2, '0')}<span class="clock-colon">:</span>${now.getMinutes().toString().padStart(2, '0')}<span class="clock-colon">:</span>${now.getSeconds().toString().padStart(2, '0')}`;
+                    `<span class="clock-number">${now.getHours().toString().padStart(2, '0')}</span><span class="clock-colon">:</span><span class="clock-number">${now.getMinutes().toString().padStart(2, '0')}</span><span class="clock-colon">:</span><span class="clock-number">${now.getSeconds().toString().padStart(2, '0')}</span>`;
                     
                     
             } catch (err) {
