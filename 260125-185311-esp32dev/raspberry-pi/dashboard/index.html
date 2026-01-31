@@ -724,6 +724,17 @@
                 </div>
                 <div class="feature-item">
                     <span class="feature-icon">🥚</span>
+        function toggleSettings(e) {
+            e.stopPropagation();
+            const d = document.getElementById('settingsDropdown');
+            d.classList.toggle('show');
+        }
+
+        document.addEventListener('click', () => {
+            const d = document.getElementById('settingsDropdown');
+            if(d) d.classList.remove('show');
+        });
+
                     <span class="feature-text">Farm Fresh Eggs</span>
                 </div>
                 <div class="feature-item">
