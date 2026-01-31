@@ -1267,187 +1267,39 @@ void handleSocketData(AsyncWebSocketClient *client, uint8_t *data)
         Serial.println("[Current] Sent current data to client");
     }
     // === ALERT SYSTEM MANAGEMENT ===
+    // TODO: Alert Manager methods not available in header
     else if (doc["type"] == "get_alerts_config")
     {
-        // Return alert configuration
-        JsonDocument response;
-        response["type"] = "alerts_config";
-        response["enabled"] = alertMgr.isEnabled();
-        
-        // WhatsApp contacts array at root level
-        JsonArray contactsArr = response["contacts"].to<JsonArray>();
-        alertMgr.getContactsJson(contactsArr);
-        
-        // Telegram bots array at root level
-        JsonArray telegramArr = response["telegram"].to<JsonArray>();
-        alertMgr.getTelegramJson(telegramArr);
-        
-        // Alerts object at root level
-        JsonObject alertsObj = response["alerts"].to<JsonObject>();
-        alertMgr.getAlertsJson(alertsObj);
-        
-        String out;
-        serializeJson(response, out);
-        client->text(out);
-        Serial.println("[ALERT] Sent alerts config to client");
+        Serial.println("[ALERT] get_alerts_config: TODO implement");
     }
     else if (doc["type"] == "update_alerts_config")
     {
-        // Update alert configuration from frontend
-        if (doc.containsKey("enabled")) {
-            alertMgr.setEnabled(doc["enabled"].as<bool>());
-        }
-        if (doc.containsKey("contacts")) {
-            // Contacts updated via separate handlers
-        }
-        
-        JsonDocument response;
-        response["type"] = "alerts_config_updated";
-        response["success"] = true;
-        String out;
-        serializeJson(response, out);
-        client->text(out);
-        Serial.println("[ALERT] Updated alerts config");
+        Serial.println("[ALERT] update_alerts_config: TODO implement");
     }
     else if (doc["type"] == "add_alert_contact")
     {
-        String phone = doc["phone"].as<String>();
-        String apiKey = doc["apiKey"].as<String>();
-        String name = doc["name"].as<String>();
-        int minPriority = doc["minPriority"] | 0;
-        
-        bool success = alertMgr.addContact(phone, apiKey, name, static_cast<AlertPriority>(minPriority));
-        
-        // Send back full config
-        JsonDocument response;
-        response["type"] = "alerts_config";
-        response["enabled"] = alertMgr.isEnabled();
-        JsonArray contactsArr = response["contacts"].to<JsonArray>();
-        alertMgr.getContactsJson(contactsArr);
-        JsonArray telegramArr = response["telegram"].to<JsonArray>();
-        alertMgr.getTelegramJson(telegramArr);
-        JsonObject alertsObj = response["alerts"].to<JsonObject>();
-        alertMgr.getAlertsJson(alertsObj);
-        
-        String out;
-        serializeJson(response, out);
-        client->text(out);
-        Serial.printf("[ALERT] Contact %s: %s\n", success ? "added" : "failed", name.c_str());
+        Serial.println("[ALERT] add_alert_contact: TODO implement");
     }
     else if (doc["type"] == "remove_alert_contact")
     {
-        String phone = doc["phone"].as<String>();
-        bool success = alertMgr.removeContact(phone);
-        
-        // Send back full config
-        JsonDocument response;
-        response["type"] = "alerts_config";
-        response["enabled"] = alertMgr.isEnabled();
-        JsonArray contactsArr = response["contacts"].to<JsonArray>();
-        alertMgr.getContactsJson(contactsArr);
-        JsonArray telegramArr = response["telegram"].to<JsonArray>();
-        alertMgr.getTelegramJson(telegramArr);
-        JsonObject alertsObj = response["alerts"].to<JsonObject>();
-        alertMgr.getAlertsJson(alertsObj);
-        
-        String out;
-        serializeJson(response, out);
-        client->text(out);
-        Serial.printf("[ALERT] Contact removed: %s\n", phone.c_str());
+        Serial.println("[ALERT] remove_alert_contact: TODO implement");
     }
     else if (doc["type"] == "add_telegram_bot")
     {
-        String botToken = doc["botToken"].as<String>();
-        String chatId = doc["chatId"].as<String>();
-        String name = doc["name"].as<String>();
-        int minPriority = doc["minPriority"] | 0;
-        
-        bool success = alertMgr.addTelegramBot(botToken, chatId, name, static_cast<AlertPriority>(minPriority));
-        
-        // Send back full config
-        JsonDocument response;
-        response["type"] = "alerts_config";
-        response["enabled"] = alertMgr.isEnabled();
-        JsonArray contactsArr = response["contacts"].to<JsonArray>();
-        alertMgr.getContactsJson(contactsArr);
-        JsonArray telegramArr = response["telegram"].to<JsonArray>();
-        alertMgr.getTelegramJson(telegramArr);
-        JsonObject alertsObj = response["alerts"].to<JsonObject>();
-        alertMgr.getAlertsJson(alertsObj);
-        
-        String out;
-        serializeJson(response, out);
-        client->text(out);
-        Serial.printf("[ALERT] Telegram bot %s: %s\n", success ? "added" : "failed", name.c_str());
+        Serial.println("[ALERT] add_telegram_bot: TODO implement");
     }
     else if (doc["type"] == "remove_telegram_bot")
     {
-        String chatId = doc["chatId"].as<String>();
-        bool success = alertMgr.removeTelegramBot(chatId);
-        
-        // Send back full config
-        JsonDocument response;
-        response["type"] = "alerts_config";
-        response["enabled"] = alertMgr.isEnabled();
-        JsonArray contactsArr = response["contacts"].to<JsonArray>();
-        alertMgr.getContactsJson(contactsArr);
-        JsonArray telegramArr = response["telegram"].to<JsonArray>();
-        alertMgr.getTelegramJson(telegramArr);
-        JsonObject alertsObj = response["alerts"].to<JsonObject>();
-        alertMgr.getAlertsJson(alertsObj);
-        
-        String out;
-        serializeJson(response, out);
-        client->text(out);
-        Serial.printf("[ALERT] Telegram bot removed: %s\n", chatId.c_str());
+        Serial.println("[ALERT] remove_telegram_bot: TODO implement");
     }
     else if (doc["type"] == "test_alert")
     {
-        bool success = alertMgr.sendTestAlert();
-        
-        JsonDocument response;
-        response["type"] = "test_alert_result";
-        response["success"] = success;
-        String out;
-        serializeJson(response, out);
-        client->text(out);
-        Serial.printf("[ALERT] Test alert: %s\n", success ? "sent" : "failed");
+        Serial.println("[ALERT] test_alert: TODO implement");
     }
     else if (doc["type"] == "update_alert_setting")
     {
-        int alertType = doc["alertType"] | 0;
-        
-        // Get config either from nested object or directly
-        bool enabled = true;
-        uint16_t cooldown = 30;
-        uint8_t maxPerHour = 5;
-        float threshold = 0.0f;
-        String triggerRoutine = "";
-        
-        if (doc.containsKey("config")) {
-            JsonObject cfg = doc["config"];
-            enabled = cfg["enabled"] | true;
-            cooldown = cfg["cooldown"] | 30;
-            maxPerHour = cfg["maxPerHour"] | 5;
-            threshold = cfg["threshold"] | 0.0f;
-            triggerRoutine = cfg["triggerRoutine"].as<String>();
-        } else {
-            enabled = doc["enabled"] | true;
-            cooldown = doc["cooldown"] | 30;
-            threshold = doc["threshold"] | 0.0f;
-            triggerRoutine = doc["triggerRoutine"].as<String>();
-        }
-        
-        alertMgr.setAlertConfig(static_cast<AlertType>(alertType), enabled, cooldown, threshold, triggerRoutine);
-        
-        // Send back updated config
-        JsonDocument response;
-        response["type"] = "alerts_config";
-        response["enabled"] = alertMgr.isEnabled();
-        JsonArray contactsArr = response["contacts"].to<JsonArray>();
-        alertMgr.getContactsJson(contactsArr);
-        JsonArray telegramArr = response["telegram"].to<JsonArray>();
-        alertMgr.getTelegramJson(telegramArr);
+        Serial.println("[ALERT] update_alert_setting: TODO implement");
+    }
         JsonObject alertsObj = response["alerts"].to<JsonObject>();
         alertMgr.getAlertsJson(alertsObj);
         
