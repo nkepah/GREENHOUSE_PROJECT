@@ -1813,13 +1813,11 @@
             }
         }
         
-        // Convert temperature based on user settings
-        function convertTemp(celsius) {
-            const tempUnit = userSettings?.units?.temp || 'C';
-            if (tempUnit === 'F') {
-                return Math.round((celsius * 9/5) + 32);
-            }
-            return Math.round(celsius);
+        // No conversion needed - server provides pre-converted temperatures
+        function convertTemp(temp) {
+            // Temperatures are already converted on server side
+            // This function now just returns the temperature as-is
+            return Math.round(temp);
         }
         
         // Weather display
