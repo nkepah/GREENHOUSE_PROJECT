@@ -32,9 +32,9 @@ CurrentSensorManager currentSensor;  // Single main-line current sensor
 RelayController relays;
 WebManager web(80);
 DeviceManager deviceMgr;
-RoutineManager routineMgr;
+// RoutineManager routineMgr;  // TODO: Not yet implemented
 SDManager sdCard;
-AlertManager alertMgr;  // WhatsApp/Telegram alert system (self-contained NVS storage)
+// AlertManager alertMgr;  // TODO: Not yet implemented (WhatsApp/Telegram)
 
 // Current sensor configuration
 static constexpr int CURRENT_SENSOR_PIN = 34;  // GPIO34 (ADC1_CH6) - ACS712 signal pin
@@ -740,7 +740,7 @@ void handleSocketData(AsyncWebSocketClient *client, uint8_t *data)
             cfgAmpThreshold = newThresh;
             // Apply threshold immediately to relay and routine systems
             relays.setAmpThreshold(newThresh);
-            routineMgr.setAmpThreshold(newThresh);
+            // routineMgr.setAmpThreshold(newThresh);  // TODO: Feature not yet implemented
             Serial.printf("[CFG] Amp threshold set to: %.2fA\n", newThresh);
         }
         
@@ -1176,7 +1176,7 @@ void handleSocketData(AsyncWebSocketClient *client, uint8_t *data)
         
         // TODO: startRoutine(id, action) method not available in RoutineManager header
         // Use startRoutineByName as fallback
-        routineMgr.startRoutineByName(id);
+        // routineMgr.startRoutineByName(id);  // TODO: Feature not yet implemented
         started = true;
         
         JsonDocument response;
@@ -1398,8 +1398,8 @@ void setup()
     // });
     
     // OTA & Anti-Brick
-    OTAManager::begin(web.getServer());
-    OTAManager::confirmUpdate();
+    // OTAManager::begin(web.getServer());  // TODO: OTA not yet available
+    // OTAManager::confirmUpdate();  // TODO: OTA not yet available
 
     // Use loaded config for NTP
     configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
@@ -1789,7 +1789,7 @@ void setup()
                              avgTemp, lastWeatherTemp);
                 
                 // Check all routine triggers (may trigger relay operations - handled via WebSocket)
-                routineMgr.checkTriggers(avgTemp, lastWeatherTemp, deviceMgr, relays, 
+                // routineMgr.checkTriggers(avgTemp, lastWeatherTemp, deviceMgr, relays,  // TODO: Feature not yet implemented 
                                         hour, minute, dayOfWeek, dayOfMonth, month);
                 
                 // === ALERT SYSTEM CHECKS === (TODO: methods not yet available in AlertManager header)
