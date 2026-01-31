@@ -1280,34 +1280,6 @@
             </div>
         </section>
         
-        <!-- TEST SECTION - Remove after testing -->
-        <section style="background: rgba(255, 100, 100, 0.1); border: 2px dashed rgba(255, 100, 100, 0.5); border-radius: 8px; padding: 16px; margin: 16px 0;">
-            <div class="section-title">
-                <h2>⚠️ TEST: Temperature Warning</h2>
-                <p style="font-size: 0.85rem; color: rgba(255, 100, 100, 0.8); margin-top: 4px;">Test frost/heat warnings (Remove this section after testing)</p>
-            </div>
-            <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-                <div>
-                    <label for="testTemp" style="display: block; font-size: 0.9rem; margin-bottom: 4px; color: rgba(255, 255, 255, 0.9);">Temperature Value:</label>
-                    <input type="number" id="testTemp" placeholder="Enter temperature" value="0" style="padding: 8px 12px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.3); background: rgba(0, 0, 0, 0.3); color: white; width: 120px;">
-                </div>
-                <div>
-                    <label for="testTempUnit" style="display: block; font-size: 0.9rem; margin-bottom: 4px; color: rgba(255, 255, 255, 0.9);">Unit:</label>
-                    <select id="testTempUnit" style="padding: 8px 12px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.3); background: rgba(0, 0, 0, 0.3); color: white;">
-                        <option value="C">°C</option>
-                        <option value="F">°F</option>
-                    </select>
-                </div>
-                <button onclick="testTemperatureWarning()" style="padding: 8px 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; margin-top: 20px;">
-                    🧪 Test Warning
-                </button>
-                <button onclick="resetTemperatureDisplay()" style="padding: 8px 16px; background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 4px; cursor: pointer; font-weight: 500; margin-top: 20px;">
-                    ↻ Reset
-                </button>
-            </div>
-        </section>
-        <!-- END TEST SECTION -->
-        
         <!-- Greenhouse Section -->
         <section>
             <div class="section-title">
@@ -2110,80 +2082,6 @@
                     ss.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             }
         }
-        
-        // TEST FUNCTIONS - Remove after testing
-        function testTemperatureWarning() {
-            const testTemp = parseFloat(document.getElementById('testTemp').value);
-            const testUnit = document.getElementById('testTempUnit').value;
-            
-            if (isNaN(testTemp)) {
-                alert('Please enter a valid temperature value');
-                return;
-            }
-            
-            // Create a test weather object
-            const testWeather = {
-                temperature_2m: testTemp,
-                weather_code: 0,
-                relative_humidity_2m: 60,
-                wind_speed_10m: 10,
-                wind_speed_unit: 'km/h'
-            };
-            
-            // Update the display with test temperature
-            document.getElementById('weatherTemp').textContent = Math.round(testTemp);
-            document.getElementById('weatherTempUnit').textContent = testUnit === 'F' ? '°F' : '°C';
-            
-            // Check for warnings
-            const warningEl = document.getElementById('tempWarning');
-            const warningIcon = document.getElementById('warningIcon');
-            const warningText = document.getElementById('warningText');
-            const tempThreshold = testUnit === 'F' ? 32 : 0;
-            const heatThreshold = testUnit === 'F' ? 95 : 35;
-            const roundedTemp = Math.round(testTemp);
-            
-            if (roundedTemp <= tempThreshold) {
-                // Frost warning
-                warningEl.classList.remove('heat');
-                warningIcon.textContent = '❄️';
-                warningText.textContent = 'FROST WARNING';
-                warningEl.style.display = 'flex';
-                warningEl.title = 'Frost Warning: Temperature at or below freezing!';
-                console.log('✓ Frost warning activated at', roundedTemp, testUnit);
-            } else if (roundedTemp >= heatThreshold) {
-                // Heat warning
-                warningEl.classList.add('heat');
-                warningIcon.textContent = '🔥';
-                warningText.textContent = 'HEAT WARNING';
-                warningEl.style.display = 'flex';
-                warningEl.title = 'Heat Warning: High temperature alert!';
-                console.log('✓ Heat warning activated at', roundedTemp, testUnit);
-            } else {
-                // No warning
-                warningEl.style.display = 'none';
-                console.log('✓ No warning at', roundedTemp, testUnit);
-            }
-        }
-        
-        function resetTemperatureDisplay() {
-            // Fetch fresh weather data from the server
-            fetch('/api/dashboard')
-                .then(res => res.json())
-                .then(data => {
-                    if (data.weather) {
-                        weather = {
-                            current: data.weather,
-                            daily: data.daily,
-                            hourly: data.hourly,
-                            location: data.location
-                        };
-                        updateWeather(data.weather, data.daily, data.hourly, data.location);
-                        console.log('✓ Display reset to live weather data');
-                    }
-                })
-                .catch(err => console.error('Reset failed:', err));
-        }
-        // END TEST FUNCTIONS
         
         function getWeatherIcon(code) {
             // WMO Weather codes mapping to emojis (comprehensive)
