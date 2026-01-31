@@ -723,6 +723,91 @@
             to { transform: rotate(360deg); }
         }
 
+        /* Settings Modal Overlay Style */
+        .settings-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px);
+            z-index: 10000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .settings-modal-overlay.open {
+            display: flex;
+            animation: modalFadeIn 0.3s;
+        }
+        
+        .settings-modal-box {
+            background: var(--bg-card);
+            width: 100%;
+            max-width: 500px;
+            height: auto;
+            max-height: 85vh;
+            border-radius: 20px;
+            padding: 0;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            animation: modalSlideUp 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        .settings-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex; 
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: rgba(255,255,255,0.03);
+        }
+
+        .settings-list {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .settings-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 20px;
+            cursor: pointer;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .settings-item:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.1);
+        }
+
+        .settings-item span.icon {
+            font-size: 1.4rem;
+        }
+
+        .settings-item div.text {
+            flex: 1;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        @keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes modalSlideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
         /* Navigation Bar */
     </style>
 </head>
@@ -737,31 +822,43 @@
                 <div id="clock" style="color: var(--text-primary); font-weight: 500;">--:--:--</div>
                 
                 <div class="settings-wrapper" style="position: relative;">
-                    <button class="settings-btn" id="settingsBtn" onclick="toggleSettings(event)" ontouchstart="toggleSettings(event)">⚙️</button>
+                    <button class="settings-btn" id="settingsBtn" onclick="toggleSettingsUtil(event)">⚙️</button>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- Settings Menu (Moved outside header to avoid stacking context issues) -->
-    <div class="settings-dropdown" id="settingsDropdown">
-        <div class="dropdown-header">Settings <span style="float:right; cursor:pointer;" onclick="toggleSettings(event)">✕</span></div>
-        <button class="dropdown-item" onclick="alert('Units & Date settings coming soon')">
-            <span>📏</span> Units & Date Format
-        </button>
-        <button class="dropdown-item" onclick="alert('Location settings coming soon')">
-            <span>📍</span> Location & Time Zone
-        </button>
-        <button class="dropdown-item" onclick="alert('Thresholds settings coming soon')">
-            <span>🌡️</span> Thresholds
-        </button>
-        <button class="dropdown-item" onclick="alert('Theme settings coming soon')">
-            <span>🎨</span> Themes
-        </button>
-        <div class="dropdown-divider"></div>
-        <button class="dropdown-item" onclick="alert('About Farm Hub')">
-            <span>ℹ️</span> About
-        </button>
+    <!-- Settings Menu Overlay -->
+    <div id="settings-modal" class="settings-modal-overlay">
+        <div class="settings-modal-box">
+            <div class="settings-header">
+                <div>Settings</div>
+                <button onclick="toggleSettingsUtil()" style="background:none;border:none;color:var(--text);font-size:1.5rem;cursor:pointer;">✕</button>
+            </div>
+            <div class="settings-list">
+                <div class="settings-item" onclick="alert('Units & Date settings coming soon')">
+                    <span class="icon">📏</span>
+                    <div class="text">Units & Date Format</div>
+                </div>
+                <div class="settings-item" onclick="alert('Location settings coming soon')">
+                    <span class="icon">📍</span>
+                    <div class="text">Location & Time Zone</div>
+                </div>
+                <div class="settings-item" onclick="alert('Thresholds settings coming soon')">
+                    <span class="icon">🌡️</span>
+                    <div class="text">Thresholds</div>
+                </div>
+                <div class="settings-item" onclick="alert('Theme settings coming soon')">
+                    <span class="icon">🎨</span>
+                    <div class="text">Themes</div>
+                </div>
+                <div style="height:1px;background:var(--border);margin:8px 10px;"></div>
+                <div class="settings-item" onclick="alert('About Farm Hub')">
+                    <span class="icon">ℹ️</span>
+                    <div class="text">About</div>
+                </div>
+            </div>
+        </div>
     </div>
     
     <main>
