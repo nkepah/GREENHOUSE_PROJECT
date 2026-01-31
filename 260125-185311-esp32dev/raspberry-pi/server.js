@@ -754,7 +754,6 @@ app.post('/api/settings', async (req, res) => {
             config.location.lat = parseFloat(loc.lat);
             config.location.lon = parseFloat(loc.lon);
             config.weather.timezone = loc.timezone || 'UTC';
-            console.log(`[CONFIG] Updated from settings: ${config.location.lat}, ${config.location.lon} (${config.weather.timezone})`);
             
             // Geocode to get city and state (one-time, not on every request)
             try {
@@ -774,10 +773,17 @@ app.post('/api/settings', async (req, res) => {
                     
                     config.location.city = city;
                     config.location.address = cityComponent;
+                    
+                    // Save geocoded values back to database
+                    const fullLocation = { ...loc, city, address: cityComponent };
+                    await db.set('location', fullLocation);
+                    
                     console.log(`[GEOCODE] Located: ${cityComponent}`);
                 }
             } catch (err) {
                 console.warn('[GEOCODE] Failed:', err.message);
+                config.location.city = loc.city || '';
+                config.location.address = loc.address || '';
             }
         }
         
