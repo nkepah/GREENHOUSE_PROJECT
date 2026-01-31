@@ -640,8 +640,8 @@ void startWiFi() {
         Serial.printf("[WIFI] Gateway: %s\n", WiFi.gatewayIP().toString().c_str());
         Serial.printf("[WIFI] DNS: %s\n", WiFi.dnsIP().toString().c_str());
         
-        // Update Pi database with new IP
-        registerDeviceIP();
+        // Register device with Pi on first WiFi connection
+        registerDeviceWithPi();
     } else {
         isAPMode = true;
         Serial.printf("[WIFI] ✗ Connection failed, staying in AP mode\n");
