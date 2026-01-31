@@ -1465,6 +1465,12 @@
             );
         }
         
+        function updateTimezone() {
+            const tz = document.getElementById('loc-timezone').value;
+            console.log('Timezone changed to:', tz);
+            // This will be saved when saveLocation() is called
+        }
+        
         async function saveLocation(event) {
             const lat = document.getElementById('loc-lat').value;
             const lon = document.getElementById('loc-lon').value;
