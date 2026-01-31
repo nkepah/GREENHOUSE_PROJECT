@@ -205,7 +205,7 @@ app.get('/api/geocode', async (req, res) => {
         const { lat, lon } = req.query;
         if (!lat || !lon) return res.status(400).json({ error: 'Missing lat/lon' });
         
-        const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=14`;
+        const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10`;
         const response = await fetch(url, {
             headers: { 'User-Agent': 'SmartFarmHub/2.0' }
         });
@@ -216,19 +216,9 @@ app.get('/api/geocode', async (req, res) => {
         // Simplify response
         const addr = data.address || {};
         
-        // Priority list for "City" component
-        // 1. Precise settlement names
-        let mainName = addr.city || addr.town || addr.village || addr.municipality || addr.city_district || addr.hamlet || addr.suburb || addr.neighbourhood;
-        
-        // 2. Fallback to County if no settlement found (better than 'Unknown')
-        // User prefers City, but if we are in the middle of nowhere, County is the best we have.
-        if (!mainName && addr.county) {
-            mainName = addr.county;
-        }
-        
-        if (!mainName) mainName = 'Unknown Location';
-
-        const secondary = addr.state || addr.region || addr.province || addr.state_district || '';
+        // Prioritize meaningful names
+        const mainName = addr.city || addr.town || addr.village || addr.hamlet || addr.suburb || addr.neighbourhood || addr.county || 'Unknown Location';
+        const secondary = addr.state || addr.region || '';
         
         let cityDisplay = mainName;
         if (secondary && secondary !== mainName) {
@@ -236,10 +226,8 @@ app.get('/api/geocode', async (req, res) => {
         }
         
         const location = {
-            cityComponent: mainName,
-            stateComponent: secondary,
+            city: cityDisplay,
             country: addr.country || '',
-            city: cityDisplay, // Legacy support
             display_name: data.display_name
         };
         console.log(`[GEOCODE] Resolved ${lat},${lon} to: ${cityDisplay}, ${location.country}`);
@@ -301,25 +289,14 @@ app.get('/api/config', (req, res) => {
 });
 
 app.post('/api/config', (req, res) => {
-    // ... deprecated ... use /api/settings
-    res.json({ success: true });
-});
-
-app.get('/api/dashboard', async (req, res) => {
-    try {
-         // Refresh weather if stale
-         await fetchWeather(config.location.lat, config.location.lon);
-         
-         res.json({
-             farmName: config.farmName,
-             location: config.location,
-             weather: weatherCache.data ? weatherCache.data.current : null,
-             daily: weatherCache.data ? weatherCache.data.daily : null,
-             devices: deviceStatus
-         });
-    } catch(e) {
-         res.status(500).json({error: e.message});
-    }
+    const { farmName, location, devices } = req.body;
+    
+    if (farmName) config.farmName = farmName;
+    if (location) config.location = location;
+    if (devices) config.devices = { ...config.devices, ...devices };
+    
+    saveConfig();
+    res.json({ success: true, config });
 });
 
 // --- Device Proxy ---
@@ -361,6 +338,37 @@ app.all('/device/:deviceId/*', async (req, res) => {
             message: err.message 
         });
     }
+});
+
+// --- Aggregated Dashboard Data ---
+app.get('/api/dashboard', async (req, res) => {
+    // Fetch fresh weather
+    let weather = null;
+    try {
+        weather = await fetchWeather(config.location.lat, config.location.lon);
+    } catch (err) {
+        console.error('Weather fetch failed:', err);
+    }
+    
+    // Build response
+    const devices = {};
+    for (const [id, info] of Object.entries(config.devices)) {
+        devices[id] = {
+            id,
+            name: info.name,
+            type: info.type,
+            ip: info.ip,
+            status: deviceStatus[id] || { online: false }
+        };
+    }
+    
+    res.json({
+        farmName: config.farmName,
+        weather: weather?.current || null,
+        daily: weather?.daily || null,
+        devices,
+        timestamp: Date.now()
+    });
 });
 
 // --- Health Check ---
