@@ -29,7 +29,11 @@ const PORT = 3000;
 let config = {
     farmName: "My Farm Hub",
     location: { lat: null, lon: null }, // Will be loaded from database settings
-    devices: {} // Will be loaded from database settings
+    devices: {}, // Will be loaded from database settings
+    weather: {
+        cacheMinutes: 10,
+        timezone: "UTC" // Will be loaded from database settings
+    }
 };
 
 const CONFIG_FILE = path.join(__dirname, 'farm-config.json');
