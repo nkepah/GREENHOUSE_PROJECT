@@ -1951,19 +1951,22 @@
             const windSpeedUnit = data.wind_speed_unit || 'km/h';
             document.getElementById('windSpeed').textContent = (data.wind_speed || '--') + ' ' + windSpeedUnit;
             
-            // Update pressure if available
+            // Update pressure if available (try both ID names)
             if (data.pressure_msl) {
-                document.getElementById('weatherPressure').textContent = Math.round(data.pressure_msl) + ' hPa';
+                const pressEl = document.getElementById('weatherPressure') || document.getElementById('out-pressure');
+                if (pressEl) pressEl.textContent = Math.round(data.pressure_msl) + ' hPa';
             }
             
-            // Update cloud cover if available
-            if (data.cloudcover !== undefined) {
-                document.getElementById('weatherCloud').textContent = data.cloudcover + '%';
+            // Update cloud cover if available (try both ID names)
+            if (data.cloudcover !== undefined && data.cloudcover !== null) {
+                const cloudEl = document.getElementById('weatherCloud') || document.getElementById('out-cloud');
+                if (cloudEl) cloudEl.textContent = data.cloudcover + '%';
             }
             
-            // Update wind direction if available
-            if (data.wind_direction) {
-                document.getElementById('weatherWindDir').textContent = data.wind_direction + '°';
+            // Update wind direction if available (try both ID names)
+            if (data.wind_direction !== undefined && data.wind_direction !== null) {
+                const windDirEl = document.getElementById('weatherWindDir') || document.getElementById('out-wind-dir');
+                if (windDirEl) windDirEl.textContent = data.wind_direction + '°';
             }
             
             // Update temperature warnings based on hourly data
