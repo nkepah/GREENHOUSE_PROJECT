@@ -28,6 +28,21 @@ function initSchema() {
             });
         }
     });
+    
+    // Create weather cache table with both C and F temperatures
+    db.run(`CREATE TABLE IF NOT EXISTS weather_cache (
+        id INTEGER PRIMARY KEY,
+        timestamp INTEGER,
+        current_temp_c REAL,
+        current_temp_f REAL,
+        weather_code INTEGER,
+        daily_data TEXT,
+        hourly_data TEXT
+    )`, (err) => {
+        if (err) {
+            console.error('[DB] Error creating weather_cache table:', err.message);
+        }
+    });
 }
 
 function seedDefaults() {
