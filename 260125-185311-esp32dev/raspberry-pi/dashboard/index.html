@@ -1760,7 +1760,7 @@
         // Fetch initial data
         async function fetchDashboardData() {
             try {
-                const response = await fetch('/api/dashboard?v=2.3');
+                const response = await fetch(`/api/dashboard?v=${Math.random()}`);
                 const data = await response.json();
                 
                 if (data.farmName) {
