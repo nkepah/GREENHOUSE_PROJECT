@@ -1877,6 +1877,9 @@ void setup()
             if(!isAPMode && WiFi.status() == WL_CONNECTED) {
                 syncSettingsFromPi();
             }
+            
+            // Check for IP address changes and re-register if needed
+            checkIPAddressChange();
 
             // Pending weather refresh (triggered 5s after WebSocket connect) - ONLY if Pi is NOT connected
             if(pendingWeatherRefresh > 0 && millis() >= pendingWeatherRefresh) {
