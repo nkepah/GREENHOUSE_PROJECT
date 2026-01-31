@@ -289,14 +289,25 @@ app.get('/api/config', (req, res) => {
 });
 
 app.post('/api/config', (req, res) => {
-    const { farmName, location, devices } = req.body;
-    
-    if (farmName) config.farmName = farmName;
-    if (location) config.location = location;
-    if (devices) config.devices = { ...config.devices, ...devices };
-    
-    saveConfig();
-    res.json({ success: true, config });
+    // ... deprecated ... use /api/settings
+    res.json({ success: true });
+});
+
+app.get('/api/dashboard', async (req, res) => {
+    try {
+         // Refresh weather if stale
+         await fetchWeather(config.location.lat, config.location.lon);
+         
+         res.json({
+             farmName: config.farmName,
+             location: config.location,
+             weather: weatherCache.data ? weatherCache.data.current : null,
+             daily: weatherCache.data ? weatherCache.data.daily : null,
+             devices: deviceStatus
+         });
+    } catch(e) {
+         res.status(500).json({error: e.message});
+    }
 });
 
 // --- Device Proxy ---
