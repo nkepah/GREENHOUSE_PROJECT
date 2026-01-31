@@ -1789,8 +1789,8 @@ void setup()
                              avgTemp, lastWeatherTemp);
                 
                 // Check all routine triggers (may trigger relay operations - handled via WebSocket)
-                // routineMgr.checkTriggers(avgTemp, lastWeatherTemp, deviceMgr, relays,  // TODO: Feature not yet implemented 
-                                        hour, minute, dayOfWeek, dayOfMonth, month);
+                // routineMgr.checkTriggers(avgTemp, lastWeatherTemp, deviceMgr, relays,  // TODO: Feature not yet implemented
+                //                         hour, minute, dayOfWeek, dayOfMonth, month);
                 
                 // === ALERT SYSTEM CHECKS === (TODO: methods not yet available in AlertManager header)
                 // alertMgr.checkConnection(WiFi.status() == WL_CONNECTED);
