@@ -1773,12 +1773,24 @@
             }
         }
         
+        // Convert temperature based on user settings
+        function convertTemp(celsius) {
+            const tempUnit = userSettings?.units?.temp || 'C';
+            if (tempUnit === 'F') {
+                return Math.round((celsius * 9/5) + 32);
+            }
+            return Math.round(celsius);
+        }
+        
         // Weather display
         function updateWeather(current, daily, hourly) {
             if (!current) return;
             
+            const tempUnit = userSettings?.units?.temp || 'C';
+            const tempSymbol = tempUnit === 'F' ? '°F' : '°C';
+            
             document.getElementById('weatherTemp').textContent = 
-                Math.round(current.temperature_2m);
+                convertTemp(current.temperature_2m);
             document.getElementById('weatherHumidity').textContent = 
                 current.relative_humidity_2m || '--';
             document.getElementById('windSpeed').textContent = 
@@ -1798,7 +1810,7 @@
                 for (let i = 0; i < Math.min(24, hourly.time.length); i++) {
                     const time = new Date(hourly.time[i]);
                     const hour = time.getHours().toString().padStart(2, '0');
-                    const temp = Math.round(hourly.temperature_2m[i]);
+                    const temp = convertTemp(hourly.temperature_2m[i]);
                     const code = hourly.weather_code?.[i] || 0;
                     
                     const card = document.createElement('div');
@@ -1806,7 +1818,7 @@
                     card.innerHTML = `
                         <div class="hourly-time">${hour}:00</div>
                         <div class="hourly-icon">${getWeatherIcon(code)}</div>
-                        <div class="hourly-temp">${temp}°</div>
+                        <div class="hourly-temp">${temp}${tempSymbol}</div>
                     `;
                     container.appendChild(card);
                 }
