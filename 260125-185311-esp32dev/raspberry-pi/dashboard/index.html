@@ -1347,45 +1347,67 @@
         }
 
         // Persistence
-        function loadSettings() {
-            // Load Theme
-            const savedTheme = localStorage.getItem('farm_theme') || 'default';
-            applyTheme(savedTheme);
-            
-            // Load Location
-            const locData = localStorage.getItem('farm_location');
-            if (locData) {
-                const loc = JSON.parse(locData);
-                if(document.getElementById('loc-lat')) document.getElementById('loc-lat').value = loc.lat;
-                if(document.getElementById('loc-lon')) document.getElementById('loc-lon').value = loc.lon;
-                if(document.getElementById('loc-timezone')) document.getElementById('loc-timezone').value = loc.timezone;
-            }
-            
-            // Load Units
-            const unitData = localStorage.getItem('farm_units');
-            if (unitData) {
-                const units = JSON.parse(unitData);
-                // Set dropdowns if they exist
-                ['temp', 'speed', 'pressure', 'date'].forEach(key => {
-                    const el = document.getElementById(`unit-${key}`);
-                    if (el && units[key]) el.value = units[key];
-                });
+        async function loadSettings() {
+            try {
+                const res = await fetch('/api/settings');
+                if (!res.ok) throw new Error('Failed to fetch settings');
+                const settings = await res.json();
+                
+                // Theme
+                if (settings.theme) applyTheme(settings.theme, false); // false = don't save again
+                
+                // Location
+                if (settings.location) {
+                    const loc = typeof settings.location === 'string' ? JSON.parse(settings.location) : settings.location;
+                    if(document.getElementById('loc-lat')) document.getElementById('loc-lat').value = loc.lat || '';
+                    if(document.getElementById('loc-lon')) document.getElementById('loc-lon').value = loc.lon || '';
+                    if(document.getElementById('loc-timezone')) document.getElementById('loc-timezone').value = loc.timezone || 'UTC';
+                    
+                    if(loc.address && document.getElementById('location-display')) {
+                         document.getElementById('location-display').textContent = '📍 ' + loc.address;
+                         window.detectedAddress = loc.address;
+                    }
+                }
+                
+                // Units
+                if (settings.units) {
+                    const units = typeof settings.units === 'string' ? JSON.parse(settings.units) : settings.units;
+                    ['temp', 'speed', 'pressure', 'date'].forEach(key => {
+                        const el = document.getElementById(`unit-${key}`);
+                        if (el && units[key]) el.value = units[key];
+                    });
+                }
+            } catch (err) {
+                console.warn('Could not load settings from server, falling back to local defaults', err);
             }
         }
         
-        function saveUnits() {
+        async function saveUnits() {
             const units = {
                 temp: document.getElementById('unit-temp').value,
                 speed: document.getElementById('unit-speed').value,
                 pressure: document.getElementById('unit-pressure').value,
                 date: document.getElementById('unit-date').value
             };
-            localStorage.setItem('farm_units', JSON.stringify(units));
-             // Visual feedback
-            const btn = event.target;
-            const originalText = btn.textContent;
-            btn.textContent = '✅ Saved';
-            setTimeout(() => btn.textContent = originalText, 1500);
+            
+            try {
+                await fetch('/api/settings', {
+                     method: 'POST',
+                     headers: {'Content-Type': 'application/json'},
+                     body: JSON.stringify({ key: 'units', value: units })
+                });
+                
+                // Visual feedback
+                const btn = event.target || document.querySelector('#page-units button');
+                // If triggered by onchange, there might not be a button reference properly, use generic notification if needed
+                if(btn && btn.tagName === 'BUTTON') {
+                     const originalText = btn.textContent;
+                     btn.textContent = '✅ Saved';
+                     setTimeout(() => btn.textContent = originalText, 1500);
+                }
+            } catch(e) {
+                console.error('Save failed', e);
+            }
         }
         
         // Initializer
