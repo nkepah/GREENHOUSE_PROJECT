@@ -1631,23 +1631,10 @@ void setup()
      *   3. Temperature Sensors: Priority 2 on Core 0 - THIRD (5s interval)
      *   4. UI Sync/Telemetry: Priority 1 on Core 0 - FOURTH (2s interval)  
      *   5. Network/Web/Alerts: Priority 1 on Core 1 - BACKGROUND
-     *   6. Device Registration: Priority 0 on Core 1 - LOWEST (30s interval, timer-based)
      *
      * Core 0: Hardware tasks (relays, sensors, sync)
-     * Core 1: Network tasks (WiFi, HTTP, WebSocket, alerts, device registration)
+     * Core 1: Network tasks (WiFi, HTTP, WebSocket, alerts)
      */
-
-    // ===== CORE 1: DEVICE REGISTRATION VERIFICATION (Priority 0 - Lowest) =====
-    // Verifies device registration every 30 seconds, re-registers if needed
-    xTaskCreatePinnedToCore(
-        deviceRegistrationTask,
-        "DeviceRegTask",
-        4096,
-        NULL,
-        0,      // Priority 0 (lowest)
-        NULL,
-        1       // Core 1 (network)
-    );
 
     // ===== CORE 0: TEMPERATURE SENSOR TASK (Priority 2) =====
     // Reads 6 DS18B20 sensors every 5 seconds
@@ -2039,8 +2026,8 @@ void setup()
                         if(typeLower.indexOf("cool") >= 0 || typeLower.indexOf("fan") >= 0) coolingActive = true;
                     }
                 }
-                alertMgr.checkTemperatureAnomaly(avgTemp, 25.0f, heatingActive, coolingActive);
-                alertMgr.checkFrostNow(avgTemp, 2.0f);
+                // alertMgr.checkTemperatureAnomaly(avgTemp, 25.0f, heatingActive, coolingActive);
+                // alertMgr.checkFrostNow(avgTemp, 2.0f);
                 
                 for(const auto &d : deviceMgr.devices) {
                     if(d.active && d.enabled && d.hardwareChannel > 0) {
