@@ -1408,6 +1408,16 @@ void setup()
         }
     }, "ProxyConnCheck", 2048, nullptr, 1, nullptr, 1);
     
+    // ===== CORE 1: DEVICE REGISTRATION TASK (Priority 0 - LOWEST) =====
+    // Periodic device registration verification (runs every 30 seconds)
+    // Very low priority to avoid interfering with critical tasks
+    xTaskCreatePinnedToCore([](void*) {
+        for(;;) {
+            vTaskDelay(pdMS_TO_TICKS(30000)); // Check every 30 seconds
+            verifyDeviceRegistration();
+        }
+    }, "DeviceRegTask", 3072, nullptr, 0, nullptr, 1);
+    
     // Initialize SD card (non-blocking if fails)
     sdCard.begin();
 
