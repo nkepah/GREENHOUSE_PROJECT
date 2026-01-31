@@ -1581,31 +1581,7 @@
             fetchDashboardData();
         }
         
-        // Toggle Settings - New Modal Approach
-        function toggleSettingsUtil(event) {
-            if (event) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-            
-            const modal = document.getElementById('settings-modal');
-            if (modal) {
-                const isOpen = modal.classList.contains('open');
-                if (isOpen) {
-                    modal.classList.remove('open');
-                } else {
-                    modal.classList.add('open');
-                }
-            }
-        }
-        
-        // Close modal when clicking overlap
-        document.addEventListener('click', (e) => {
-            const modal = document.getElementById('settings-modal');
-            if (modal && e.target === modal) {
-                modal.classList.remove('open');
-            }
-        });
+
 
 
 
