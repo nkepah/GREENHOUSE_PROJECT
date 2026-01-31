@@ -1716,29 +1716,35 @@
                 time: document.getElementById('unit-time').value
             };
             
-            // Update global settings immediately
+            // Update global settings immediately for instant UI response
             userSettings.units = units;
             updateClock(); // Refresh clock display with new format
             
-            try {
-                const res = await fetch('/api/settings', {
-                     method: 'POST',
-                     headers: {'Content-Type': 'application/json'},
-                     body: JSON.stringify({ key: 'units', value: units })
-                });
-                
+            // Trigger weather update immediately with new units (async, don't wait)
+            const dashboardSection = document.getElementById('weatherSection');
+            if (dashboardSection) {
+                // Re-fetch dashboard to update weather with new units
+                fetchDashboard().catch(err => console.error('Weather refresh failed:', err));
+            }
+            
+            // Save to database in background (don't block UI)
+            fetch('/api/settings', {
+                 method: 'POST',
+                 headers: {'Content-Type': 'application/json'},
+                 body: JSON.stringify({ key: 'units', value: units })
+            })
+            .then(res => {
                 if (res.ok) {
-                    console.log('Units saved successfully');
-                    // Show success notification in a safe way
+                    console.log('✓ Units saved');
+                    // Show success notification
                     const notification = document.createElement('div');
-                    notification.textContent = '✅ Units saved';
+                    notification.textContent = '✅ Units updated';
                     notification.style.cssText = 'position:fixed; top:20px; right:20px; background:#4ecca3; color:#0d1117; padding:10px 15px; border-radius:5px; z-index:9999;';
                     document.body.appendChild(notification);
-                    setTimeout(() => notification.remove(), 2000);
+                    setTimeout(() => notification.remove(), 1500);
                 }
-            } catch(e) {
-                console.error('Save failed', e);
-            }
+            })
+            .catch(e => console.error('Save failed:', e));
         }
         
         // Initializer
@@ -1844,17 +1850,32 @@
                 const container = document.getElementById('hourlyForecast');
                 container.innerHTML = ''; // Clear existing cards
                 
+                // Get current time to show relative times
+                const now = new Date();
+                
                 // Display 24 hourly cards
                 for (let i = 0; i < Math.min(24, hourly.time.length); i++) {
-                    const time = new Date(hourly.time[i]);
-                    const hour = time.getHours().toString().padStart(2, '0');
-                    const minute = time.getMinutes().toString().padStart(2, '0');
+                    const forecastTime = new Date(hourly.time[i]);
                     const temp = convertTemp(hourly.temperature_2m[i]);
                     const code = hourly.weather_code?.[i] || 0;
                     
-                    // First card shows "Now", others show time
-                    const timeLabel = i === 0 ? 'Now' : `${hour}:${minute}`;
-                    const timeClass = i === 0 ? 'now' : '';
+                    // Determine time label
+                    let timeLabel = '';
+                    const hour = forecastTime.getHours().toString().padStart(2, '0');
+                    const minute = forecastTime.getMinutes().toString().padStart(2, '0');
+                    
+                    // Check if this is the current hour
+                    const isCurrentHour = (forecastTime.getHours() === now.getHours() && 
+                                          forecastTime.getDate() === now.getDate());
+                    
+                    if (isCurrentHour) {
+                        timeLabel = 'Now';
+                    } else {
+                        // Show full time for clarity
+                        timeLabel = `${hour}:${minute}`;
+                    }
+                    
+                    const timeClass = isCurrentHour ? 'now' : '';
                     
                     const card = document.createElement('div');
                     card.className = 'hourly-card';
