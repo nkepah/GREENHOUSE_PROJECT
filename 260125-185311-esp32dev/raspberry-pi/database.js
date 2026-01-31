@@ -107,5 +107,41 @@ module.exports = {
                 }
             });
         });
+    },
+    
+    // Weather cache functions - store pre-converted data
+    saveWeatherCache: (current_temp_c, current_temp_f, weather_code, daily_data, hourly_data) => {
+        return new Promise((resolve, reject) => {
+            const timestamp = Math.floor(Date.now() / 1000);
+            
+            // Delete old cache entries (keep only latest)
+            db.run("DELETE FROM weather_cache", [], (err) => {
+                if (err) {
+                    console.error('[DB] Error clearing old weather cache:', err);
+                    reject(err);
+                    return;
+                }
+                
+                // Insert new weather data with both C and F conversions
+                db.run(
+                    "INSERT INTO weather_cache (timestamp, current_temp_c, current_temp_f, weather_code, daily_data, hourly_data) VALUES (?, ?, ?, ?, ?, ?)",
+                    [timestamp, current_temp_c, current_temp_f, weather_code, daily_data, hourly_data],
+                    (err) => {
+                        if (err) reject(err);
+                        else resolve(true);
+                    }
+                );
+            });
+        });
+    },
+    
+    getWeatherCache: () => {
+        return new Promise((resolve, reject) => {
+            db.get("SELECT * FROM weather_cache ORDER BY timestamp DESC LIMIT 1", [], (err, row) => {
+                if (err) reject(err);
+                else resolve(row || null);
+            });
+        });
     }
 };
+
