@@ -1521,7 +1521,7 @@
         // Persistence
         async function loadSettings() {
             try {
-                const res = await fetch('/api/settings');
+                const res = await fetch('/api/settings?v=2.3');
                 if (!res.ok) throw new Error('Failed to fetch settings');
                 const settings = await res.json();
                 
@@ -1594,7 +1594,7 @@
         // Fetch initial data
         async function fetchDashboardData() {
             try {
-                const response = await fetch('/api/dashboard');
+                const response = await fetch('/api/dashboard?v=2.3');
                 const data = await response.json();
                 
                 if (data.farmName) {
