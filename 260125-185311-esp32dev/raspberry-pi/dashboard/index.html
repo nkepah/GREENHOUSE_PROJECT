@@ -1290,7 +1290,7 @@
             }
         };
 
-        function showSettingsPage(pageId) {
+        window.openSettingsPage = function(pageId) {
             // Hide all pages
             document.querySelectorAll('.settings-page').forEach(page => {
                 page.style.display = 'none';
@@ -1306,16 +1306,18 @@
             
             if (pageId === 'main') {
                 titleEl.textContent = 'Settings';
-                backBtn.style.display = 'none';
+                if(backBtn) backBtn.style.display = 'none';
             } else {
-                 backBtn.style.display = 'block';
+                 if(backBtn) backBtn.style.display = 'block';
                  // Set title based on page
-                 if(pageId === 'units') titleEl.textContent = 'Units';
-                 if(pageId === 'location') titleEl.textContent = 'Location';
-                 if(pageId === 'themes') titleEl.textContent = 'Themes';
-                 if(pageId === 'about') titleEl.textContent = 'About';
+                 if(titleEl) {
+                     if(pageId === 'units') titleEl.textContent = 'Units';
+                     if(pageId === 'location') titleEl.textContent = 'Location';
+                     if(pageId === 'themes') titleEl.textContent = 'Themes';
+                     if(pageId === 'about') titleEl.textContent = 'About';
+                 }
             }
-        }
+        };
 
         function toggleSettings(event) {
             if (event) event.stopPropagation();
@@ -1324,7 +1326,7 @@
             if (modal.classList.contains('open')) {
                 modal.classList.remove('open');
             } else {
-                showSettingsPage('main');
+                if(window.openSettingsPage) window.openSettingsPage('main');
                 modal.classList.add('open');
                 loadSettings();
             }
