@@ -249,20 +249,20 @@
             display: grid;
             grid-template-columns: 1fr auto 1fr;
             gap: 24px;
-            align-items: center;
+            align-items: start;
             color: #fff; /* Always white text on banner */
         }
         
         .weather-banner .weather-details {
-             color: rgba(255, 255, 255, 0.8);
-        }
+             color: rgba(255, 255, 255, 0.9);
+             font-size: 0.95rem;
         }
         
         .weather-sun {
             text-align: center;
             padding: 0 24px;
-            border-left: 1px solid var(--border);
-            border-right: 1px solid var(--border);
+            border-left: 1px solid rgba(255,255,255,0.2);
+            border-right: 1px solid rgba(255,255,255,0.2);
         }
         
         .sun-item {
@@ -270,18 +270,79 @@
             align-items: center;
             gap: 8px;
             margin: 8px 0;
-        }
-        
-        .weather-forecast {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        
-        .forecast-item {
-            display: flex;
-            justify-content: space-between;
             font-size: 0.9rem;
+        }
+        
+        /* 3-Day Forecast Grid */
+        .weather-forecast-3day {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .forecast-day {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .forecast-day:hover {
+            background: rgba(255,255,255,0.15);
+            transform: translateY(-2px);
+        }
+        
+        .forecast-label {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .forecast-icon {
+            font-size: 2rem;
+            margin: 4px 0;
+        }
+        
+        .forecast-temps {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .forecast-high {
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .forecast-low {
+            color: rgba(255,255,255,0.7);
+        }
+        
+        @media (max-width: 768px) {
+            .weather-banner {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .weather-sun {
+                padding: 0;
+                border: none;
+                border-bottom: 1px solid rgba(255,255,255,0.2);
+                padding-bottom: 12px;
+            }
+            
+            .weather-forecast-3day {
+                grid-column: 1;
+            }
         }
         
         /* Device Grid */
