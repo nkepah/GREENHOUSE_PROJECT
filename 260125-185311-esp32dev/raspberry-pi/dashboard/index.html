@@ -1428,7 +1428,7 @@
                     // Fetch Address
                     display.textContent = 'Fetching address...';
                     try {
-                        const res = await fetch(`/api/geocode?lat=${lat}&lon=${lon}`);
+                        const res = await fetch(`/api/geocode?lat=${lat}&lon=${lon}`, { credentials: 'same-origin' });
                         if(res.ok) {
                             const data = await res.json();
                             const addr = `${data.city}, ${data.country}`;
