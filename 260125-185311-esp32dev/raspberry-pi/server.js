@@ -111,12 +111,56 @@ async function fetchWeather(lat, lon) {
         
         const data = await response.json();
         
-        // Cache the result
-        weatherCache.data = data;
+        // Convert temperatures to both C and F and store in database
+        const tempC = data.current?.temperature_2m || 0;
+        const tempF = Math.round((tempC * 9/5) + 32);
+        const weatherCode = data.current?.weather_code || 0;
+        
+        // Convert hourly temperatures
+        const hourlyDataConverted = data.hourly ? {
+            ...data.hourly,
+            temperature_2m_c: data.hourly.temperature_2m,
+            temperature_2m_f: data.hourly.temperature_2m.map(c => Math.round((c * 9/5) + 32))
+        } : null;
+        
+        // Convert daily temperatures
+        const dailyDataConverted = data.daily ? {
+            ...data.daily,
+            temperature_2m_max_c: data.daily.temperature_2m_max,
+            temperature_2m_max_f: data.daily.temperature_2m_max.map(c => Math.round((c * 9/5) + 32)),
+            temperature_2m_min_c: data.daily.temperature_2m_min,
+            temperature_2m_min_f: data.daily.temperature_2m_min.map(c => Math.round((c * 9/5) + 32))
+        } : null;
+        
+        // Store converted data in database
+        await db.saveWeatherCache(
+            tempC,
+            tempF,
+            weatherCode,
+            JSON.stringify(dailyDataConverted),
+            JSON.stringify(hourlyDataConverted)
+        );
+        
+        // Return converted data (discard raw API data)
+        const convertedData = {
+            current: {
+                temperature_2m_c: tempC,
+                temperature_2m_f: tempF,
+                weather_code: weatherCode,
+                relative_humidity_2m: data.current?.relative_humidity_2m,
+                wind_speed_10m: data.current?.wind_speed_10m
+            },
+            daily: dailyDataConverted,
+            hourly: hourlyDataConverted,
+            timezone: data.timezone
+        };
+        
+        // Cache the converted result
+        weatherCache.data = convertedData;
         weatherCache.timestamp = now;
         
-        console.log(`[WEATHER] Cached: ${data.current?.temperature_2m}°C`);
-        return data;
+        console.log(`[WEATHER] Cached converted: ${tempC}°C / ${tempF}°F`);
+        return convertedData;
         
     } catch (err) {
         console.error('[WEATHER] Fetch error:', err.message);
