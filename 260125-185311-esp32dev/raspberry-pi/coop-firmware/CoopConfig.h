@@ -41,7 +41,7 @@
 #define COOP_PASS "YourWiFiPassword"
 
 // Raspberry Pi Gateway (for weather offloading)
-#define PI_GATEWAY_IP "192.168.1.50"
+#define PI_GATEWAY_IP "100.92.151.67"      // Updated to your Pi IP
 #define PI_GATEWAY_PORT 3000
 #define USE_PI_WEATHER true                // Get weather from Pi instead of direct API
 
