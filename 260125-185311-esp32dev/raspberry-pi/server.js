@@ -185,10 +185,20 @@ let deviceStatus = {};
 
 async function fetchDeviceStatus(deviceId, deviceInfo) {
     try {
+        // Skip status check if device has no IP (not registered yet)
+        const deviceIP = deviceInfo.ip || (deviceStatus[deviceId]?.ip);
+        if (!deviceIP) {
+            deviceStatus[deviceId] = {
+                online: false,
+                error: 'Device not registered - no IP available'
+            };
+            return;
+        }
+        
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 3000);
         
-        const response = await fetch(`http://${deviceInfo.ip}/api/status`, {
+        const response = await fetch(`http://${deviceIP}/api/status`, {
             signal: controller.signal
         });
         clearTimeout(timeout);
