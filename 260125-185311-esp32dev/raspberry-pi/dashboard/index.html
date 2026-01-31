@@ -2297,21 +2297,35 @@
                     const card = document.createElement('div');
                     card.className = 'hourly-card';
                     card.style.cursor = 'pointer';
+                    card.setAttribute('data-hourly-index', hourlyDataForClicks.length - 1);
+                    card.setAttribute('data-time-label', timeLabel);
                     card.innerHTML = `
                         <div class="hourly-time ${timeClass}">${timeLabel}</div>
                         <div class="hourly-icon">${getWeatherIcon(code)}</div>
                         <div class="hourly-temp">${temp}${tempSymbol}</div>
                     `;
                     
-                    // Add click handler to update display with this hour's data
-                    card.addEventListener('click', () => {
+                    container.appendChild(card);
+                }
+                
+                // Single event delegation listener for all hourly cards (much more efficient)
+                if (!container.hasHourlyListener) {
+                    container.addEventListener('click', (e) => {
+                        const card = e.target.closest('.hourly-card');
+                        if (!card) return;
+                        
+                        const hourlyIndex = parseInt(card.getAttribute('data-hourly-index'));
+                        const timeLabel = card.getAttribute('data-time-label');
+                        
+                        if (isNaN(hourlyIndex)) return;
+                        
                         // Pause the automatic refresh while showing hourly data
                         if (refreshInterval) clearInterval(refreshInterval);
                         
                         // Clear any existing reset timeout
                         if (hourlyResetTimeout) clearTimeout(hourlyResetTimeout);
                         
-                        updateWeatherForTimestamp(hourlyDataForClicks, hourlyDataForClicks.length - 24 + i, timeLabel);
+                        updateWeatherForTimestamp(hourlyDataForClicks, hourlyIndex, timeLabel);
                         // Visual feedback - highlight selected card
                         document.querySelectorAll('.hourly-card').forEach(c => c.style.opacity = '0.7');
                         card.style.opacity = '1';
@@ -2329,8 +2343,7 @@
                             refreshInterval = setInterval(fetchDashboardData, 2500);
                         }, 5000);
                     });
-                    
-                    container.appendChild(card);
+                    container.hasHourlyListener = true;
                 }
             }
             
