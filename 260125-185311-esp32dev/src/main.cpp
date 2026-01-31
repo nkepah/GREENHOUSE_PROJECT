@@ -1283,14 +1283,6 @@ void handleSocketData(AsyncWebSocketClient *client, uint8_t *data)
     {
         Serial.println("[ALERT] update_alert_setting: TODO implement");
     }
-        JsonObject alertsObj = response["alerts"].to<JsonObject>();
-        alertMgr.getAlertsJson(alertsObj);
-        
-        String out;
-        serializeJson(response, out);
-        client->text(out);
-        Serial.printf("[ALERT] Updated alert type %d config\n", alertType);
-    }
     else if (doc["type"] == "proxy_status")
     {
         // Pi proxy notifies ESP32 it's connected
