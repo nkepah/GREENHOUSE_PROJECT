@@ -1786,12 +1786,27 @@
             document.getElementById('weatherIcon').textContent = getWeatherIcon(code);
             document.getElementById('weatherDesc').textContent = getWeatherDesc(code);
             
-            if (daily) {
-                document.getElementById('tempHigh').textContent = 
-                    Math.round(daily.temperature_2m_max?.[0] || 0) + '°C';
-                document.getElementById('tempLow').textContent = 
-                    Math.round(daily.temperature_2m_min?.[0] || 0) + '°C';
+            if (daily && daily.time) {
+                // Update 3-day forecast
+                for (let i = 0; i < 3; i++) {
+                    const dayCode = daily.weather_code?.[i] || 0;
+                    const high = Math.round(daily.temperature_2m_max?.[i] || 0);
+                    const low = Math.round(daily.temperature_2m_min?.[i] || 0);
+                    const date = new Date(daily.time[i]);
+                    
+                    // Day label
+                    let label = i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : date.toLocaleDateString('en-US', { weekday: 'short' });
+                    document.getElementById(`forecastLabel${i}`).textContent = label;
+                    
+                    // Weather icon
+                    document.getElementById(`forecastIcon${i}`).textContent = getWeatherIcon(dayCode);
+                    
+                    // Temps
+                    document.getElementById(`forecastHigh${i}`).textContent = high + '°C';
+                    document.getElementById(`forecastLow${i}`).textContent = low + '°C';
+                }
                 
+                // Sunrise/Sunset
                 if (daily.sunrise?.[0]) {
                     const sr = new Date(daily.sunrise[0]);
                     document.getElementById('sunrise').textContent = 
