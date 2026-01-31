@@ -1593,10 +1593,12 @@
                 // Units
                 if (settings.units) {
                     const units = typeof settings.units === 'string' ? JSON.parse(settings.units) : settings.units;
+                    userSettings.units = units; // Store in global
                     ['temp', 'speed', 'pressure', 'date', 'time'].forEach(key => {
                         const el = document.getElementById(`unit-${key}`);
                         if (el && units[key]) el.value = units[key];
                     });
+                    updateClock(); // Refresh clock with new format
                 }
             } catch (err) {
                 console.warn('Could not load settings from server, falling back to local defaults', err);
