@@ -184,6 +184,8 @@ async function fetchWeather(lat, lon) {
             tempC,
             tempF,
             weatherCode,
+            humidity,
+            windSpeed,
             JSON.stringify(dailyConverted),
             JSON.stringify(hourlyConverted),
             data.timezone || 'UTC',
