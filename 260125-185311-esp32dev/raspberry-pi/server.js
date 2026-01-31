@@ -411,6 +411,38 @@ app.get('/api/dashboard', async (req, res) => {
         console.error('Weather fetch failed:', err);
     }
     
+    // Get user's preferred temperature unit (default to C)
+    let tempUnit = 'C';
+    try {
+        const settings = await db.getAll();
+        const units = settings.units || {};
+        tempUnit = units.temp || 'C';
+    } catch (err) {
+        console.error('[DASHBOARD] Error getting units setting:', err);
+    }
+    
+    // Convert weather data to user's preferred unit
+    let weatherForDisplay = weather;
+    if (weather && tempUnit === 'F') {
+        weatherForDisplay = {
+            temperature_2m_c: weather.current?.temperature_2m_c,
+            temperature_2m_f: weather.current?.temperature_2m_f,
+            temperature_2m: weather.current?.temperature_2m_f, // Display field uses F
+            weather_code: weather.current?.weather_code,
+            relative_humidity_2m: weather.current?.relative_humidity_2m,
+            wind_speed_10m: weather.current?.wind_speed_10m
+        };
+    } else if (weather) {
+        weatherForDisplay = {
+            temperature_2m_c: weather.current?.temperature_2m_c,
+            temperature_2m_f: weather.current?.temperature_2m_f,
+            temperature_2m: weather.current?.temperature_2m_c, // Display field uses C
+            weather_code: weather.current?.weather_code,
+            relative_humidity_2m: weather.current?.relative_humidity_2m,
+            wind_speed_10m: weather.current?.wind_speed_10m
+        };
+    }
+    
     // Build response
     const devices = {};
     for (const [id, info] of Object.entries(config.devices)) {
@@ -459,7 +491,7 @@ app.get('/api/dashboard', async (req, res) => {
     res.json({
         farmName: config.farmName,
         location: locationDisplay,
-        weather: weather?.current || null,
+        weather: weatherForDisplay,
         daily: weather?.daily || null,
         hourly: weather?.hourly || null,
         devices,
