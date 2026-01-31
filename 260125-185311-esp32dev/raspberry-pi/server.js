@@ -570,7 +570,13 @@ app.get('/api/weather-convert', async (req, res) => {
         
         // CONVERSION SOURCE 2: Cached database data
         // Re-convert using cached data (called when user changes temperature unit in settings)
-        const convertedData = await convertAndCacheWeather(cachedData, false);
+        await convertAndCacheWeather(cachedData, false);
+        
+        // Query updated cache from database
+        const updatedCache = await db.getWeatherCache();
+        if (!updatedCache) {
+            return res.status(500).json({ error: 'Failed to retrieve converted data' });
+        }
         
         // Get user's preferred temperature unit
         let tempUnit = 'C';
