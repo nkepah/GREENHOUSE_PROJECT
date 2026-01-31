@@ -17,7 +17,6 @@ const fs = require('fs');
 const http = require('http');
 const WebSocket = require('ws');
 const deviceAPI = require('./device-api');
-const db = require('./database'); // SQLite DB Manager
 
 const app = express();
 const PORT = 3000;
@@ -26,15 +25,14 @@ const PORT = 3000;
 // CONFIGURATION
 // =============================================================================
 
-// Default config (will be overwritten by DB)
+// Load device configuration from file
 let config = {
-    farmName: "Smart Farm Hub",
+    farmName: "My Farm Hub",
     location: { 
         lat: -17.8292, 
         lon: 31.0522,
         city: 'Harare',
-        region: 'Zimbabwe',
-        timezone: 'Africa/Harare'
+        region: 'Zimbabwe'
     },
     devices: {
         greenhouse: { ip: "10.0.0.163", name: "Greenhouse", type: "greenhouse" }
@@ -45,25 +43,29 @@ let config = {
     }
 };
 
-async function loadConfig() {
+const CONFIG_FILE = path.join(__dirname, 'farm-config.json');
+
+function loadConfig() {
     try {
-        const settings = await db.getAll();
-        console.log('[CONFIG] Loaded settings from DB:', settings);
-        
-        if (settings.farm_name) config.farmName = settings.farm_name;
-        if (settings.location) {
-             // Parse if string, otherwise use as is
-             const loc = typeof settings.location === 'string' ? JSON.parse(settings.location) : settings.location;
-             config.location = { ...config.location, ...loc };
-             config.weather.timezone = loc.timezone || config.weather.timezone;
+        if (fs.existsSync(CONFIG_FILE)) {
+            const data = fs.readFileSync(CONFIG_FILE, 'utf8');
+            config = { ...config, ...JSON.parse(data) };
+            console.log('✓ Configuration loaded');
         }
-        // Add other mappings as needed
     } catch (err) {
-        console.error('Failed to load config from DB:', err.message);
+        console.error('Failed to load config:', err.message);
     }
 }
 
-// Initial load
+function saveConfig() {
+    try {
+        fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2));
+        console.log('✓ Configuration saved');
+    } catch (err) {
+        console.error('Failed to save config:', err.message);
+    }
+}
+
 loadConfig();
 
 // =============================================================================
@@ -166,78 +168,11 @@ setInterval(updateAllDeviceStatus, 30000);
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'dashboard')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // =============================================================================
 // API ROUTES
 // =============================================================================
-
-// --- Settings API (SQLite) ---
-app.get('/api/settings', async (req, res) => {
-    try {
-        const settings = await db.getAll();
-        res.json(settings);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-app.post('/api/settings', async (req, res) => {
-    try {
-        const { key, value } = req.body;
-        if (!key || value === undefined) {
-             return res.status(400).json({ error: 'Missing key or value' });
-        }
-        await db.set(key, value);
-        
-        // Refresh local config cache
-        await loadConfig();
-        
-        res.json({ success: true });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// --- Geocoding Proxy (Reverse Lookup) ---
-app.get('/api/geocode', async (req, res) => {
-    try {
-        const { lat, lon } = req.query;
-        if (!lat || !lon) return res.status(400).json({ error: 'Missing lat/lon' });
-        
-        const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10`;
-        const response = await fetch(url, {
-            headers: { 'User-Agent': 'SmartFarmHub/2.0' }
-        });
-        
-        if (!response.ok) throw new Error('Geocoding service unavailable');
-        const data = await response.json();
-        
-        // Simplify response
-        const addr = data.address || {};
-        
-        // Prioritize meaningful names
-        const mainName = addr.city || addr.town || addr.village || addr.hamlet || addr.suburb || addr.neighbourhood || addr.county || 'Unknown Location';
-        const secondary = addr.state || addr.region || '';
-        
-        let cityDisplay = mainName;
-        if (secondary && secondary !== mainName) {
-            cityDisplay += `, ${secondary}`;
-        }
-        
-        const location = {
-            city: cityDisplay,
-            country: addr.country || '',
-            display_name: data.display_name
-        };
-        console.log(`[GEOCODE] Resolved ${lat},${lon} to: ${cityDisplay}, ${location.country}`);
-        
-        res.json(location);
-    } catch (err) {
-        console.error('Geocode error:', err.message);
-        res.status(500).json({ error: 'Failed to lookup address' });
-    }
-});
 
 // --- Weather API (for ESP32s and dashboard) ---
 app.get('/api/weather', async (req, res) => {
@@ -382,17 +317,6 @@ app.get('/api/health', (req, res) => {
         devices: { online: onlineCount, total: totalCount },
         weatherCacheAge: weatherCache.timestamp ? 
             Math.round((Date.now() - weatherCache.timestamp) / 1000) + 's' : 'none'
-    });
-});
-
-// System status endpoint for settings
-app.get('/api/status', (req, res) => {
-    res.json({
-        status: 'online',
-        timestamp: Date.now(),
-        uptime: Math.floor(process.uptime()),
-        pi_ip: req.ip,
-        version: '2.1.0'
     });
 });
 
