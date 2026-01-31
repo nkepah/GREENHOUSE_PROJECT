@@ -620,44 +620,50 @@
 
             .logo {
                 grid-area: logo;
-                /* Ensure children flow correctly */
-                display: flex;
-                flex-direction: column;
-                align-items: flex-start;
             }
             
-            /* Move location from logo area to clock row using CSS trickery or just restructure via absolute positioning? */
-            /* Better solution: Let javascript clone/move it OR use the clock row if possible */
-            /* Since I can't easily change HTML structure per breakpoint without JS moving: */
-            /* I will force the #header-location to display differently */
-            
-            #header-location {
-               /* On mobile, we want this "next to the time" which is on the second row */
-               /* But it is structurally inside .logo (first row first col) */
-               /* So we can't easily put it in the second row next to clock via Grid */
-               /* UNLESS we make .logo span 2 rows? No that messes up settings button */
-               
-               /* ALTERNATIVE: Make .logo flex-start, hide location in logo, Show location in clock? No duplication. */
-               
-               /* Hack: Absolute positioning relative to header content? */
-               /* Or... change grid to put logo on top left, settings on top right */
-               /* Then clock and location on bottom row */
+            .settings-wrapper {
+                grid-area: settings;
+                justify-self: end;
+            }
+
+            .logo-icon {
+                font-size: 2rem;
             }
             
-            /* Let's try changing the grid areas to include location */
-            /* But location is inside .logo. */
+            .logo h1 {
+                font-size: 1.1rem;
+            }
+
+            #clock {
+                grid-area: clock;
+                display: flex !important;
+                flex-wrap: wrap; 
+                gap: 10px;
+                background: none !important;
+                border: none !important;
+                padding: 0 !important;
+                margin-top: 4px;
+                align-items: center;
+            }
+            
+            #mobile-location-container {
+                display: inline-flex !important;
+                font-size: 0.8rem;
+                color: var(--text-secondary);
+                background: var(--bg-card); 
+                padding: 3px 8px;
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                align-items: center;
+                gap: 4px;
+            }
         }
         
-        /* Specific mobile location override */
         @media (max-width: 768px) {
             #header-location {
-                 display: none !important; /* Hide the one inside logo */
+                 display: none !important; 
             }
-            
-            /* create pseudo element or check if we can inject via JS? 
-               User asked for "next to the time". 
-               The time is in #clock.
-               We can inject the location text into #clock via JS */
         }       
         
         /* Loading State */
