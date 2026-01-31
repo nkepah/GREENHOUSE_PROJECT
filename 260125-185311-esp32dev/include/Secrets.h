@@ -4,6 +4,27 @@
 /**
  * Secrets and Configuration Constants
  * This file holds static configuration for the ESP32 greenhouse controller
+ * 
+ * NETWORK ARCHITECTURE:
+ * ────────────────────────────────────────────────────────────────────────
+ * ESP32 (field device) ←→ farm-hub (Pi server)
+ * 
+ * Connection Method: mDNS hostname resolution (recommended)
+ *   • Pi Hostname: farm-hub
+ *   • mDNS Domain: farm-hub.local
+ *   • Local Network IP: 10.0.0.3
+ *   • Tailscale VPN IP: 100.92.151.67
+ *   
+ * Benefit: If Pi's IP address changes, ESP32 automatically reconnects
+ *          using the persistent hostname (farm-hub)
+ * 
+ * ESP32 Connection Flow:
+ *   1. Connects to WiFi: "Baminyam2.0_EXT2.4G"
+ *   2. Resolves PI_HOSTNAME ("farm-hub") via mDNS
+ *   3. Connects to farm-hub:3000
+ *   4. Registers device IP every 30 seconds
+ *   5. Receives routine commands via WebSocket
+ *   6. Sends sensor data and alerts to Pi
  */
 
 // Device Configuration
