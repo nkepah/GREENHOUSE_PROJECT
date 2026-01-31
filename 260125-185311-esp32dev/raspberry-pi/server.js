@@ -7,10 +7,15 @@
  * - Provides unified API for the dashboard
  * - Aggregates device status
  * 
+ * Priority Management:
+ * - Starts at HIGH priority (-20) for fast initial startup
+ * - Drops to LOWEST priority (19) after 30 seconds for efficiency
+ * 
  * Run: node server.js
  */
 
 const express = require('express');
+const os = require('os');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
