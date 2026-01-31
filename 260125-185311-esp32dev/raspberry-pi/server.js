@@ -292,8 +292,14 @@ app.get('/api/devices/:deviceId', (req, res) => {
         return res.status(404).json({ error: 'Device not found' });
     }
     
+    const info = config.devices[deviceId];
+    // Use IP from deviceStatus if available (from registration), otherwise from config
+    const ip = info.ip || (deviceStatus[deviceId]?.ip);
+    
     res.json({
-        ...config.devices[deviceId],
+        ...info,
+        ip: ip || null,
+        online: deviceStatus[deviceId]?.online || false,
         status: deviceStatus[deviceId] || { online: false }
     });
 });
