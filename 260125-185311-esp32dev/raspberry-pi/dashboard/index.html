@@ -2026,15 +2026,6 @@
                 window.devicesRefreshInterval = setInterval(loadDevices, 5000);
             }
         }
-        
-        // Update showSettingsPage to handle devices page
-        const originalShowSettingsPage = showSettingsPage;
-        showSettingsPage = function(pageId) {
-            if (pageId === 'devices') {
-                showDevicesPage();
-            }
-            originalShowSettingsPage.call(this, pageId);
-        };
 
         let hourlyDataForClicks = [];
         let hourlyResetTimeout = null;
