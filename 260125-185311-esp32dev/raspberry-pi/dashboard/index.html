@@ -1471,7 +1471,7 @@
             let address = window.detectedAddress || 'Custom Location';
             if (lat && lon) {
                  try {
-                     const res = await fetch(`/api/geocode?lat=${lat}&lon=${lon}`);
+                     const res = await fetch(`/api/geocode?lat=${lat}&lon=${lon}`, { credentials: 'same-origin' });
                      if (res.ok) {
                          const data = await res.json();
                          // Construct address: City, State (No Country)
