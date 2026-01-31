@@ -1614,6 +1614,10 @@
                 time: document.getElementById('unit-time').value
             };
             
+            // Update global settings immediately
+            userSettings.units = units;
+            updateClock(); // Refresh clock display with new format
+            
             try {
                 const res = await fetch('/api/settings', {
                      method: 'POST',
