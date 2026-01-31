@@ -470,16 +470,35 @@ app.get('/api/dashboard', async (req, res) => {
         console.error('[DASHBOARD] Error getting preferred unit from cache:', err);
     }
     
-    // Build weather response with correct display temperature
+    // Build weather response with correct display temperature and unit-converted values
     let weatherForDisplay = null;
-    if (weather) {
+    if (weather && cachedWeather) {
+        // Get user's speed unit preference
+        let speedUnit = 'kmh';
+        try {
+            const settings = await db.getAll();
+            const units = settings.units || {};
+            speedUnit = units.speed || 'kmh';
+        } catch (err) {
+            console.warn('[DASHBOARD] Could not get speed unit, using kmh');
+        }
+        
+        // Convert wind speed if needed (from km/h to mph: divide by 1.609)
+        let windSpeedDisplay = cachedWeather.wind_speed || 0;
+        let speedLabel = 'km/h';
+        if (speedUnit === 'mph') {
+            windSpeedDisplay = Math.round(windSpeedDisplay / 1.609);
+            speedLabel = 'mph';
+        }
+        
         weatherForDisplay = {
             temperature_2m_c: weather.current?.temperature_2m_c,
             temperature_2m_f: weather.current?.temperature_2m_f,
             temperature_2m: tempUnit === 'F' ? weather.current?.temperature_2m_f : weather.current?.temperature_2m_c,
             weather_code: weather.current?.weather_code,
-            relative_humidity_2m: weather.current?.relative_humidity_2m,
-            wind_speed_10m: weather.current?.wind_speed_10m
+            relative_humidity_2m: cachedWeather.humidity,
+            wind_speed_10m: windSpeedDisplay,
+            wind_speed_unit: speedLabel
         };
     }
     
