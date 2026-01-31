@@ -1863,8 +1863,11 @@
             document.getElementById('weatherTempUnit').textContent = tempSymbol;
             document.getElementById('weatherHumidity').textContent = 
                 current.relative_humidity_2m || '--';
+            
+            // Display wind speed with correct unit from API response
+            const windSpeedUnit = current.wind_speed_unit || 'km/h';
             document.getElementById('windSpeed').textContent = 
-                (current.wind_speed_10m || '--') + ' km/h';
+                (current.wind_speed_10m || '--') + ' ' + windSpeedUnit;
             
             // Weather icon based on code
             const code = current.weather_code;
