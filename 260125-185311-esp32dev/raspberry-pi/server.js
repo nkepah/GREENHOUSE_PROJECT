@@ -28,12 +28,7 @@ const PORT = 3000;
 // Load device configuration from file
 let config = {
     farmName: "My Farm Hub",
-    location: { 
-        lat: -17.8292, 
-        lon: 31.0522,
-        city: 'Harare',
-        region: 'Zimbabwe'
-    },
+    location: { lat: -17.8292, lon: 31.0522 }, // Default: Harare, Zimbabwe
     devices: {
         greenhouse: { ip: "10.0.0.163", name: "Greenhouse", type: "greenhouse" }
     },
@@ -355,27 +350,6 @@ app.post('/api/device/:device_id/ota-push-immediate', (req, res) => {
 });
 
 // =============================================================================
-// DEVICE DASHBOARDS
-// =============================================================================
-
-// Unified device dashboard
-app.get('/greenhouse/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dashboard', 'unified.html'));
-});
-
-app.get('/coop1/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dashboard', 'unified.html'));
-});
-
-app.get('/coop2/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dashboard', 'unified.html'));
-});
-
-app.get('/coop3/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dashboard', 'unified.html'));
-});
-
-// =============================================================================
 // WEBSOCKET SERVER
 // =============================================================================
 
@@ -475,20 +449,17 @@ function broadcastStatus() {
     const now = new Date();
     const ghStatus = deviceStatus.greenhouse || {};
     
-    // Convert deviceStatus object to array for frontend
-    const devicesArray = Object.entries(deviceStatus).map(([id, data]) => ({
-        id,
-        ...data
-    }));
-    
-    // Only include telemetry if ESP32 actually provided it
-    const payload = {
+    const message = JSON.stringify({
         type: 'sync',
-        devices: devicesArray,  // Send as array, not object
+        devices: deviceStatus,
+        // Always send telemetry fields - real data from ESP32 or undefined
+        temp: ghStatus.temp,
+        amps: ghStatus.amps,
+        power: ghStatus.power,
         config: {
             ssid: config.devices.greenhouse?.name || 'Greenhouse',
-            city: config.location?.city || 'Unknown',
-            region: config.location?.region || 'Unknown'
+            city: 'Harare',
+            region: 'Zimbabwe'
         },
         net: {
             connected: true,
@@ -518,20 +489,7 @@ function broadcastStatus() {
             hourly: []
         },
         timestamp: Date.now()
-    };
-    
-    // ONLY add temp/amps if ESP32 actually sent them (not undefined)
-    if (ghStatus.temp !== undefined) {
-        payload.temp = ghStatus.temp;
-    }
-    if (ghStatus.amps !== undefined) {
-        payload.amps = ghStatus.amps;
-    }
-    if (ghStatus.power !== undefined) {
-        payload.power = ghStatus.power;
-    }
-    
-    const message = JSON.stringify(payload);
+    });
     
     for (const client of wsClients) {
         if (client.readyState === WebSocket.OPEN) {
@@ -567,9 +525,4 @@ server.listen(PORT, '0.0.0.0', () => {
     
     // Initial device status fetch
     updateAllDeviceStatus();
-    
-    // Fetch weather on startup
-    fetchWeather(config.location.lat, config.location.lon).catch(err => 
-        console.error('[WEATHER] Initial fetch failed:', err.message)
-    );
 });
