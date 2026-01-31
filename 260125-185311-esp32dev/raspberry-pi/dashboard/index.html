@@ -1853,6 +1853,62 @@
             .catch(e => console.error('Save failed:', e));
         }
         
+        // Load and save temperature thresholds
+        async function loadThresholds() {
+            try {
+                const response = await fetch('/api/settings');
+                const data = await response.json();
+                
+                const thresholds = data.thresholds || {
+                    frost_c: 0,
+                    frost_f: 32,
+                    heat_c: 35,
+                    heat_f: 95
+                };
+                
+                document.getElementById('frostThreshold-c').value = thresholds.frost_c;
+                document.getElementById('frostThreshold-f').value = thresholds.frost_f;
+                document.getElementById('heatThreshold-c').value = thresholds.heat_c;
+                document.getElementById('heatThreshold-f').value = thresholds.heat_f;
+                
+                // Store in global for warning detection
+                userSettings.thresholds = thresholds;
+            } catch (err) {
+                console.error('Failed to load thresholds:', err);
+            }
+        }
+        
+        async function saveThresholds() {
+            const thresholds = {
+                frost_c: parseFloat(document.getElementById('frostThreshold-c').value) || 0,
+                frost_f: parseFloat(document.getElementById('frostThreshold-f').value) || 32,
+                heat_c: parseFloat(document.getElementById('heatThreshold-c').value) || 35,
+                heat_f: parseFloat(document.getElementById('heatThreshold-f').value) || 95
+            };
+            
+            // Update global settings immediately
+            userSettings.thresholds = thresholds;
+            
+            // Save to database
+            fetch('/api/settings', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ key: 'thresholds', value: thresholds })
+            })
+            .then(res => {
+                if (res.ok) {
+                    console.log('✓ Thresholds saved:', thresholds);
+                    // Show success notification
+                    const notification = document.createElement('div');
+                    notification.textContent = '✅ Thresholds saved successfully';
+                    notification.style.cssText = 'position:fixed; top:20px; right:20px; background:#4ecca3; color:#0d1117; padding:10px 15px; border-radius:5px; z-index:9999;';
+                    document.body.appendChild(notification);
+                    setTimeout(() => notification.remove(), 1500);
+                }
+            })
+            .catch(e => console.error('Failed to save thresholds:', e));
+        }
+        
         // Initializer
         document.addEventListener('DOMContentLoaded', () => {
              loadSettings();
