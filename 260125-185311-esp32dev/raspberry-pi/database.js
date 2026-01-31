@@ -36,6 +36,8 @@ function initSchema() {
         current_temp_c REAL,
         current_temp_f REAL,
         weather_code INTEGER,
+        humidity REAL,
+        wind_speed REAL,
         daily_data TEXT,
         hourly_data TEXT,
         timezone TEXT DEFAULT 'UTC',
@@ -112,7 +114,7 @@ module.exports = {
     },
     
     // Weather cache functions - store pre-converted data
-    saveWeatherCache: (current_temp_c, current_temp_f, weather_code, daily_data, hourly_data, timezone = 'UTC', preferred_unit = 'C') => {
+    saveWeatherCache: (current_temp_c, current_temp_f, weather_code, humidity, wind_speed, daily_data, hourly_data, timezone = 'UTC', preferred_unit = 'C') => {
         return new Promise((resolve, reject) => {
             const timestamp = Math.floor(Date.now() / 1000);
             
@@ -124,10 +126,10 @@ module.exports = {
                     return;
                 }
                 
-                // Insert new weather data with both C and F conversions + preferred unit
+                // Insert new weather data with both C and F conversions + humidity + wind speed
                 db.run(
-                    "INSERT INTO weather_cache (timestamp, current_temp_c, current_temp_f, weather_code, daily_data, hourly_data, timezone, preferred_unit) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                    [timestamp, current_temp_c, current_temp_f, weather_code, daily_data, hourly_data, timezone, preferred_unit],
+                    "INSERT INTO weather_cache (timestamp, current_temp_c, current_temp_f, weather_code, humidity, wind_speed, daily_data, hourly_data, timezone, preferred_unit) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    [timestamp, current_temp_c, current_temp_f, weather_code, humidity, wind_speed, daily_data, hourly_data, timezone, preferred_unit],
                     (err) => {
                         if (err) reject(err);
                         else resolve(true);
