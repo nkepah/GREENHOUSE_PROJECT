@@ -1406,7 +1406,8 @@
             const originalText = btn ? btn.textContent : '📍 Detect My Location';
             
             if (!navigator.geolocation) {
-                alert('Geolocation is not supported by your browser');
+                display.textContent = '⚠️ Geolocation not available. Enter coordinates manually.';
+                if(btn) btn.textContent = originalText;
                 return;
             }
             
@@ -1438,9 +1439,6 @@
                             const data = await res.json();
                             const addr = `${data.city}, ${data.country}`;
                             display.textContent = '📍 ' + addr;
-                            // Store address in hidden field or state if needed, 
-                            // but for now we just show it. 
-                            // We will save it as part of the location object.
                             window.detectedAddress = addr; 
                         } else {
                              display.textContent = 'Lat: ' + lat + ', Lon: ' + lon;
@@ -1452,13 +1450,17 @@
                     if(btn) btn.textContent = originalText;
                 },
                 (err) => {
-                    console.error(err);
-                    let msg = 'Unable to retrieve location.';
-                    if (err.code === 1) msg += ' Permission denied. (Requires HTTPS?)';
-                    else if (err.code === 2) msg += ' Position unavailable.';
-                    else if (err.code === 3) msg += ' Timeout.';
+                    console.error('Geolocation error:', err);
+                    let msg = '❌ Location detection failed: ';
+                    if (err.code === 1) msg += 'Permission denied. Requires HTTPS for security.';
+                    else if (err.code === 2) msg += 'Position unavailable.';
+                    else if (err.code === 3) msg += 'Timeout - try again.';
+                    else msg += err.message;
                     
-                    alert(`${msg}\n\nError: ${err.message}\n\nPlease enter coordinates manually.`);
+                    display.textContent = msg;
+                    console.warn(msg);
+                    
+                    if(btn) btn.textContent = originalText;                    alert(`${msg}\n\nError: ${err.message}\n\nPlease enter coordinates manually.`);
                     
                     if(btn) btn.textContent = originalText;
                     display.textContent = 'Location detection failed';
