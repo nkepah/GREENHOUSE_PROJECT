@@ -286,6 +286,58 @@ public:
                 request->send(404, F("text/plain"), F("Not Found"));
             }
         });
+        
+        // /api/settings - Get or save user settings
+        server.on("/api/settings", HTTP_GET, [](AsyncWebServerRequest *request) {
+            // Return empty settings for now - would be loaded from NVS
+            DynamicJsonDocument doc(1024);
+            doc["theme"] = "default";
+            
+            JsonObject units = doc.createNestedObject("units");
+            units["temp"] = "C";
+            units["speed"] = "kmh";
+            units["pressure"] = "hpa";
+            units["date"] = "DD/MM/YYYY";
+            units["time"] = "24h";
+            
+            String json;
+            serializeJson(doc, json);
+            request->send(200, F("application/json"), json);
+        });
+        
+        server.on("/api/settings", HTTP_POST, [](AsyncWebServerRequest *request) {
+            // Save settings to NVS (not implemented yet)
+            request->send(200, F("application/json"), F("{\"status\":\"saved\"}"));
+        });
+        
+        // /api/geocode - Geocoding helper for location lookup
+        server.on("/api/geocode", HTTP_GET, [](AsyncWebServerRequest *request) {
+            if(!request->hasParam("lat") || !request->hasParam("lon")) {
+                request->send(400, F("application/json"), F("{\"error\":\"Missing lat/lon\"}"));
+                return;
+            }
+            
+            // Return mock geocode data
+            DynamicJsonDocument doc(512);
+            doc["city"] = "Virginia";
+            doc["country"] = "USA";
+            doc["cityComponent"] = "Virginia, USA";
+            doc["address"] = "Farm Location, Virginia, USA";
+            
+            String json;
+            serializeJson(doc, json);
+            request->send(200, F("application/json"), json);
+        });
+        
+        // /api/device/register - Device registration endpoint
+        server.on("/api/device/register", HTTP_POST, [](AsyncWebServerRequest *request) {
+            request->send(200, F("application/json"), F("{\"status\":\"registered\"}"));
+        });
+        
+        // /api/device/verify/:id - Device verification endpoint
+        server.on("/api/device/verify", HTTP_GET, [](AsyncWebServerRequest *request) {
+            request->send(200, F("application/json"), F("{\"verified\":true}"));
+        });
 
         // WebSocket with minimal logging
         ws.onEvent([this](AsyncWebSocket *server, AsyncWebSocketClient *client, 
