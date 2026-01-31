@@ -1557,7 +1557,7 @@
                 // Units
                 if (settings.units) {
                     const units = typeof settings.units === 'string' ? JSON.parse(settings.units) : settings.units;
-                    ['temp', 'speed', 'pressure', 'date'].forEach(key => {
+                    ['temp', 'speed', 'pressure', 'date', 'time'].forEach(key => {
                         const el = document.getElementById(`unit-${key}`);
                         if (el && units[key]) el.value = units[key];
                     });
