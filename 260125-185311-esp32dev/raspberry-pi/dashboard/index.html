@@ -1304,30 +1304,7 @@
                 modal.classList.remove('open');
             }
         });
-                    dropdown.style.left = '0';
-                    dropdown.style.right = '0';
-                    dropdown.style.width = '100%';
-                    dropdown.style.transform = 'translateY(0)';
-                    dropdown.style.visibility = 'visible';
-                    dropdown.style.opacity = '1';
-                    dropdown.style.zIndex = '99999'; // Super high
-                } else if (btn) {
-                    // Desktop: Position next to button
-                    const rect = btn.getBoundingClientRect();
-                    dropdown.style.position = 'fixed';
-                    dropdown.style.top = (rect.bottom + 8) + 'px';
-                    // Right align with button right edge
-                    const rightOffset = window.innerWidth - rect.right;
-                    dropdown.style.right = rightOffset + 'px';
-                    dropdown.style.left = 'auto'; // clear left
-                    dropdown.style.bottom = 'auto'; // clear bottom
-                    dropdown.style.width = '300px'; 
-                    dropdown.style.transform = 'translateY(0)';
-                    dropdown.style.visibility = 'visible';
-                    dropdown.style.opacity = '1';
-                    dropdown.style.zIndex = '10000';
-                }
-            } else {
+
                 dropdown.classList.remove('show');
                 dropdown.style.visibility = 'hidden';
                 dropdown.style.opacity = '0';
