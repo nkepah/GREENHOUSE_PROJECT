@@ -1945,7 +1945,93 @@
             .catch(e => console.error('Failed to save thresholds:', e));
         }
         
-        // Global variable to store hourly data for click interactions
+        // Load and display registered devices
+        async function loadDevices() {
+            try {
+                const response = await fetch('/api/devices');
+                const data = await response.json();
+                displayDevices(data);
+            } catch (error) {
+                console.error('Error loading devices:', error);
+                document.getElementById('devicesList').innerHTML = '<div style="text-align:center; color:var(--text-secondary); padding:20px;">❌ Failed to load devices</div>';
+            }
+        }
+        
+        // Display devices in the UI
+        function displayDevices(data) {
+            const devicesList = document.getElementById('devicesList');
+            const devices = data.devices || {};
+            const deviceCount = Object.keys(devices).length;
+            
+            if (deviceCount === 0) {
+                devicesList.innerHTML = '<div style="text-align:center; color:var(--text-secondary); padding:20px;">📱 No devices registered yet</div>';
+                return;
+            }
+            
+            let html = '';
+            for (const [deviceId, device] of Object.entries(devices)) {
+                const lastSeen = new Date(device.last_seen);
+                const now = new Date();
+                const minutesAgo = Math.floor((now - lastSeen) / 60000);
+                let statusText = 'Online';
+                let statusColor = '#4ecca3';
+                
+                if (minutesAgo > 5) {
+                    statusText = minutesAgo < 60 ? `${minutesAgo}m ago` : 'Offline';
+                    statusColor = minutesAgo > 10 ? '#f85149' : '#fb8500';
+                }
+                
+                const registeredDate = new Date(device.registered_at);
+                const registerTime = registeredDate.toLocaleString();
+                
+                html += `
+                    <div style="background:var(--bg-primary); border:1px solid var(--border); border-radius:8px; padding:16px; display:grid; grid-template-columns:auto 1fr auto; gap:16px; align-items:start;">
+                        <div style="font-size:2rem;">
+                            ${device.type === 'greenhouse' ? '🌱' : '🐔'}
+                        </div>
+                        <div>
+                            <div style="font-weight:600; color:var(--text-primary); margin-bottom:4px;">${device.name || device.id}</div>
+                            <div style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:6px;">
+                                <strong>IP:</strong> ${device.ip}
+                            </div>
+                            <div style="font-size:0.8rem; color:var(--text-secondary);">
+                                <strong>Type:</strong> ${device.type}
+                            </div>
+                            <div style="font-size:0.8rem; color:var(--text-secondary); margin-top:6px;">
+                                <strong>Registered:</strong> ${registerTime}
+                            </div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="display:inline-flex; align-items:center; gap:6px; background:rgba(${statusColor === '#4ecca3' ? '78, 204, 163' : statusColor === '#fb8500' ? '251, 133, 0' : '248, 81, 73'}, 0.1); padding:6px 12px; border-radius:6px; border:1px solid rgba(${statusColor === '#4ecca3' ? '78, 204, 163' : statusColor === '#fb8500' ? '251, 133, 0' : '248, 81, 73'}, 0.3);">
+                                <div style="width:8px; height:8px; border-radius:50%; background:${statusColor};"></div>
+                                <span style="font-size:0.8rem; font-weight:600;">${statusText}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            devicesList.innerHTML = html;
+        }
+        
+        // Load devices when devices page is opened
+        function showDevicesPage() {
+            loadDevices();
+            // Auto-refresh every 5 seconds
+            if (!window.devicesRefreshInterval) {
+                window.devicesRefreshInterval = setInterval(loadDevices, 5000);
+            }
+        }
+        
+        // Update showSettingsPage to handle devices page
+        const originalShowSettingsPage = showSettingsPage;
+        showSettingsPage = function(pageId) {
+            if (pageId === 'devices') {
+                showDevicesPage();
+            }
+            originalShowSettingsPage.call(this, pageId);
+        };
+
         let hourlyDataForClicks = [];
         let hourlyResetTimeout = null;
         let currentWeatherSnapshot = null; // Store current "Now" data for reverting
