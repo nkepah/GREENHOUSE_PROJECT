@@ -1095,6 +1095,7 @@
                     <div class="weather-details">
                         <div id="weatherDesc">Loading weather...</div>
                         <div>💧 <span id="weatherHumidity">--</span>% humidity</div>
+                        <div>💨 <span id="windSpeed">-- km/h</span></div>
                     </div>
                 </div>
             </div>
@@ -1108,18 +1109,31 @@
                     <span>Sunset: <strong id="sunset">--:--</strong></span>
                 </div>
             </div>
-            <div class="weather-forecast">
-                <div class="forecast-item">
-                    <span>Today's High:</span>
-                    <strong id="tempHigh">--°C</strong>
+            <!-- 3-Day Forecast -->
+            <div class="weather-forecast-3day">
+                <div class="forecast-day" id="forecastDay0">
+                    <div class="forecast-label" id="forecastLabel0">Today</div>
+                    <div class="forecast-icon" id="forecastIcon0">🌤️</div>
+                    <div class="forecast-temps">
+                        <div class="forecast-high" id="forecastHigh0">--°C</div>
+                        <div class="forecast-low" id="forecastLow0">--°C</div>
+                    </div>
                 </div>
-                <div class="forecast-item">
-                    <span>Today's Low:</span>
-                    <strong id="tempLow">--°C</strong>
+                <div class="forecast-day" id="forecastDay1">
+                    <div class="forecast-label" id="forecastLabel1">Tomorrow</div>
+                    <div class="forecast-icon" id="forecastIcon1">🌤️</div>
+                    <div class="forecast-temps">
+                        <div class="forecast-high" id="forecastHigh1">--°C</div>
+                        <div class="forecast-low" id="forecastLow1">--°C</div>
+                    </div>
                 </div>
-                <div class="forecast-item">
-                    <span>Wind:</span>
-                    <strong id="windSpeed">-- km/h</strong>
+                <div class="forecast-day" id="forecastDay2">
+                    <div class="forecast-label" id="forecastLabel2">Day 3</div>
+                    <div class="forecast-icon" id="forecastIcon2">🌤️</div>
+                    <div class="forecast-temps">
+                        <div class="forecast-high" id="forecastHigh2">--°C</div>
+                        <div class="forecast-low" id="forecastLow2">--°C</div>
+                    </div>
                 </div>
             </div>
         </section>
