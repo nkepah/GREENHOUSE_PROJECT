@@ -377,8 +377,15 @@ app.get('/api/geocode', async (req, res) => {
         const data = await response.json();
         
         const address = data.address || {};
-        // Try multiple fields for city: city > town > village > county > suburb
-        const city = address.city || address.town || address.village || address.county || address.suburb || 'Location';
+        // Try multiple fields for city: city > town > village > suburb > county (without " County" suffix)
+        let city = address.city || address.town || address.village || address.suburb;
+        
+        // If no city found, use county but strip " County" suffix
+        if (!city && address.county) {
+            city = address.county.replace(' County', '').replace(' Parish', '').replace(' District', '');
+        }
+        
+        city = city || 'Location';
         const state = address.state || '';
         const country = address.country || '';
         
