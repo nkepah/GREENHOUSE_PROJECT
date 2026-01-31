@@ -1723,8 +1723,20 @@
             // Update UI immediately with new units
             updateClock(); // Refresh clock display with new format
             
-            // Fetch fresh dashboard data (server will return temperature in user's preferred unit)
-            fetchDashboardData().catch(err => console.error('Dashboard refresh failed:', err));
+            // CONVERSION SOURCE 2: Unit change detected
+            // Fetch from cache and re-convert with new unit preference
+            try {
+                const response = await fetch(`/api/weather-convert?v=${Math.random()}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    // Update weather display with new unit conversion
+                    if (data.weather) {
+                        updateWeather(data.weather, data.daily, data.hourly, weather?.location);
+                    }
+                }
+            } catch (err) {
+                console.error('Weather re-conversion failed:', err);
+            }
             
             // Save to database in background (don't block UI)
             fetch('/api/settings', {
