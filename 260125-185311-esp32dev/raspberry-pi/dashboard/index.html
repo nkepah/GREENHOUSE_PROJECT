@@ -2702,6 +2702,8 @@
                 });
                 
                 console.log('[SYNC] Units synced to database:', units);
+                // Immediate refresh to show converted values
+                fetchDashboardData();
             } catch(e) {
                 console.error('[SYNC] Failed to sync units:', e.message);
             }
