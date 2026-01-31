@@ -524,6 +524,9 @@ app.get('/api/dashboard', async (req, res) => {
         console.log('[DASHBOARD] No coordinates configured');
     }
     
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
     res.json({
         farmName: config.farmName,
         location: locationDisplay,
