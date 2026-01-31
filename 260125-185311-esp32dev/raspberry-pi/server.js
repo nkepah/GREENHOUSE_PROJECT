@@ -154,7 +154,7 @@ async function convertAndCacheWeather(sourceData, isFromAPI = true) {
             temperature_2m_f: hourly.temperature_2m.map(c => Math.round((c * 9/5) + 32))
         } : null;
         
-        // Store converted data in database
+        // Store converted data in database (only write to DB, no return)
         await db.saveWeatherCache(
             tempC,
             tempF,
@@ -164,21 +164,8 @@ async function convertAndCacheWeather(sourceData, isFromAPI = true) {
             timezone
         );
         
-        console.log(`[CONVERT] Cached: ${tempC}°C / ${tempF}°F${isFromAPI ? ' (from API)' : ' (from DB)'}`);
+        console.log(`[CONVERT] Stored in DB: ${tempC}°C / ${tempF}°F${isFromAPI ? ' (from API)' : ' (from DB)'}`);
         
-        // Return converted data
-        return {
-            current: {
-                temperature_2m_c: tempC,
-                temperature_2m_f: tempF,
-                weather_code: weatherCode,
-                relative_humidity_2m: sourceData.current?.relative_humidity_2m,
-                wind_speed_10m: sourceData.current?.wind_speed_10m
-            },
-            daily: dailyConverted,
-            hourly: hourlyConverted,
-            timezone: timezone
-        };
     } catch (err) {
         console.error('[CONVERT] Error during conversion:', err);
         throw err;
@@ -189,10 +176,18 @@ async function fetchWeather(lat, lon) {
     const now = Date.now();
     const cacheMs = config.weather.cacheMinutes * 60 * 1000;
     
-    // Use cached data if still valid
-    if (weatherCache.data && (now - weatherCache.timestamp) < cacheMs) {
-        console.log('[WEATHER] Returning cached data');
-        return weatherCache.data;
+    // Check if we have recent cache in database (don't fetch if recent)
+    try {
+        const cachedWeather = await db.getWeatherCache();
+        if (cachedWeather && cachedWeather.timestamp) {
+            const cacheAge = now - (cachedWeather.timestamp * 1000);
+            if (cacheAge < cacheMs) {
+                console.log(`[WEATHER] Using database cache (${Math.round(cacheAge / 1000)}s old)`);
+                return; // Cache is fresh, don't fetch
+            }
+        }
+    } catch (err) {
+        console.warn('[WEATHER] Error checking cache age:', err.message);
     }
     
     try {
@@ -207,19 +202,12 @@ async function fetchWeather(lat, lon) {
         
         // CONVERSION SOURCE 1: Fresh API data
         // Call dedicated converter when new weather data is downloaded
-        const convertedData = await convertAndCacheWeather(data, true);
-        
-        // Cache the converted result (in-memory for fast access)
-        weatherCache.data = convertedData;
-        weatherCache.timestamp = now;
-        
-        return convertedData;
+        // This stores data in database and returns nothing
+        await convertAndCacheWeather(data, true);
+        console.log('[WEATHER] Data converted and stored in database');
         
     } catch (err) {
         console.error('[WEATHER] Fetch error:', err.message);
-        // Return stale cache if available
-        if (weatherCache.data) return weatherCache.data;
-        throw err;
     }
 }
 
@@ -453,12 +441,19 @@ app.all('/device/:deviceId/*', async (req, res) => {
 app.get('/api/dashboard', async (req, res) => {
     console.log('[DASHBOARD] Endpoint called');
     
-    // Try to get weather from database cache first
+    // Trigger background fetch if needed (don't wait for it)
+    if (config.location.lat && config.location.lon) {
+        fetchWeather(config.location.lat, config.location.lon).catch(err => {
+            console.error('[DASHBOARD] Background fetch failed:', err.message);
+        });
+    }
+    
+    // Get weather from database cache (single source of truth)
     let weather = null;
     try {
         const cachedWeather = await db.getWeatherCache();
         if (cachedWeather) {
-            console.log('[DASHBOARD] Using cached weather from database');
+            console.log('[DASHBOARD] Loaded from database cache');
             // Parse the cached data and reconstruct weather object
             weather = {
                 current: {
@@ -472,20 +467,7 @@ app.get('/api/dashboard', async (req, res) => {
             };
         }
     } catch (err) {
-        console.error('[DASHBOARD] Error loading cached weather:', err);
-    }
-    
-    // If no cache, fetch fresh weather
-    if (!weather) {
-        try {
-            if (!config.location.lat || !config.location.lon) {
-                throw new Error('Location coordinates not configured. Please set location in Settings.');
-            }
-            console.log('[DASHBOARD] No cache, fetching fresh weather');
-            weather = await fetchWeather(config.location.lat, config.location.lon);
-        } catch (err) {
-            console.error('[DASHBOARD] Weather fetch failed:', err);
-        }
+        console.error('[DASHBOARD] Error loading weather from database:', err);
     }
     
     // Get user's preferred temperature unit (default to C)
@@ -498,7 +480,7 @@ app.get('/api/dashboard', async (req, res) => {
         console.error('[DASHBOARD] Error getting units setting:', err);
     }
     
-    // Convert weather data to user's preferred unit
+    // Convert weather data to user's preferred unit for display
     let weatherForDisplay = null;
     if (weather) {
         if (tempUnit === 'F') {
