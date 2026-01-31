@@ -1791,6 +1791,7 @@
             
             document.getElementById('weatherTemp').textContent = 
                 convertTemp(current.temperature_2m);
+            document.getElementById('weatherTempUnit').textContent = tempSymbol;
             document.getElementById('weatherHumidity').textContent = 
                 current.relative_humidity_2m || '--';
             document.getElementById('windSpeed').textContent = 
