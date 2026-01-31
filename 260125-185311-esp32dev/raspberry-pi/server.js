@@ -430,16 +430,40 @@ app.all('/device/:deviceId/*', async (req, res) => {
 // --- Aggregated Dashboard Data ---
 app.get('/api/dashboard', async (req, res) => {
     console.log('[DASHBOARD] Endpoint called');
-    // Fetch fresh weather using coordinates from database
+    
+    // Try to get weather from database cache first
     let weather = null;
     try {
-        // Make sure we have coordinates before fetching weather
-        if (!config.location.lat || !config.location.lon) {
-            throw new Error('Location coordinates not configured. Please set location in Settings.');
+        const cachedWeather = await db.getWeatherCache();
+        if (cachedWeather) {
+            console.log('[DASHBOARD] Using cached weather from database');
+            // Parse the cached data and reconstruct weather object
+            weather = {
+                current: {
+                    temperature_2m_c: cachedWeather.current_temp_c,
+                    temperature_2m_f: cachedWeather.current_temp_f,
+                    weather_code: cachedWeather.weather_code
+                },
+                daily: cachedWeather.daily_data ? JSON.parse(cachedWeather.daily_data) : null,
+                hourly: cachedWeather.hourly_data ? JSON.parse(cachedWeather.hourly_data) : null,
+                timezone: cachedWeather.timezone || 'UTC'
+            };
         }
-        weather = await fetchWeather(config.location.lat, config.location.lon);
     } catch (err) {
-        console.error('Weather fetch failed:', err);
+        console.error('[DASHBOARD] Error loading cached weather:', err);
+    }
+    
+    // If no cache, fetch fresh weather
+    if (!weather) {
+        try {
+            if (!config.location.lat || !config.location.lon) {
+                throw new Error('Location coordinates not configured. Please set location in Settings.');
+            }
+            console.log('[DASHBOARD] No cache, fetching fresh weather');
+            weather = await fetchWeather(config.location.lat, config.location.lon);
+        } catch (err) {
+            console.error('[DASHBOARD] Weather fetch failed:', err);
+        }
     }
     
     // Get user's preferred temperature unit (default to C)
@@ -453,25 +477,27 @@ app.get('/api/dashboard', async (req, res) => {
     }
     
     // Convert weather data to user's preferred unit
-    let weatherForDisplay = weather;
-    if (weather && tempUnit === 'F') {
-        weatherForDisplay = {
-            temperature_2m_c: weather.current?.temperature_2m_c,
-            temperature_2m_f: weather.current?.temperature_2m_f,
-            temperature_2m: weather.current?.temperature_2m_f, // Display field uses F
-            weather_code: weather.current?.weather_code,
-            relative_humidity_2m: weather.current?.relative_humidity_2m,
-            wind_speed_10m: weather.current?.wind_speed_10m
-        };
-    } else if (weather) {
-        weatherForDisplay = {
-            temperature_2m_c: weather.current?.temperature_2m_c,
-            temperature_2m_f: weather.current?.temperature_2m_f,
-            temperature_2m: weather.current?.temperature_2m_c, // Display field uses C
-            weather_code: weather.current?.weather_code,
-            relative_humidity_2m: weather.current?.relative_humidity_2m,
-            wind_speed_10m: weather.current?.wind_speed_10m
-        };
+    let weatherForDisplay = null;
+    if (weather) {
+        if (tempUnit === 'F') {
+            weatherForDisplay = {
+                temperature_2m_c: weather.current?.temperature_2m_c,
+                temperature_2m_f: weather.current?.temperature_2m_f,
+                temperature_2m: weather.current?.temperature_2m_f, // Display field uses F
+                weather_code: weather.current?.weather_code,
+                relative_humidity_2m: weather.current?.relative_humidity_2m,
+                wind_speed_10m: weather.current?.wind_speed_10m
+            };
+        } else {
+            weatherForDisplay = {
+                temperature_2m_c: weather.current?.temperature_2m_c,
+                temperature_2m_f: weather.current?.temperature_2m_f,
+                temperature_2m: weather.current?.temperature_2m_c, // Display field uses C
+                weather_code: weather.current?.weather_code,
+                relative_humidity_2m: weather.current?.relative_humidity_2m,
+                wind_speed_10m: weather.current?.wind_speed_10m
+            };
+        }
     }
     
     // Build response
