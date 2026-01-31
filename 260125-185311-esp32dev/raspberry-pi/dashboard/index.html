@@ -1197,7 +1197,12 @@
         <!-- Weather Section -->
         <section class="weather-banner" id="weatherSection">
             <div class="weather-current">
-                <div class="weather-icon" id="weatherIcon">🌤️</div>
+                <div style="position: relative; display: inline-block;">
+                    <div class="weather-icon" id="weatherIcon">🌤️</div>
+                    <div id="tempWarning" class="temp-warning" style="display: none;">
+                        <span id="warningIcon">❄️</span>
+                    </div>
+                </div>
                 <div>
                     <div id="weatherLocation" style="font-size: 0.85rem; color: rgba(255,255,255,0.7); margin-bottom: 4px;">📍 Location</div>
                     <div class="weather-temp"><span id="weatherTemp">--</span><span id="weatherTempUnit">°C</span></div>
