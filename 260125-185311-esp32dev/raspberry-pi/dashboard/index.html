@@ -1337,6 +1337,11 @@
         // Alias for HTML onclick handlers
         window.openSettingsPage = window.showSettingsPage;
         
+        // Direct global reference for onclick attributes (bypass any scope issues)
+        var toggleSettings = window.toggleSettings;
+        var showSettingsPage = window.showSettingsPage;
+        var openSettingsPage = window.openSettingsPage;
+        
         function applyTheme(themeName, save = true) {
             const t = themes[themeName];
             if (!t) return;
