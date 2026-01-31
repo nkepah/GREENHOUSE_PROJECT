@@ -102,7 +102,7 @@ async function fetchWeather(lat, lon) {
     }
     
     try {
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=sunrise,sunset,temperature_2m_max,temperature_2m_min&timezone=${encodeURIComponent(config.weather.timezone)}`;
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=sunrise,sunset,temperature_2m_max,temperature_2m_min&hourly=temperature_2m,weather_code&timezone=${encodeURIComponent(config.weather.timezone)}`;
         
         console.log('[WEATHER] Fetching fresh data...');
         
