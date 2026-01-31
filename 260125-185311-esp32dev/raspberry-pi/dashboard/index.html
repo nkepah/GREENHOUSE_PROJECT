@@ -273,58 +273,77 @@
             font-size: 0.9rem;
         }
         
-        /* 3-Day Forecast Grid */
-        .weather-forecast-3day {
+        /* 24-Hour Hourly Forecast */
+        .weather-forecast-hourly-container {
             grid-column: 1 / -1;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
             margin-top: 12px;
             padding-top: 12px;
             border-top: 1px solid rgba(255,255,255,0.2);
+            overflow: hidden;
         }
         
-        .forecast-day {
+        .weather-forecast-hourly {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding: 8px 0;
+        }
+        
+        .hourly-card {
+            flex: 0 0 auto;
             background: rgba(255,255,255,0.1);
             border-radius: 12px;
-            padding: 12px;
+            padding: 12px 10px;
             text-align: center;
             backdrop-filter: blur(10px);
             transition: all 0.3s ease;
+            min-width: 70px;
+            white-space: nowrap;
         }
         
-        .forecast-day:hover {
+        .hourly-card:hover {
             background: rgba(255,255,255,0.15);
             transform: translateY(-2px);
         }
         
-        .forecast-label {
-            font-size: 0.8rem;
+        .hourly-time {
+            font-size: 0.75rem;
             color: rgba(255,255,255,0.7);
             margin-bottom: 4px;
-            text-transform: uppercase;
+            font-weight: 600;
             letter-spacing: 0.5px;
         }
         
-        .forecast-icon {
-            font-size: 2rem;
+        .hourly-icon {
+            font-size: 1.8rem;
             margin: 4px 0;
+            display: block;
         }
         
-        .forecast-temps {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
+        .hourly-temp {
             font-size: 0.9rem;
-        }
-        
-        .forecast-high {
             font-weight: bold;
             color: #fff;
         }
         
-        .forecast-low {
-            color: rgba(255,255,255,0.7);
+        /* Scrollbar styling for hourly forecast */
+        .weather-forecast-hourly::-webkit-scrollbar {
+            height: 4px;
+        }
+        
+        .weather-forecast-hourly::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+        }
+        
+        .weather-forecast-hourly::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.3);
+            border-radius: 2px;
+        }
+        
+        .weather-forecast-hourly::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.5);
         }
         
         @media (max-width: 768px) {
@@ -340,8 +359,13 @@
                 padding-bottom: 12px;
             }
             
-            .weather-forecast-3day {
-                grid-column: 1;
+            .hourly-card {
+                min-width: 60px;
+                padding: 10px 8px;
+            }
+            
+            .hourly-icon {
+                font-size: 1.5rem;
             }
         }
         
@@ -1170,31 +1194,10 @@
                     <span>Sunset: <strong id="sunset">--:--</strong></span>
                 </div>
             </div>
-            <!-- 3-Day Forecast -->
-            <div class="weather-forecast-3day">
-                <div class="forecast-day" id="forecastDay0">
-                    <div class="forecast-label" id="forecastLabel0">Today</div>
-                    <div class="forecast-icon" id="forecastIcon0">🌤️</div>
-                    <div class="forecast-temps">
-                        <div class="forecast-high" id="forecastHigh0">--°C</div>
-                        <div class="forecast-low" id="forecastLow0">--°C</div>
-                    </div>
-                </div>
-                <div class="forecast-day" id="forecastDay1">
-                    <div class="forecast-label" id="forecastLabel1">Tomorrow</div>
-                    <div class="forecast-icon" id="forecastIcon1">🌤️</div>
-                    <div class="forecast-temps">
-                        <div class="forecast-high" id="forecastHigh1">--°C</div>
-                        <div class="forecast-low" id="forecastLow1">--°C</div>
-                    </div>
-                </div>
-                <div class="forecast-day" id="forecastDay2">
-                    <div class="forecast-label" id="forecastLabel2">Day 3</div>
-                    <div class="forecast-icon" id="forecastIcon2">🌤️</div>
-                    <div class="forecast-temps">
-                        <div class="forecast-high" id="forecastHigh2">--°C</div>
-                        <div class="forecast-low" id="forecastLow2">--°C</div>
-                    </div>
+            <!-- 24-Hour Hourly Forecast -->
+            <div class="weather-forecast-hourly-container">
+                <div class="weather-forecast-hourly" id="hourlyForecast">
+                    <!-- Hourly cards will be populated here -->
                 </div>
             </div>
         </section>
@@ -1771,7 +1774,7 @@
         }
         
         // Weather display
-        function updateWeather(current, daily) {
+        function updateWeather(current, daily, hourly) {
             if (!current) return;
             
             document.getElementById('weatherTemp').textContent = 
@@ -1786,37 +1789,39 @@
             document.getElementById('weatherIcon').textContent = getWeatherIcon(code);
             document.getElementById('weatherDesc').textContent = getWeatherDesc(code);
             
-            if (daily && daily.time) {
-                // Update 3-day forecast
-                for (let i = 0; i < 3; i++) {
-                    const dayCode = daily.weather_code?.[i] || 0;
-                    const high = Math.round(daily.temperature_2m_max?.[i] || 0);
-                    const low = Math.round(daily.temperature_2m_min?.[i] || 0);
-                    const date = new Date(daily.time[i]);
-                    
-                    // Day label
-                    let label = i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : date.toLocaleDateString('en-US', { weekday: 'short' });
-                    document.getElementById(`forecastLabel${i}`).textContent = label;
-                    
-                    // Weather icon
-                    document.getElementById(`forecastIcon${i}`).textContent = getWeatherIcon(dayCode);
-                    
-                    // Temps
-                    document.getElementById(`forecastHigh${i}`).textContent = high + '°C';
-                    document.getElementById(`forecastLow${i}`).textContent = low + '°C';
-                }
+            // Update hourly forecast for next 24 hours
+            if (hourly && hourly.time && hourly.temperature_2m) {
+                const container = document.getElementById('hourlyForecast');
+                container.innerHTML = ''; // Clear existing cards
                 
-                // Sunrise/Sunset
-                if (daily.sunrise?.[0]) {
-                    const sr = new Date(daily.sunrise[0]);
-                    document.getElementById('sunrise').textContent = 
-                        sr.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                // Display 24 hourly cards
+                for (let i = 0; i < Math.min(24, hourly.time.length); i++) {
+                    const time = new Date(hourly.time[i]);
+                    const hour = time.getHours().toString().padStart(2, '0');
+                    const temp = Math.round(hourly.temperature_2m[i]);
+                    const code = hourly.weather_code?.[i] || 0;
+                    
+                    const card = document.createElement('div');
+                    card.className = 'hourly-card';
+                    card.innerHTML = `
+                        <div class="hourly-time">${hour}:00</div>
+                        <div class="hourly-icon">${getWeatherIcon(code)}</div>
+                        <div class="hourly-temp">${temp}°</div>
+                    `;
+                    container.appendChild(card);
                 }
-                if (daily.sunset?.[0]) {
-                    const ss = new Date(daily.sunset[0]);
-                    document.getElementById('sunset').textContent = 
-                        ss.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                }
+            }
+            
+            // Sunrise/Sunset from daily data
+            if (daily && daily.sunrise?.[0]) {
+                const sr = new Date(daily.sunrise[0]);
+                document.getElementById('sunrise').textContent = 
+                    sr.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            }
+            if (daily && daily.sunset?.[0]) {
+                const ss = new Date(daily.sunset[0]);
+                document.getElementById('sunset').textContent = 
+                    ss.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             }
         }
         
