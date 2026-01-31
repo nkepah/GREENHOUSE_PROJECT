@@ -343,7 +343,17 @@ app.get('/api/geocode', async (req, res) => {
     
     try {
         // Use OpenStreetMap Nominatim for reverse geocoding
-        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+        // IMPORTANT: Nominatim requires a User-Agent header
+        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`, {
+            headers: {
+                'User-Agent': 'FarmHub/2.3'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Nominatim returned ${response.status}: ${response.statusText}`);
+        }
+        
         const data = await response.json();
         
         const address = data.address || {};
@@ -362,7 +372,7 @@ app.get('/api/geocode', async (req, res) => {
     } catch (err) {
         console.error('[API] Geocode failed:', err.message);
         res.status(500).json({ 
-            error: 'Geocoding failed',
+            error: 'Geocoding failed: ' + err.message,
             city: 'Location',
             state: '',
             country: ''
