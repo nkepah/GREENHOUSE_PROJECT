@@ -7,18 +7,32 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌾</text></svg>">
     <style>
         :root {
+            /* Core Colors */
             --bg-primary: #0d1117;
             --bg-secondary: #161b22;
             --bg-card: #21262d;
             --bg-card-hover: #30363d;
+            
+            /* Inputs & Widgets */
+            --widget-bg: rgba(255, 255, 255, 0.08); 
+            --input-bg: rgba(0, 0, 0, 0.2);
+            --badge-bg-success: rgba(78, 204, 163, 0.15);
+            --badge-bg-error: rgba(248, 81, 73, 0.15);
+            
+            /* Accents */
             --accent: #4ecca3;
             --accent-blue: #58a6ff;
             --accent-orange: #f39c12;
             --accent-red: #f85149;
             --accent-yellow: #d29922;
+            
+            /* Text */
             --text-primary: #f0f6fc;
             --text-secondary: #8b949e;
+            
+            /* Borders & Graphics */
             --border: #30363d;
+            --banner-gradient: linear-gradient(135deg, #1a365d 0%, #2d3748 100%);
         }
         
         * {
@@ -33,6 +47,7 @@
             color: var(--text-primary);
             min-height: 100vh;
             line-height: 1.5;
+            transition: background 0.3s, color 0.3s;
         }
         
         /* Header */
@@ -43,6 +58,7 @@
             position: sticky;
             top: 0;
             z-index: 100;
+            transition: background 0.3s, border-color 0.3s;
         }
         
         .header-content {
@@ -84,10 +100,10 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            background: rgba(255, 255, 255, 0.05);
+            background: var(--widget-bg);
             padding: 6px 12px;
             border-radius: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border);
         }
 
         .clock-date {
@@ -104,9 +120,9 @@
         }
 
         .settings-btn {
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--widget-bg);
             color: var(--text-primary);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid var(--border);
             border-radius: 8px;
             width: 36px;
             height: 36px;
@@ -184,13 +200,14 @@
             align-items: center;
             gap: 8px;
             padding: 6px 12px;
-            background: rgba(78, 204, 163, 0.15);
+            background: var(--badge-bg-success);
             border-radius: 20px;
             font-size: 0.85rem;
+            color: var(--text-primary);
         }
         
         .connection-badge.offline {
-            background: rgba(248, 81, 73, 0.15);
+            background: var(--badge-bg-error);
         }
         
         .status-dot {
@@ -220,7 +237,7 @@
         
         /* Weather Section */
         .weather-banner {
-            background: linear-gradient(135deg, #1a365d 0%, #2d3748 100%);
+            background: var(--banner-gradient);
             border-radius: 16px;
             padding: 24px;
             margin-bottom: 24px;
@@ -228,26 +245,12 @@
             grid-template-columns: 1fr auto 1fr;
             gap: 24px;
             align-items: center;
+            color: #fff; /* Always white text on banner */
         }
         
-        .weather-current {
-            display: flex;
-            align-items: center;
-            gap: 16px;
+        .weather-banner .weather-details {
+             color: rgba(255, 255, 255, 0.8);
         }
-        
-        .weather-icon {
-            font-size: 4rem;
-        }
-        
-        .weather-temp {
-            font-size: 3rem;
-            font-weight: 700;
-        }
-        
-        .weather-details {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
         }
         
         .weather-sun {
