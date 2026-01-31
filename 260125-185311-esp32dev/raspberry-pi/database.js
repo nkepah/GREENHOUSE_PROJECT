@@ -31,11 +31,15 @@ function initSchema() {
 }
 
 function seedDefaults() {
+    const now = new Date();
+    const timestamp = Math.floor(now.getTime() / 1000);
+    
     const defaults = {
         'farm_name': 'Smart Farm Hub',
         'theme': 'default',
         'units': JSON.stringify({temp: 'C', speed: 'km/h', pressure: 'hpa', date: 'DD/MM/YYYY'}),
-        'location': JSON.stringify({lat: -17.8292, lon: 31.0522, timezone: 'Africa/Harare', address: 'Harare, Zimbabwe'})
+        'location': JSON.stringify({lat: -17.8292, lon: 31.0522, timezone: 'Africa/Harare', address: 'Harare, Zimbabwe'}),
+        'systemTime': JSON.stringify({unix: timestamp, iso: now.toISOString(), synced: false, source: 'server'})
     };
     
     const stmt = db.prepare("INSERT INTO settings (key, value) VALUES (?, ?)");
