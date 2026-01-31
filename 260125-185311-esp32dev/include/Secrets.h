@@ -15,6 +15,10 @@ static constexpr const char* FIRMWARE_VERSION = "2.0.0";
 static constexpr const char* AP_SSID = "Greenhouse-Setup";
 static constexpr const char* AP_PASSWORD = "greenhouse123";  // TODO: Make random or use device MAC
 
+// Default Network Credentials (fallback if provisioning fails)
+static constexpr const char* DEFAULT_SSID = "Virginia-Farm-2G";
+static constexpr const char* DEFAULT_PASS = "Virginia2024!";
+
 // Default Raspberry Pi IP (will be overridden by provisioning)
 static constexpr const char* DEFAULT_PI_IP = "100.92.151.67";
 static constexpr const uint16_t PI_PORT = 3000;
