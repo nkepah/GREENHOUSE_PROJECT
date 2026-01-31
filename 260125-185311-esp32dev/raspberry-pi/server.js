@@ -145,6 +145,8 @@ async function fetchWeather(lat, lon) {
         const tempC = data.current?.temperature_2m || 0;
         const tempF = Math.round((tempC * 9/5) + 32);
         const weatherCode = data.current?.weather_code || 0;
+        const humidity = data.current?.relative_humidity_2m || 0;
+        const windSpeed = data.current?.wind_speed_10m || 0;
         
         // Convert daily temperatures (only once, when fetching)
         const daily = data.daily || null;
