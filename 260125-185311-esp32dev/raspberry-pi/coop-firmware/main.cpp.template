@@ -261,6 +261,56 @@ void fetchWeatherFromPi() {
 #endif
 }
 
+void syncSettingsFromPi() {
+#if USE_PI_WEATHER
+    HTTPClient http;
+    String url = String("http://") + PI_GATEWAY_IP + ":" + PI_GATEWAY_PORT + "/api/settings";
+    
+    http.begin(url);
+    http.setTimeout(3000);
+    
+    int httpCode = http.GET();
+    if (httpCode == HTTP_CODE_OK) {
+        String payload = http.getString();
+        DynamicJsonDocument doc(2048);
+        
+        if (deserializeJson(doc, payload) == DeserializationError::Ok) {
+            bool changed = false;
+            prefs.begin("coop-config", false);
+            
+            // 1. Sync Location
+            if(doc.containsKey("location")) {
+                JsonObject loc = doc["location"];
+                if(loc.containsKey("lat") && loc.containsKey("lon")) {
+                    String sLat = loc["lat"].as<String>();
+                    String sLon = loc["lon"].as<String>();
+                    String oldLat = prefs.getString("lat", "");
+                    
+                    if(sLat != oldLat) {
+                         prefs.putString("lat", sLat);
+                         prefs.putString("lon", sLon);
+                         changed = true;
+                         Serial.printf("[SETTINGS] Synced location: %s, %s\n", sLat.c_str(), sLon.c_str());
+                    }
+                }
+            }
+            
+            // 2. Sync Units (Future use)
+            // if(doc.containsKey("units")) { ... }
+            
+            prefs.end();
+            if(changed) {
+                // If location changed, refresh weather immediately
+                lastWeatherFetch = 0; 
+            }
+        }
+    } else {
+        Serial.printf("[SETTINGS] Sync failed: %d\n", httpCode);
+    }
+    http.end();
+#endif
+}
+
 // =============================================================================
 // SCHEDULING
 // =============================================================================
