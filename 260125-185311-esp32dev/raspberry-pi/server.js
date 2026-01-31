@@ -77,6 +77,28 @@ async function initializeSettingsFromDatabase() {
             config.weather.timezone = loc.timezone || 'UTC';
             console.log(`[CONFIG] Loaded from database: ${config.location.lat}, ${config.location.lon} (${config.weather.timezone})`);
         }
+        
+        // Load cached weather from database to memory
+        try {
+            const cachedWeather = await db.getWeatherCache();
+            if (cachedWeather) {
+                console.log(`[CACHE] Loaded cached weather: ${cachedWeather.current_temp_c}°C / ${cachedWeather.current_temp_f}°F`);
+                // Store in weatherCache memory for fast access
+                weatherCache.data = {
+                    current: {
+                        temperature_2m_c: cachedWeather.current_temp_c,
+                        temperature_2m_f: cachedWeather.current_temp_f,
+                        weather_code: cachedWeather.weather_code
+                    },
+                    daily: cachedWeather.daily_data ? JSON.parse(cachedWeather.daily_data) : null,
+                    hourly: cachedWeather.hourly_data ? JSON.parse(cachedWeather.hourly_data) : null,
+                    timezone: cachedWeather.timezone || 'UTC'
+                };
+                weatherCache.timestamp = cachedWeather.timestamp * 1000; // Convert to ms
+            }
+        } catch (err) {
+            console.warn('[CACHE] Could not load weather cache from database:', err.message);
+        }
     } catch (err) {
         console.warn('[CONFIG] Could not load location from database:', err.message);
     }
