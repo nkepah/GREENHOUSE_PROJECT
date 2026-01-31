@@ -860,7 +860,7 @@
                 <h1 id="farmName">Smart Farm <span>Hub</span></h1>
                 
                 <!-- NEW: Integrated Location Badge in Header -->
-                <div id="header-location" onclick="showSettingsPage('location')" 
+                <div id="header-location" onclick="openSettingsPage('location')" 
                      style="display:inline-flex; align-items:center; gap:5px; margin-left:15px; 
                             background:rgba(255,255,255,0.1); padding:4px 8px; border-radius:6px; 
                             font-size:0.8rem; cursor:pointer; vertical-align:middle;">
@@ -883,7 +883,7 @@
         <div class="settings-modal-box">
             <div class="settings-header">
                 <div style="display:flex; align-items:center; gap:10px;">
-                    <button id="settings-back-btn" onclick="showSettingsPage('main')" style="display:none; background:none; border:none; color:var(--text-primary); font-size:1.2rem; cursor:pointer;">←</button>
+                    <button id="settings-back-btn" onclick="openSettingsPage('main')" style="display:none; background:none; border:none; color:var(--text-primary); font-size:1.2rem; cursor:pointer;">←</button>
                     <span id="settings-title">Settings</span>
                 </div>
                 <button onclick="toggleSettings()" style="background:none; border:none; color:var(--text-secondary); font-size:1.5rem; cursor:pointer;">✕</button>
@@ -893,12 +893,12 @@
                 <!-- MAIN MENU -->
                 <div id="page-main" class="settings-page">
                     <div class="settings-list">
-                        <div class="settings-item" onclick="showSettingsPage('units')">
+                        <div class="settings-item" onclick="openSettingsPage('units')">
                             <span class="icon">📏</span>
                             <div class="text">Units & Date Format</div>
                             <span style="color:var(--text-secondary)">›</span>
                         </div>
-                        <div class="settings-item" onclick="showSettingsPage('location')">
+                        <div class="settings-item" onclick="openSettingsPage('location')">
                             <span class="icon">📍</span>
                             <div class="text">Location & Time Zone</div>
                             <span style="color:var(--text-secondary)">›</span>
@@ -908,13 +908,13 @@
                             <div class="text">Thresholds</div>
                             <span style="color:var(--text-secondary)">›</span>
                         </div>
-                        <div class="settings-item" onclick="showSettingsPage('themes')">
+                        <div class="settings-item" onclick="openSettingsPage('themes')">
                             <span class="icon">🎨</span>
                             <div class="text">Themes</div>
                             <span style="color:var(--text-secondary)">›</span>
                         </div>
                         <div style="height:1px; background:var(--border); margin:8px 10px;"></div>
-                        <div class="settings-item" onclick="showSettingsPage('about')">
+                        <div class="settings-item" onclick="openSettingsPage('about')">
                             <span class="icon">ℹ️</span>
                             <div class="text">About</div>
                             <span style="color:var(--text-secondary)">›</span>
