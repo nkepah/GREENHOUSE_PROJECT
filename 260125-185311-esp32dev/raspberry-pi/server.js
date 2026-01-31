@@ -74,8 +74,10 @@ async function initializeSettingsFromDatabase() {
             const loc = typeof settings.location === 'string' ? JSON.parse(settings.location) : settings.location;
             config.location.lat = parseFloat(loc.lat);
             config.location.lon = parseFloat(loc.lon);
+            config.location.city = loc.city || '';
+            config.location.address = loc.address || '';
             config.weather.timezone = loc.timezone || 'UTC';
-            console.log(`[CONFIG] Loaded from database: ${config.location.lat}, ${config.location.lon} (${config.weather.timezone})`);
+            console.log(`[CONFIG] Loaded from database: ${config.location.lat}, ${config.location.lon} (${config.weather.timezone}) - ${config.location.address}`);
         }
         
         // Load cached weather from database to memory
