@@ -1550,12 +1550,18 @@
                 // Update Header Location
                 if (data.location) {
                     const loc = data.location;
-                    // Extract city from full address/display name if simple city field is generic
-                    let city = loc.city || 'Unknown';
-                    // Heuristic: If city contains comma, take first part
-                    if (city.includes(',')) city = city.split(',')[0];
+                    // Prefer address if available (from DB settings), otherwise fallback to city
+                    let displayLoc = loc.address || loc.city || 'Unknown';
                     
-                    document.getElementById('header-city').textContent = city;
+                    // Simple heuristic to shorten long addresses: check for commas
+                    if (displayLoc.includes(',')) {
+                        const parts = displayLoc.split(',');
+                        // Use the first part (City/County)
+                        displayLoc = parts[0].trim();
+                        // Optional: Append state code if available? keeping it simple for now.
+                    }
+                    
+                    document.getElementById('header-city').textContent = displayLoc;
                 }
                 
                 if (data.weather) updateWeather(data.weather, data.daily);
