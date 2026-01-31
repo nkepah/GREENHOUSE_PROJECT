@@ -516,7 +516,10 @@ function broadcastStatus() {
 // START SERVER
 // =============================================================================
 
-server.listen(PORT, '0.0.0.0', () => {
+server.listen(PORT, '0.0.0.0', async () => {
+    // Load location and timezone from database after server starts
+    await initializeSettingsFromDatabase();
+    
     console.log(`
 ╔════════════════════════════════════════════════════════════╗
 ║                                                            ║
