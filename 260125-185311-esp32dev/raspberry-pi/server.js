@@ -334,8 +334,14 @@ app.all('/device/:deviceId/*', async (req, res) => {
         return res.status(404).json({ error: 'Device not found' });
     }
     
+    // Get device IP from registration (dynamic), fallback to config
+    const deviceIP = device.ip || deviceStatus[deviceId]?.ip;
+    if (!deviceIP) {
+        return res.status(503).json({ error: 'Device IP not available - device may not be registered' });
+    }
+    
     const path = req.params[0] || '';
-    const targetUrl = `http://${device.ip}/${path}`;
+    const targetUrl = `http://${deviceIP}/${path}`;
     
     try {
         const options = {
