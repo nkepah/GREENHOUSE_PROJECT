@@ -2034,7 +2034,7 @@ void setup()
                         String typeLower = d.type;
                         typeLower.toLowerCase();
                         bool isLamp = typeLower.indexOf("light") >= 0 || typeLower.indexOf("lamp") >= 0;
-                        alertMgr.checkLampDuration(d.hardwareChannel, d.name, isLamp);
+                        // alertMgr.checkLampDuration(d.hardwareChannel, d.name, isLamp);
                     }
                 }
                 
