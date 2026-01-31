@@ -1218,10 +1218,10 @@
             document.getElementById('page-' + pageId).style.display = 'block';
             
             // Update header
-            document.getElementById('modal-title').textContent = headers[pageId];
+            document.getElementById('settings-title').textContent = headers[pageId];
             
             // Handle Back Button
-            const backBtn = document.getElementById('modal-back-btn');
+            const backBtn = document.getElementById('settings-back-btn');
             if (pageId === 'main') {
                 backBtn.style.visibility = 'hidden';
             } else {
