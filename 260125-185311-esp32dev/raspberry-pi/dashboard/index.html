@@ -1245,13 +1245,7 @@
         <!-- Weather Section -->
         <section class="weather-banner" id="weatherSection">
             <div class="weather-current">
-                <div style="position: relative; display: inline-block;">
-                    <div class="weather-icon" id="weatherIcon">🌤️</div>
-                    <div id="tempWarning" class="temp-warning" style="display: none;">
-                        <span id="warningIcon">❄️</span>
-                        <span id="warningText" style="margin-left: 4px; font-weight: 700; font-size: 0.9rem;">FROST</span>
-                    </div>
-                </div>
+                <div class="weather-icon" id="weatherIcon">🌤️</div>
                 <div>
                     <div id="weatherLocation" style="font-size: 0.85rem; color: rgba(255,255,255,0.7); margin-bottom: 4px;">📍 Location</div>
                     <div class="weather-temp"><span id="weatherTemp">--</span><span id="weatherTempUnit">°C</span></div>
@@ -1271,6 +1265,11 @@
                     <span>🌇</span>
                     <span>Sunset: <strong id="sunset">--:--</strong></span>
                 </div>
+            </div>
+            <!-- Temperature Warning Banner -->
+            <div id="tempWarning" class="temp-warning-banner" style="display: none;">
+                <span id="warningIcon">❄️</span>
+                <span id="warningText">FROST WARNING</span>
             </div>
             <!-- 24-Hour Hourly Forecast -->
             <div class="weather-forecast-hourly-container">
