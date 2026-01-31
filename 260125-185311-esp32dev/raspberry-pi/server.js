@@ -272,7 +272,29 @@ app.get('/api/weather', async (req, res) => {
         const lon = req.query.lon || config.location.lon;
         
         const data = await fetchWeather(lat, lon);
-        res.json(data);
+        
+        // Transform data for UI consumption
+        const transformed = {
+            ...data.current,
+            daily: data.daily,
+            hourly: []
+        };
+        
+        // Build hourly forecast array (next 24 hours)
+        if (data.hourly && data.hourly.time && data.hourly.temperature_2m) {
+            const now = new Date();
+            for (let i = 0; i < Math.min(24, data.hourly.time.length); i++) {
+                transformed.hourly.push({
+                    time: data.hourly.time[i],
+                    temp: Math.round(data.hourly.temperature_2m[i]),
+                    code: data.hourly.weather_code ? data.hourly.weather_code[i] : 0,
+                    wind: data.hourly.wind_speed_10m ? data.hourly.wind_speed_10m[i] : 0,
+                    is_day: 1 // Simplified - could calculate from sunrise/sunset
+                });
+            }
+        }
+        
+        res.json(transformed);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
