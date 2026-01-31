@@ -1290,7 +1290,8 @@
             }
         };
 
-        function showSettingsPage(pageId) {
+        // Make globally available immediately to ensure access
+        window.showSettingsPage = function(pageId) {
             // Hide all pages
             document.querySelectorAll('.settings-page').forEach(page => {
                 page.style.display = 'none';
@@ -1317,23 +1318,20 @@
                      if(pageId === 'about') titleEl.textContent = 'About';
                  }
             }
-        }
-        
-        // Alias for openSettingsPage if needed
-        window.openSettingsPage = showSettingsPage;
+        };
 
-        function toggleSettings(event) {
+        window.toggleSettings = function(event) {
             if (event) event.stopPropagation();
             const modal = document.getElementById('settings-modal');
             
             if (modal.classList.contains('open')) {
                 modal.classList.remove('open');
             } else {
-                showSettingsPage('main');
+                window.showSettingsPage('main');
                 modal.classList.add('open');
                 loadSettings();
             }
-        }
+        };
         
         function applyTheme(themeName, save = true) {
             const t = themes[themeName];
