@@ -954,20 +954,20 @@
                 <div id="page-themes" class="settings-page" style="display:none; padding:20px;">
                     <h4 style="margin-bottom:15px; color:var(--text-secondary)">Dark Themes</h4>
                     <div class="theme-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(80px, 1fr)); gap:10px; margin-bottom:25px;">
-                        <button onclick="applyTheme('default')" class="theme-btn" style="background:#0d1117; border:2px solid var(--accent); height:60px; border-radius:10px; cursor:pointer;" title="Default Dark"></button>
-                        <button onclick="applyTheme('dark-ocean')" class="theme-btn" style="background:#0f172a; border:1px solid #38bdf8; height:60px; border-radius:10px; cursor:pointer;" title="Deep Ocean"></button>
-                        <button onclick="applyTheme('dark-forest')" class="theme-btn" style="background:#052e16; border:1px solid #4ade80; height:60px; border-radius:10px; cursor:pointer;" title="Forest Night"></button>
-                        <button onclick="applyTheme('dark-purple')" class="theme-btn" style="background:#2e1065; border:1px solid #c084fc; height:60px; border-radius:10px; cursor:pointer;" title="Nebula"></button>
-                        <button onclick="applyTheme('dark-mono')" class="theme-btn" style="background:#000000; border:1px solid #666; height:60px; border-radius:10px; cursor:pointer;" title="OLED Black"></button>
+                        <button onclick="applyTheme('default')" data-theme="default" class="theme-btn" style="background:#0d1117; border:2px solid var(--accent); height:60px; border-radius:10px; cursor:pointer;" title="Default Dark"></button>
+                        <button onclick="applyTheme('dark-ocean')" data-theme="dark-ocean" class="theme-btn" style="background:#0f172a; border:1px solid #38bdf8; height:60px; border-radius:10px; cursor:pointer;" title="Deep Ocean"></button>
+                        <button onclick="applyTheme('dark-forest')" data-theme="dark-forest" class="theme-btn" style="background:#14532d; border:1px solid #4ade80; height:60px; border-radius:10px; cursor:pointer;" title="Forest Night"></button>
+                        <button onclick="applyTheme('dark-purple')" data-theme="dark-purple" class="theme-btn" style="background:#3b0764; border:1px solid #c084fc; height:60px; border-radius:10px; cursor:pointer;" title="Nebula"></button>
+                        <button onclick="applyTheme('dark-orange')" data-theme="dark-orange" class="theme-btn" style="background:#431407; border:1px solid #f97316; height:60px; border-radius:10px; cursor:pointer;" title="Sunset"></button>
                     </div>
 
                     <h4 style="margin-bottom:15px; color:var(--text-secondary)">Light Themes</h4>
                     <div class="theme-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(80px, 1fr)); gap:10px;">
-                        <button onclick="applyTheme('light-std')" class="theme-btn" style="background:#ffffff; border:1px solid #ccc; height:60px; border-radius:10px; cursor:pointer;" title="Standard Light"></button>
-                        <button onclick="applyTheme('light-blue')" class="theme-btn" style="background:#e0f2fe; border:1px solid #0ea5e9; height:60px; border-radius:10px; cursor:pointer;" title="Sky"></button>
-                        <button onclick="applyTheme('light-mint')" class="theme-btn" style="background:#ecfdf5; border:1px solid #10b981; height:60px; border-radius:10px; cursor:pointer;" title="Mint"></button>
-                        <button onclick="applyTheme('light-warm')" class="theme-btn" style="background:#fffbeb; border:1px solid #f59e0b; height:60px; border-radius:10px; cursor:pointer;" title="Warm Sun"></button>
-                        <button onclick="applyTheme('light-rose')" class="theme-btn" style="background:#fff1f2; border:1px solid #f43f5e; height:60px; border-radius:10px; cursor:pointer;" title="Rose"></button>
+                        <button onclick="applyTheme('light-default')" data-theme="light-default" class="theme-btn" style="background:#f8fafc; border:1px solid #94a3b8; height:60px; border-radius:10px; cursor:pointer;" title="Standard Light"></button>
+                        <button onclick="applyTheme('light-blue')" data-theme="light-blue" class="theme-btn" style="background:#eff6ff; border:1px solid #3b82f6; height:60px; border-radius:10px; cursor:pointer;" title="Sky"></button>
+                        <button onclick="applyTheme('light-green')" data-theme="light-green" class="theme-btn" style="background:#f0fdf4; border:1px solid #22c55e; height:60px; border-radius:10px; cursor:pointer;" title="Mint"></button>
+                        <button onclick="applyTheme('light-solar')" data-theme="light-solar" class="theme-btn" style="background:#fefce8; border:1px solid #eab308; height:60px; border-radius:10px; cursor:pointer;" title="Warm Sun"></button>
+                        <button onclick="applyTheme('light-lilac')" data-theme="light-lilac" class="theme-btn" style="background:#faf5ff; border:1px solid #a855f7; height:60px; border-radius:10px; cursor:pointer;" title="Lavender"></button>
                     </div>
                 </div>
 
