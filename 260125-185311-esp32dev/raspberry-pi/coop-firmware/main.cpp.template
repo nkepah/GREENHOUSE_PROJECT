@@ -533,6 +533,12 @@ void loop() {
         fetchWeatherFromPi();
     }
     
+    // Sync settings every 10 minutes
+    if (now - lastSettingsSync > 600000) {
+        lastSettingsSync = now;
+        syncSettingsFromPi();
+    }
+    
     // Check schedules every minute
     if (now - lastScheduleCheck > 60000) {
         lastScheduleCheck = now;
