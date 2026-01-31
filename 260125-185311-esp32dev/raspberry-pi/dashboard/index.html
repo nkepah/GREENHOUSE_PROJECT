@@ -1012,26 +1012,27 @@
             }
         }
 
-        .temp-warning {
-            position: absolute;
-            bottom: -15px;
-            right: -15px;
-            padding: 8px 12px;
-            background: rgba(100, 150, 255, 0.2);
+        .temp-warning-banner {
+            width: 100%;
+            padding: 12px 20px;
+            margin-top: 12px;
+            background: rgba(100, 150, 255, 0.15);
             border: 2px solid rgba(100, 150, 255, 0.8);
-            border-radius: 20px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
-            gap: 4px;
-            font-size: 1.2rem;
+            justify-content: center;
+            gap: 12px;
+            font-size: 1.3rem;
             color: rgba(100, 200, 255, 1);
+            font-weight: 700;
             white-space: nowrap;
             animation: frostPulse 1.5s ease-in-out infinite;
             backdrop-filter: blur(4px);
         }
 
-        .temp-warning.heat {
-            background: rgba(255, 100, 50, 0.2);
+        .temp-warning-banner.heat {
+            background: rgba(255, 100, 50, 0.15);
             border: 2px solid rgba(255, 100, 50, 0.9);
             color: rgba(255, 150, 100, 1);
             animation: heatPulse 1.5s ease-in-out infinite;
