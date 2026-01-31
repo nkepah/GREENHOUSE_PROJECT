@@ -584,6 +584,8 @@ app.get('/api/weather-convert', async (req, res) => {
             cachedData.current_temp_c,
             cachedData.current_temp_f,
             cachedData.weather_code,
+            cachedData.humidity,
+            cachedData.wind_speed,
             cachedData.daily_data,
             cachedData.hourly_data,
             cachedData.timezone,
