@@ -1761,7 +1761,7 @@
                     if(headCity) headCity.textContent = displayLoc;
                 }
                 
-                if (data.weather) updateWeather(data.weather, data.daily);
+                if (data.weather) updateWeather(data.weather, data.daily, data.hourly);
                 if (data.devices) renderDevices(data.devices);
                 
                 document.getElementById('lastUpdate').innerHTML = 
