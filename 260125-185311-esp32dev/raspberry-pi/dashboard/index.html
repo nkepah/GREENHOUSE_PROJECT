@@ -1199,6 +1199,7 @@
             <div class="weather-current">
                 <div class="weather-icon" id="weatherIcon">🌤️</div>
                 <div>
+                    <div id="weatherLocation" style="font-size: 0.85rem; color: rgba(255,255,255,0.7); margin-bottom: 4px;">📍 Location</div>
                     <div class="weather-temp"><span id="weatherTemp">--</span><span id="weatherTempUnit">°C</span></div>
                     <div class="weather-details">
                         <div id="weatherDesc">Loading weather...</div>
@@ -1784,7 +1785,7 @@
                     if(headCity) headCity.textContent = displayLoc;
                 }
                 
-                if (data.weather) updateWeather(data.weather, data.daily, data.hourly);
+                if (data.weather) updateWeather(data.weather, data.daily, data.hourly, data.location);
                 if (data.devices) renderDevices(data.devices);
                 
                 document.getElementById('lastUpdate').innerHTML = 
@@ -1806,14 +1807,27 @@
         }
         
         // Weather display
-        function updateWeather(current, daily, hourly) {
+        function updateWeather(current, daily, hourly, location) {
             if (!current) return;
             
             const tempUnit = userSettings?.units?.temp || 'C';
             const tempSymbol = tempUnit === 'F' ? '°F' : '°C';
             
+            // Display location
+            if (location) {
+                const locDisplay = location.address || location.cityComponent || location.city || 'Unknown Location';
+                document.getElementById('weatherLocation').textContent = '📍 ' + locDisplay;
+            }
+            
+            // Use the first hourly data point if available (should be current time)
+            // This ensures the main temperature matches the "Now" card
+            let displayTemp = current.temperature_2m;
+            if (hourly && hourly.temperature_2m && hourly.temperature_2m.length > 0) {
+                displayTemp = hourly.temperature_2m[0];
+            }
+            
             document.getElementById('weatherTemp').textContent = 
-                convertTemp(current.temperature_2m);
+                convertTemp(displayTemp);
             document.getElementById('weatherTempUnit').textContent = tempSymbol;
             document.getElementById('weatherHumidity').textContent = 
                 current.relative_humidity_2m || '--';
