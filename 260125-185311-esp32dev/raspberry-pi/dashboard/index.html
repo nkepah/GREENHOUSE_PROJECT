@@ -1664,7 +1664,7 @@
         // Persistence
         async function loadSettings() {
             try {
-                const res = await fetch('/api/settings?v=2.3');
+                const res = await fetch(`/api/settings?v=${Math.random()}`);
                 if (!res.ok) throw new Error('Failed to fetch settings');
                 const settings = await res.json();
                 
