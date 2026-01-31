@@ -1433,6 +1433,10 @@
                  if(titleEl) {
                      if(pageId === 'units') titleEl.textContent = 'Units';
                      if(pageId === 'location') titleEl.textContent = 'Location';
+                     if(pageId === 'thresholds') {
+                         titleEl.textContent = 'Temperature Thresholds';
+                         loadThresholds();
+                     }
                      if(pageId === 'themes') titleEl.textContent = 'Themes';
                      if(pageId === 'about') titleEl.textContent = 'About';
                  }
