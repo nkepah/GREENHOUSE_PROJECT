@@ -165,17 +165,23 @@ setInterval(updateAllDeviceStatus, 30000);
 app.use(cors());
 app.use(express.json());
 
-// No-cache headers for HTML files to prevent stale versions
+// ========== DEVELOPMENT MODE: Disable all caching ==========
+// All files served with no-cache to force fresh loads during development
 app.use((req, res, next) => {
-    if (req.path.endsWith('.html') || req.path === '/') {
-        res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-        res.set('Pragma', 'no-cache');
-        res.set('Expires', '0');
-    }
+    // Disable caching for all responses during development
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '-1');
+    res.set('ETag', 'W/"dev-' + Date.now() + '"'); // Change ETag on every request
     next();
 });
 
-app.use(express.static(path.join(__dirname, 'dashboard')));
+// Serve static files with maxAge=0 to disable browser/proxy caching
+app.use(express.static(path.join(__dirname, 'dashboard'), {
+    maxAge: 0,
+    etag: false,  // Disable ETag generation for static files
+    lastModified: false  // Don't set Last-Modified header
+}));
 
 // =============================================================================
 // API ROUTES
