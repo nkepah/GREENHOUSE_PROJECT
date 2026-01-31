@@ -510,37 +510,13 @@ app.get('/api/dashboard', async (req, res) => {
         };
     }
     
-    // Get fresh location display by geocoding current coordinates if available
+    // Use cached location - don't geocode on every request (it's slow!)
     let locationDisplay = { city: 'Unknown', address: 'Unknown' };
-    console.log('[DASHBOARD] Checking location:', { lat: config.location.lat, lon: config.location.lon });
-    if (config.location.lat && config.location.lon) {
-        try {
-            console.log('[DASHBOARD] Geocoding fresh location...');
-            const geoResponse = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${config.location.lat}&lon=${config.location.lon}`, {
-                headers: { 'User-Agent': 'FarmHub/2.3' }
-            });
-            if (geoResponse.ok) {
-                const geoData = await geoResponse.json();
-                const address = geoData.address || {};
-                let city = address.city || address.town || address.village || address.suburb;
-                if (!city && address.county) {
-                    city = address.county.replace(' County', '').replace(' Parish', '').replace(' District', '');
-                }
-                city = city || 'Location';
-                const state = address.state || '';
-                const cityComponent = state ? `${city}, ${state}` : city;
-                locationDisplay = { city: city, address: cityComponent };
-                console.log('[DASHBOARD] Fresh geocode result:', locationDisplay);
-            }
-        } catch (err) {
-            console.error('[DASHBOARD] Fresh geocode failed:', err.message);
-            // Fallback to stored address if available
-            if (config.location.address) {
-                locationDisplay = { city: config.location.city || 'Location', address: config.location.address };
-            }
-        }
-    } else {
-        console.log('[DASHBOARD] No coordinates configured');
+    if (config.location.address && config.location.city) {
+        locationDisplay = { city: config.location.city, address: config.location.address };
+    } else if (config.location.lat && config.location.lon) {
+        // Fallback to coordinates display
+        locationDisplay = { city: config.location.city || 'Location', address: `${config.location.lat.toFixed(3)}, ${config.location.lon.toFixed(3)}` };
     }
     
     res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
