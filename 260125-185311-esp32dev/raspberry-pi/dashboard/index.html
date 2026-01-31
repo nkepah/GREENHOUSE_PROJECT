@@ -1910,7 +1910,7 @@
                 clockEl.className = 'clock-widget';
                 clockEl.innerHTML = `
                     <span class="clock-date">${dateStr}</span>
-                    <span class="clock-time">${hours}<span class="clock-colon">:</span>${minutes}</span>
+                    <span class="clock-time"><span class="clock-number">${hours}</span><span class="clock-colon">:</span><span class="clock-number">${minutes}</span></span>
                     <!-- Mobile only location display (controlled by CSS) -->
                     <div id="mobile-location-container" onclick="openSettingsPage('location')">
                         📍 <span>${currentLoc}</span>
