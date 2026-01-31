@@ -105,83 +105,13 @@ async function initializeSettingsFromDatabase() {
 }
 
 // =============================================================================
-// WEATHER CONVERSION & CACHING
+// WEATHER FETCHING & CACHING
 // =============================================================================
 
 let weatherCache = {
     data: null,
     timestamp: 0
 };
-
-// Dedicated temperature converter - called only 2 times:
-// 1. When new weather data is downloaded from API
-// 2. When temperature unit is changed in settings
-async function convertAndCacheWeather(sourceData, isFromAPI = true) {
-    try {
-        // Extract temperature data from source
-        let tempC, daily, hourly, timezone;
-        
-        if (isFromAPI) {
-            // Source 1: Fresh API data
-            tempC = sourceData.current?.temperature_2m || 0;
-            daily = sourceData.daily || null;
-            hourly = sourceData.hourly || null;
-            timezone = sourceData.timezone || 'UTC';
-        } else {
-            // Source 2: Cached database data
-            tempC = sourceData.current_temp_c || 0;
-            daily = sourceData.daily ? JSON.parse(sourceData.daily) : null;
-            hourly = sourceData.hourly ? JSON.parse(sourceData.hourly) : null;
-            timezone = sourceData.timezone || 'UTC';
-        }
-        
-        const tempF = Math.round((tempC * 9/5) + 32);
-        const weatherCode = sourceData.current?.weather_code || (sourceData.weather_code || 0);
-        
-        // Convert daily temperatures
-        const dailyConverted = daily ? {
-            ...daily,
-            temperature_2m_max_c: daily.temperature_2m_max,
-            temperature_2m_max_f: daily.temperature_2m_max.map(c => Math.round((c * 9/5) + 32)),
-            temperature_2m_min_c: daily.temperature_2m_min,
-            temperature_2m_min_f: daily.temperature_2m_min.map(c => Math.round((c * 9/5) + 32))
-        } : null;
-        
-        // Convert hourly temperatures
-        const hourlyConverted = hourly ? {
-            ...hourly,
-            temperature_2m_c: hourly.temperature_2m,
-            temperature_2m_f: hourly.temperature_2m.map(c => Math.round((c * 9/5) + 32))
-        } : null;
-        
-        // Get user's preferred temperature unit for storage
-        let preferredUnit = 'C';
-        try {
-            const settings = await db.getAll();
-            const units = settings.units || {};
-            preferredUnit = units.temp || 'C';
-        } catch (err) {
-            console.warn('[CONVERT] Could not get preferred unit, using C:', err.message);
-        }
-        
-        // Store converted data in database (only write to DB, no return)
-        await db.saveWeatherCache(
-            tempC,
-            tempF,
-            weatherCode,
-            JSON.stringify(dailyConverted),
-            JSON.stringify(hourlyConverted),
-            timezone,
-            preferredUnit
-        );
-        
-        console.log(`[CONVERT] Stored in DB: ${tempC}°C / ${tempF}°F (preferred: ${preferredUnit})${isFromAPI ? ' (from API)' : ' (from DB)'}`);
-        
-    } catch (err) {
-        console.error('[CONVERT] Error during conversion:', err);
-        throw err;
-    }
-}
 
 async function fetchWeather(lat, lon) {
     const now = Date.now();
@@ -211,11 +141,52 @@ async function fetchWeather(lat, lon) {
         
         const data = await response.json();
         
-        // CONVERSION SOURCE 1: Fresh API data
-        // Call dedicated converter when new weather data is downloaded
-        // This stores data in database and returns nothing
-        await convertAndCacheWeather(data, true);
-        console.log('[WEATHER] Data converted and stored in database');
+        // INLINE CONVERSION: Convert API data to both C and F only once
+        const tempC = data.current?.temperature_2m || 0;
+        const tempF = Math.round((tempC * 9/5) + 32);
+        const weatherCode = data.current?.weather_code || 0;
+        
+        // Convert daily temperatures (only once, when fetching)
+        const daily = data.daily || null;
+        const dailyConverted = daily ? {
+            ...daily,
+            temperature_2m_max_c: daily.temperature_2m_max,
+            temperature_2m_max_f: daily.temperature_2m_max.map(c => Math.round((c * 9/5) + 32)),
+            temperature_2m_min_c: daily.temperature_2m_min,
+            temperature_2m_min_f: daily.temperature_2m_min.map(c => Math.round((c * 9/5) + 32))
+        } : null;
+        
+        // Convert hourly temperatures (only once, when fetching)
+        const hourly = data.hourly || null;
+        const hourlyConverted = hourly ? {
+            ...hourly,
+            temperature_2m_c: hourly.temperature_2m,
+            temperature_2m_f: hourly.temperature_2m.map(c => Math.round((c * 9/5) + 32))
+        } : null;
+        
+        // Get user's preferred unit from settings
+        let preferredUnit = 'C';
+        try {
+            const settings = await db.getAll();
+            const units = settings.units || {};
+            preferredUnit = units.temp || 'C';
+        } catch (err) {
+            console.warn('[WEATHER] Could not get preferred unit, using C:', err.message);
+        }
+        
+        // Store both C and F in database (ONLY CONVERSION HAPPENS HERE)
+        await db.saveWeatherCache(
+            tempC,
+            tempF,
+            weatherCode,
+            JSON.stringify(dailyConverted),
+            JSON.stringify(hourlyConverted),
+            data.timezone || 'UTC',
+            preferredUnit
+        );
+        
+        console.log(`[WEATHER] Stored in DB: ${tempC}°C / ${tempF}°F (preferred: ${preferredUnit})`);
+        
         
     } catch (err) {
         console.error('[WEATHER] Fetch error:', err.message);
