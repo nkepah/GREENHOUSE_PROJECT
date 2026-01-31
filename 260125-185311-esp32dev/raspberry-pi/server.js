@@ -481,6 +481,73 @@ app.post('/api/settings', async (req, res) => {
 });
 
 // =============================================================================
+// DEVICE REGISTRATION ENDPOINTS (for ESP32 devices)
+// =============================================================================
+
+// Device registration endpoint - ESP32 sends its info via HTTP POST
+app.post('/api/device/register', (req, res) => {
+    const { device_id, hostname, ip_address, device_type, mac_address } = req.body;
+    
+    if (!device_id) {
+        return res.status(400).json({ error: 'Missing device_id' });
+    }
+    
+    console.log(`[DEVICE] Registration from: ${device_id} (${ip_address})`);
+    
+    // Store device info if not already in config
+    if (!config.devices[device_id]) {
+        config.devices[device_id] = {
+            ip: ip_address,
+            name: hostname || device_id,
+            type: device_type || 'device',
+            mac_address: mac_address,
+            registered_at: new Date().toISOString()
+        };
+        saveConfig();
+    } else {
+        // Update existing device
+        config.devices[device_id].ip = ip_address;
+        config.devices[device_id].last_ip_update = new Date().toISOString();
+    }
+    
+    // Update device status
+    deviceStatus[device_id] = {
+        online: true,
+        last_seen: Date.now(),
+        ip: ip_address,
+        rssi: req.body.rssi || null
+    };
+    
+    broadcastStatus();
+    res.json({ success: true, message: 'Device registered' });
+});
+
+// Device IP update endpoint - ESP32 sends periodic updates
+app.post('/api/device/update-ip', (req, res) => {
+    const { device_id, hostname, ip_address, mac_address, rssi } = req.body;
+    
+    if (!device_id) {
+        return res.status(400).json({ error: 'Missing device_id' });
+    }
+    
+    // Update device status
+    deviceStatus[device_id] = {
+        online: true,
+        last_seen: Date.now(),
+        ip: ip_address,
+        rssi: rssi || null
+    };
+    
+    // Optionally update config if IP changed significantly
+    if (config.devices[device_id]) {
+        config.devices[device_id].ip = ip_address;
+    }
+    
+    broadcastStatus();
+    res.json({ success: true, message: 'IP updated' });
+});
+
+// =============================================================================
 // WEBSOCKET SERVER
 // =============================================================================
 
