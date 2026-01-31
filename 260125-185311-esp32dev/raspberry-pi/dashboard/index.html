@@ -1209,6 +1209,47 @@
                     </div>
                 </div>
 
+                <!-- THRESHOLDS PAGE -->
+                <div id="page-thresholds" class="settings-page" style="display:none; padding:20px;">
+                    <h3 style="margin-bottom:20px; color:var(--text-primary);">Temperature Alert Thresholds</h3>
+                    
+                    <div style="background:rgba(100, 150, 255, 0.1); border:1px solid rgba(100, 150, 255, 0.3); border-radius:8px; padding:16px; margin-bottom:20px;">
+                        <h4 style="margin-bottom:12px; color:rgba(100, 200, 255, 1); display:flex; align-items:center; gap:8px;">
+                            <span>❄️</span> Frost Warning Threshold
+                        </h4>
+                        <div style="display:flex; gap:12px; align-items:flex-end;">
+                            <div style="flex:1;">
+                                <label style="display:block; margin-bottom:6px; font-size:0.9rem; color:var(--text-secondary);">Celsius (°C)</label>
+                                <input type="number" id="frostThreshold-c" placeholder="0" style="width:100%; padding:10px; border-radius:8px; background:var(--bg-primary); border:1px solid var(--border); color:var(--text-primary);">
+                            </div>
+                            <div style="flex:1;">
+                                <label style="display:block; margin-bottom:6px; font-size:0.9rem; color:var(--text-secondary);">Fahrenheit (°F)</label>
+                                <input type="number" id="frostThreshold-f" placeholder="32" style="width:100%; padding:10px; border-radius:8px; background:var(--bg-primary); border:1px solid var(--border); color:var(--text-primary);">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="background:rgba(255, 100, 50, 0.1); border:1px solid rgba(255, 100, 50, 0.3); border-radius:8px; padding:16px; margin-bottom:20px;">
+                        <h4 style="margin-bottom:12px; color:rgba(255, 150, 100, 1); display:flex; align-items:center; gap:8px;">
+                            <span>🔥</span> Heat Warning Threshold
+                        </h4>
+                        <div style="display:flex; gap:12px; align-items:flex-end;">
+                            <div style="flex:1;">
+                                <label style="display:block; margin-bottom:6px; font-size:0.9rem; color:var(--text-secondary);">Celsius (°C)</label>
+                                <input type="number" id="heatThreshold-c" placeholder="35" style="width:100%; padding:10px; border-radius:8px; background:var(--bg-primary); border:1px solid var(--border); color:var(--text-primary);">
+                            </div>
+                            <div style="flex:1;">
+                                <label style="display:block; margin-bottom:6px; font-size:0.9rem; color:var(--text-secondary);">Fahrenheit (°F)</label>
+                                <input type="number" id="heatThreshold-f" placeholder="95" style="width:100%; padding:10px; border-radius:8px; background:var(--bg-primary); border:1px solid var(--border); color:var(--text-primary);">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button onclick="saveThresholds()" style="width:100%; padding:12px; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:1rem;">
+                        💾 Save Thresholds
+                    </button>
+                </div>
+
                 <!-- ABOUT PAGE -->
                 <div id="page-about" class="settings-page" style="display:none; padding:20px;">
                     <div style="text-align:center; margin-bottom:20px;">
