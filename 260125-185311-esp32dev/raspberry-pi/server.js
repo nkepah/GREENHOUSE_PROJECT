@@ -873,11 +873,45 @@ app.post('/api/device/register', async (req, res) => {
         res.json({ 
             success: true, 
             device_id, 
-            message: `Device ${device_id} registered successfully` 
+            message: `Device ${device_id} registered successfully`,
+            registered_device: devices[device_id]
         });
     } catch (err) {
         console.error('[DEVICE] Registration failed:', err.message);
         res.status(500).json({ error: 'Failed to register device' });
+    }
+});
+
+// Verify device registration - ESP32 can query to check if it's registered
+app.get('/api/device/verify/:device_id', async (req, res) => {
+    try {
+        const { device_id } = req.params;
+        const settings = await db.getAll();
+        let devices = {};
+        if (settings.devices) {
+            try {
+                devices = typeof settings.devices === 'string' ? JSON.parse(settings.devices) : settings.devices;
+            } catch (err) {
+                console.warn('[DEVICE] Could not parse devices:', err.message);
+            }
+        }
+        
+        if (devices[device_id]) {
+            console.log(`[DEVICE] Verified: ${device_id} at ${devices[device_id].ip}`);
+            res.json({
+                success: true,
+                device: devices[device_id],
+                message: 'Device is registered'
+            });
+        } else {
+            res.status(404).json({
+                success: false,
+                message: `Device ${device_id} is not registered`
+            });
+        }
+    } catch (err) {
+        console.error('[DEVICE] Verify failed:', err.message);
+        res.status(500).json({ error: 'Failed to verify device' });
     }
 });
 
