@@ -253,6 +253,22 @@
             color: #fff; /* Always white text on banner */
         }
         
+        .weather-current {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .weather-current .weather-icon {
+            font-size: 3.5rem;
+        }
+        
+        .weather-temp {
+            font-size: 3rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+        
         .weather-banner .weather-details {
              color: rgba(255, 255, 255, 0.9);
              font-size: 0.95rem;
@@ -294,12 +310,12 @@
             flex: 0 0 auto;
             background: rgba(255,255,255,0.1);
             border-radius: 12px;
-            padding: 12px 10px;
+            padding: 12px 12px;
             text-align: center;
             backdrop-filter: blur(10px);
             transition: all 0.3s ease;
-            min-width: 70px;
-            white-space: nowrap;
+            min-width: 80px;
+            white-space: normal;
         }
         
         .hourly-card:hover {
@@ -310,9 +326,16 @@
         .hourly-time {
             font-size: 0.75rem;
             color: rgba(255,255,255,0.7);
-            margin-bottom: 4px;
+            margin-bottom: 6px;
             font-weight: 600;
             letter-spacing: 0.5px;
+            min-height: 14px;
+        }
+        
+        .hourly-time.now {
+            color: #ffeb3b;
+            font-weight: 700;
+            font-size: 0.8rem;
         }
         
         .hourly-icon {
