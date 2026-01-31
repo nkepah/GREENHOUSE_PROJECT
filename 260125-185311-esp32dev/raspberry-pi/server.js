@@ -65,11 +65,9 @@ let config = {
     farmName: "My Farm Hub",
     location: { lat: null, lon: null }, // Will be loaded from database settings
     devices: {
-        coop1: { name: "Coop 1", type: "coop" },
-        coop2: { name: "Coop 2", type: "coop" },
-        coop3: { name: "Coop 3", type: "coop" }
-        // NOTE: ESP32 devices register themselves dynamically via /api/device/register
-        // Do not hardcode "greenhouse" - it will be created when the actual device connects
+        // NOTE: All devices are dynamically registered via /api/device/register
+        // Device IPs are NOT hardcoded here - they are updated in real-time
+        // as devices connect and send registration/heartbeat messages
     },
     weather: {
         cacheMinutes: 10,
