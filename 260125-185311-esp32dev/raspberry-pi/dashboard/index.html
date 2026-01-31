@@ -1723,10 +1723,8 @@
             // Update UI immediately with new units
             updateClock(); // Refresh clock display with new format
             
-            // Re-render weather with new temperature unit
-            if (weather && weather.current) {
-                updateWeather(weather.current, weather.daily, weather.hourly, weather.location);
-            }
+            // Fetch fresh dashboard data (server will return temperature in user's preferred unit)
+            fetchDashboardData().catch(err => console.error('Dashboard refresh failed:', err));
             
             // Save to database in background (don't block UI)
             fetch('/api/settings', {
