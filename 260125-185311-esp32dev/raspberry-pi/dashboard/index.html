@@ -1247,12 +1247,14 @@
             
             // Visualize selection
             document.querySelectorAll('.theme-btn').forEach(btn => {
-                if(btn.onclick.toString().includes(themeName)) {
+                if(btn.dataset.theme === themeName) {
                     btn.style.borderColor = 'var(--text-primary)';
                     btn.style.transform = 'scale(1.05)';
+                    btn.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
                 } else {
                     btn.style.borderColor = 'transparent';
                     btn.style.transform = 'scale(1)';
+                    btn.style.boxShadow = 'none';
                 }
             });
         }
