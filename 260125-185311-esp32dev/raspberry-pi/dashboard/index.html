@@ -1926,6 +1926,7 @@
         let hourlyDataForClicks = [];
         let hourlyResetTimeout = null;
         let currentWeatherSnapshot = null; // Store current "Now" data for reverting
+        let refreshInterval = null; // Store the refresh interval ID for pausing
         
         // Update weather display with data from a specific hourly timestamp
         function updateWeatherForTimestamp(hourlyData, index, timeLabel) {
