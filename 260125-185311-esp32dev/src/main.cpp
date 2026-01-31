@@ -484,7 +484,7 @@ void loadConfig() {
     strncpy(cfgCity, temp.c_str(), sizeof(cfgCity) - 1);
     temp = prefs.getString("region", "");
     strncpy(cfgRegion, temp.c_str(), sizeof(cfgRegion) - 1);
-    temp = prefs.getString("pi", "");
+    temp = prefs.getString("pi", "100.92.151.67"); // Default to verified Pi IP
     strncpy(piIp, temp.c_str(), sizeof(piIp) - 1);
     useProxy = prefs.getBool("proxy", false);
     temp = prefs.getString("ntp", "pool.ntp.org");
