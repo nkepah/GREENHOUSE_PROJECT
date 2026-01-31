@@ -1461,6 +1461,10 @@
                          titleEl.textContent = 'Temperature Thresholds';
                          loadThresholds();
                      }
+                     if(pageId === 'devices') {
+                         titleEl.textContent = 'Registered Devices';
+                         showDevicesPage();
+                     }
                      if(pageId === 'themes') titleEl.textContent = 'Themes';
                      if(pageId === 'about') titleEl.textContent = 'About';
                  }
