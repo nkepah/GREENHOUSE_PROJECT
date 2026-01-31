@@ -306,9 +306,13 @@ app.all('/device/:deviceId/*', async (req, res) => {
 
 // --- Aggregated Dashboard Data ---
 app.get('/api/dashboard', async (req, res) => {
-    // Fetch fresh weather
+    // Fetch fresh weather using coordinates from database
     let weather = null;
     try {
+        // Make sure we have coordinates before fetching weather
+        if (!config.location.lat || !config.location.lon) {
+            throw new Error('Location coordinates not configured. Please set location in Settings.');
+        }
         weather = await fetchWeather(config.location.lat, config.location.lon);
     } catch (err) {
         console.error('Weather fetch failed:', err);
