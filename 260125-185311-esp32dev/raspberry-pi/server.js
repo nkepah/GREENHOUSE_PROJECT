@@ -810,6 +810,30 @@ app.post('/api/settings', async (req, res) => {
     }
 });
 
+// Get all registered devices
+app.get('/api/devices', async (req, res) => {
+    try {
+        const settings = await db.getAll();
+        let devices = {};
+        if (settings.devices) {
+            try {
+                devices = typeof settings.devices === 'string' ? JSON.parse(settings.devices) : settings.devices;
+            } catch (err) {
+                console.warn('[DEVICE] Could not parse devices:', err.message);
+            }
+        }
+        
+        res.json({
+            success: true,
+            devices: devices,
+            count: Object.keys(devices).length
+        });
+    } catch (err) {
+        console.error('[API] Failed to get devices:', err.message);
+        res.status(500).json({ error: 'Failed to get devices' });
+    }
+});
+
 // Device registration endpoint - ESP32 devices call this to register themselves
 app.post('/api/device/register', async (req, res) => {
     try {
