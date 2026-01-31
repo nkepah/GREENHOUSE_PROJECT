@@ -2040,7 +2040,7 @@ void setup()
                 
                 // Daily summary at 8 AM
                 if(hour == 8 && minute == 0) {
-                    alertMgr.sendDailySummary(avgTemp, 0.0f, 0.0f, 0, 0);
+                    // alertMgr.sendDailySummary(avgTemp, 0.0f, 0.0f, 0, 0);
                 }
             }
             
