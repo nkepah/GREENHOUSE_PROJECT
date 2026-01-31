@@ -29,7 +29,7 @@ function initSchema() {
         }
     });
     
-    // Create weather cache table with both C and F temperatures
+    // Create weather cache table with both C and F temperatures + user's preferred unit
     db.run(`CREATE TABLE IF NOT EXISTS weather_cache (
         id INTEGER PRIMARY KEY,
         timestamp INTEGER,
@@ -38,7 +38,8 @@ function initSchema() {
         weather_code INTEGER,
         daily_data TEXT,
         hourly_data TEXT,
-        timezone TEXT DEFAULT 'UTC'
+        timezone TEXT DEFAULT 'UTC',
+        preferred_unit TEXT DEFAULT 'C'
     )`, (err) => {
         if (err) {
             console.error('[DB] Error creating weather_cache table:', err.message);
@@ -111,7 +112,7 @@ module.exports = {
     },
     
     // Weather cache functions - store pre-converted data
-    saveWeatherCache: (current_temp_c, current_temp_f, weather_code, daily_data, hourly_data, timezone = 'UTC') => {
+    saveWeatherCache: (current_temp_c, current_temp_f, weather_code, daily_data, hourly_data, timezone = 'UTC', preferred_unit = 'C') => {
         return new Promise((resolve, reject) => {
             const timestamp = Math.floor(Date.now() / 1000);
             
@@ -123,10 +124,10 @@ module.exports = {
                     return;
                 }
                 
-                // Insert new weather data with both C and F conversions
+                // Insert new weather data with both C and F conversions + preferred unit
                 db.run(
-                    "INSERT INTO weather_cache (timestamp, current_temp_c, current_temp_f, weather_code, daily_data, hourly_data, timezone) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                    [timestamp, current_temp_c, current_temp_f, weather_code, daily_data, hourly_data, timezone],
+                    "INSERT INTO weather_cache (timestamp, current_temp_c, current_temp_f, weather_code, daily_data, hourly_data, timezone, preferred_unit) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                    [timestamp, current_temp_c, current_temp_f, weather_code, daily_data, hourly_data, timezone, preferred_unit],
                     (err) => {
                         if (err) reject(err);
                         else resolve(true);
@@ -134,7 +135,7 @@ module.exports = {
                 );
             });
         });
-    },
+    }
     
     getWeatherCache: () => {
         return new Promise((resolve, reject) => {
