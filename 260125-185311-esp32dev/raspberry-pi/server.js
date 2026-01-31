@@ -420,6 +420,16 @@ app.post('/api/settings', async (req, res) => {
         
         await db.set(key, value);
         console.log(`[API] Saved setting: ${key} = ${JSON.stringify(value).substring(0, 50)}`);
+        
+        // If location was updated, reload it into config
+        if (key === 'location') {
+            const loc = typeof value === 'string' ? JSON.parse(value) : value;
+            config.location.lat = parseFloat(loc.lat);
+            config.location.lon = parseFloat(loc.lon);
+            config.weather.timezone = loc.timezone || 'UTC';
+            console.log(`[CONFIG] Updated from settings: ${config.location.lat}, ${config.location.lon} (${config.weather.timezone})`);
+        }
+        
         res.json({ success: true, key, value });
     } catch (err) {
         console.error('[API] Failed to save settings:', err.message);
