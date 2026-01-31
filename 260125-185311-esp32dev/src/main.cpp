@@ -232,7 +232,7 @@ void registerDeviceWithPi() {
     http.setTimeout(3000);
     
     char url[64];
-    snprintf(url, sizeof(url), "http://%s:3000/api/device/register", PI_HOSTNAME);
+    snprintf(url, sizeof(url), "http://%s:3000/api/device/register", PI_DOMAIN);
     
     JsonDocument doc;
     doc["device_id"] = hostname;
