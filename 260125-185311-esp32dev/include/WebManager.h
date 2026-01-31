@@ -52,7 +52,7 @@ public:
                 request->redirect(piUrl);
                 return;
             }
-            // Pi is down or not connected - serve local ESP32 UI
+            // Pi is down or not connected - serve local ESP32 backup UI
             if(LittleFS.exists("/index.html.gz")) {
                 AsyncWebServerResponse *response = request->beginResponse(LittleFS, "/index.html.gz", F("text/html"));
                 response->addHeader(F("Content-Encoding"), F("gzip"));
