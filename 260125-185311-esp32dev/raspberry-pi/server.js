@@ -149,19 +149,22 @@ async function fetchWeather(lat, lon) {
         // Convert daily temperatures (only once, when fetching)
         const daily = data.daily || null;
         const dailyConverted = daily ? {
-            ...daily,
             temperature_2m_max_c: daily.temperature_2m_max,
             temperature_2m_max_f: daily.temperature_2m_max.map(c => Math.round((c * 9/5) + 32)),
             temperature_2m_min_c: daily.temperature_2m_min,
-            temperature_2m_min_f: daily.temperature_2m_min.map(c => Math.round((c * 9/5) + 32))
+            temperature_2m_min_f: daily.temperature_2m_min.map(c => Math.round((c * 9/5) + 32)),
+            sunrise: daily.sunrise,
+            sunset: daily.sunset,
+            time: daily.time
         } : null;
         
         // Convert hourly temperatures (only once, when fetching)
         const hourly = data.hourly || null;
         const hourlyConverted = hourly ? {
-            ...hourly,
             temperature_2m_c: hourly.temperature_2m,
-            temperature_2m_f: hourly.temperature_2m.map(c => Math.round((c * 9/5) + 32))
+            temperature_2m_f: hourly.temperature_2m.map(c => Math.round((c * 9/5) + 32)),
+            weather_code: hourly.weather_code,
+            time: hourly.time
         } : null;
         
         // Get user's preferred unit from settings
