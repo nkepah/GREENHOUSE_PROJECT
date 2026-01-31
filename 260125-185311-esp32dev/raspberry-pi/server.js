@@ -574,14 +574,14 @@ app.get('/api/weather-convert', async (req, res) => {
         }
         
         // Parse cached data and return with correct display temperature
-        const daily = updatedCache.daily_data ? JSON.parse(updatedCache.daily_data) : null;
-        const hourly = updatedCache.hourly_data ? JSON.parse(updatedCache.hourly_data) : null;
+        const daily = cachedData.daily_data ? JSON.parse(cachedData.daily_data) : null;
+        const hourly = cachedData.hourly_data ? JSON.parse(cachedData.hourly_data) : null;
         
         const displayData = {
-            temperature_2m_c: updatedCache.current_temp_c,
-            temperature_2m_f: updatedCache.current_temp_f,
-            temperature_2m: tempUnit === 'F' ? updatedCache.current_temp_f : updatedCache.current_temp_c,
-            weather_code: updatedCache.weather_code
+            temperature_2m_c: cachedData.current_temp_c,
+            temperature_2m_f: cachedData.current_temp_f,
+            temperature_2m: tempUnit === 'F' ? cachedData.current_temp_f : cachedData.current_temp_c,
+            weather_code: cachedData.weather_code
         };
         
         res.json({
