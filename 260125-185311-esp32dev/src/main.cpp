@@ -937,8 +937,8 @@ void handleSocketData(AsyncWebSocketClient *client, uint8_t *data)
                 float measuredAmps = relays.getDeviceAmps(ch);
                 bool confirmed = newState ? (measuredAmps > 0.1f) : (measuredAmps < 0.1f);
                 
-                // Send relay state change alert
-                alertMgr.alertRelayChange(device->name, ch, newState, measuredAmps, confirmed);
+                // Send relay state change alert (TODO: alertRelayChange not available in header)
+                // alertMgr.alertRelayChange(device->name, ch, newState, measuredAmps, confirmed);
             }
             
             // Immediately broadcast updated state
