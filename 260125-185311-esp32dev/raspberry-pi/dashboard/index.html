@@ -2079,9 +2079,33 @@
             return Math.round(temp);
         }
         
+        // Cache for avoiding redundant DOM updates
+        let lastWeatherDataHash = null;
+        
+        function hashWeatherData(current, hourly) {
+            // Create a simple hash of critical weather values to detect changes
+            if (!current || !hourly) return null;
+            const values = [
+                current.temperature_2m,
+                current.relative_humidity_2m,
+                current.weather_code,
+                hourly.temperature_2m_c?.[0],
+                hourly.weather_code?.[0],
+                hourly.temperature_2m_c?.slice(0, 24).join(',')
+            ].join('|');
+            return values;
+        }
+        
         // Weather display
         function updateWeather(current, daily, hourly, location) {
             if (!current) return;
+            
+            // Skip update if weather data hasn't changed
+            const weatherHash = hashWeatherData(current, hourly);
+            if (weatherHash === lastWeatherDataHash) {
+                return; // Data hasn't changed, skip DOM updates
+            }
+            lastWeatherDataHash = weatherHash;
             
             const tempUnit = userSettings?.units?.temp || 'C';
             const tempSymbol = tempUnit === 'F' ? '°F' : '°C';
