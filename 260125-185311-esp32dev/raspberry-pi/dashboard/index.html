@@ -1574,19 +1574,20 @@
             };
             
             try {
-                await fetch('/api/settings', {
+                const res = await fetch('/api/settings', {
                      method: 'POST',
                      headers: {'Content-Type': 'application/json'},
                      body: JSON.stringify({ key: 'units', value: units })
                 });
                 
-                // Visual feedback
-                const btn = event.target || document.querySelector('#page-units button');
-                // If triggered by onchange, there might not be a button reference properly, use generic notification if needed
-                if(btn && btn.tagName === 'BUTTON') {
-                     const originalText = btn.textContent;
-                     btn.textContent = '✅ Saved';
-                     setTimeout(() => btn.textContent = originalText, 1500);
+                if (res.ok) {
+                    console.log('Units saved successfully');
+                    // Show success notification in a safe way
+                    const notification = document.createElement('div');
+                    notification.textContent = '✅ Units saved';
+                    notification.style.cssText = 'position:fixed; top:20px; right:20px; background:#4ecca3; color:#0d1117; padding:10px 15px; border-radius:5px; z-index:9999;';
+                    document.body.appendChild(notification);
+                    setTimeout(() => notification.remove(), 2000);
                 }
             } catch(e) {
                 console.error('Save failed', e);
