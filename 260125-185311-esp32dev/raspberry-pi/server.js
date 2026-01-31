@@ -588,10 +588,15 @@ app.get('/api/weather-convert', async (req, res) => {
             console.error('[API] Error getting units setting:', err);
         }
         
-        // Return with correct display temperature
+        // Parse cached data and return with correct display temperature
+        const daily = updatedCache.daily_data ? JSON.parse(updatedCache.daily_data) : null;
+        const hourly = updatedCache.hourly_data ? JSON.parse(updatedCache.hourly_data) : null;
+        
         const displayData = {
-            ...convertedData.current,
-            temperature_2m: tempUnit === 'F' ? convertedData.current.temperature_2m_f : convertedData.current.temperature_2m_c
+            temperature_2m_c: updatedCache.current_temp_c,
+            temperature_2m_f: updatedCache.current_temp_f,
+            temperature_2m: tempUnit === 'F' ? updatedCache.current_temp_f : updatedCache.current_temp_c,
+            weather_code: updatedCache.weather_code
         };
         
         res.json({
