@@ -1190,30 +1190,59 @@
             }
             
             const dropdown = document.getElementById('settingsDropdown');
+            // We need to find the button. Since we moved the dropdown, we can't find sibling.
+            // But we can search for the button by ID if we add one, or generic class.
+            const btn = document.getElementById('settingsBtn') || document.querySelector('.settings-btn');
+            
             if (!dropdown) return;
 
             const isMobile = window.innerWidth <= 768;
-            
-            // Toggle logic
             const willShow = !dropdown.classList.contains('show');
             
             if (willShow) {
                 dropdown.classList.add('show');
                 
-                // Mobile specific forcing
+                // Force display first to ensure we can calculate things if needed
+                dropdown.style.display = 'block';
+
                 if (isMobile) {
+                    // Mobile: Fixed Bottom Sheet
+                    dropdown.style.position = 'fixed';
+                    dropdown.style.top = 'auto';
+                    dropdown.style.bottom = '0';
+                    dropdown.style.left = '0';
+                    dropdown.style.right = '0';
+                    dropdown.style.width = '100%';
+                    dropdown.style.transform = 'translateY(0)';
                     dropdown.style.visibility = 'visible';
                     dropdown.style.opacity = '1';
+                    dropdown.style.zIndex = '99999'; // Super high
+                } else if (btn) {
+                    // Desktop: Position next to button
+                    const rect = btn.getBoundingClientRect();
+                    dropdown.style.position = 'fixed';
+                    dropdown.style.top = (rect.bottom + 8) + 'px';
+                    // Right align with button right edge
+                    const rightOffset = window.innerWidth - rect.right;
+                    dropdown.style.right = rightOffset + 'px';
+                    dropdown.style.left = 'auto'; // clear left
+                    dropdown.style.bottom = 'auto'; // clear bottom
+                    dropdown.style.width = '300px'; 
                     dropdown.style.transform = 'translateY(0)';
+                    dropdown.style.visibility = 'visible';
+                    dropdown.style.opacity = '1';
+                    dropdown.style.zIndex = '10000';
                 }
             } else {
                 dropdown.classList.remove('show');
+                dropdown.style.visibility = 'hidden';
+                dropdown.style.opacity = '0';
                 
-                // Cleanup inline styles for mobile to let CSS take over (or reset)
+                // Reset transform for animation if we want it, but for now just hide
                 if (isMobile) {
-                    dropdown.style.removeProperty('visibility');
-                    dropdown.style.removeProperty('opacity');
-                    dropdown.style.removeProperty('transform');
+                    dropdown.style.transform = 'translateY(100%)';
+                } else {
+                    dropdown.style.transform = 'translateY(-10px)';
                 }
             }
         }
@@ -1221,19 +1250,20 @@
         // Close dropdown when clicking outside
         document.addEventListener('click', (event) => {
             const dropdown = document.getElementById('settingsDropdown');
+            const btn = document.getElementById('settingsBtn'); // Don't close if clicking button (handled by toggle)
+            
             if (dropdown && dropdown.classList.contains('show')) {
-                // If the click is NOT inside the dropdown
+                 if (btn && btn.contains(event.target)) {
+                     return;
+                 }
+                 
                 if (!dropdown.contains(event.target)) {
-                    // And checking if the click was on the button is handled by stopPropagation in toggleSettings
-                    // But if for some reason it bubbled here...
-                    
-                    // We just close it
                     dropdown.classList.remove('show');
-                    
-                    // Cleanup inline styles if any
-                    dropdown.style.removeProperty('visibility');
-                    dropdown.style.removeProperty('opacity');
-                    dropdown.style.removeProperty('transform');
+                    dropdown.style.visibility = 'hidden';
+                    dropdown.style.opacity = '0';
+                    if (window.innerWidth <= 768) {
+                        dropdown.style.transform = 'translateY(100%)';
+                    }
                 }
             }
         });
