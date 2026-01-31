@@ -2094,6 +2094,77 @@
             }
         }
         
+        // TEST FUNCTIONS - Remove after testing
+        function testTemperatureWarning() {
+            const testTemp = parseFloat(document.getElementById('testTemp').value);
+            const testUnit = document.getElementById('testTempUnit').value;
+            
+            if (isNaN(testTemp)) {
+                alert('Please enter a valid temperature value');
+                return;
+            }
+            
+            // Create a test weather object
+            const testWeather = {
+                temperature_2m: testTemp,
+                weather_code: 0,
+                relative_humidity_2m: 60,
+                wind_speed_10m: 10,
+                wind_speed_unit: 'km/h'
+            };
+            
+            // Update the display with test temperature
+            document.getElementById('weatherTemp').textContent = Math.round(testTemp);
+            document.getElementById('weatherTempUnit').textContent = testUnit === 'F' ? '°F' : '°C';
+            
+            // Check for warnings
+            const warningEl = document.getElementById('tempWarning');
+            const warningIcon = document.getElementById('warningIcon');
+            const tempThreshold = testUnit === 'F' ? 32 : 0;
+            const heatThreshold = testUnit === 'F' ? 95 : 35;
+            const roundedTemp = Math.round(testTemp);
+            
+            if (roundedTemp <= tempThreshold) {
+                // Frost warning
+                warningEl.classList.remove('heat');
+                warningIcon.textContent = '❄️';
+                warningEl.style.display = 'block';
+                warningEl.title = 'Frost Warning: Temperature at or below freezing!';
+                console.log('✓ Frost warning activated at', roundedTemp, testUnit);
+            } else if (roundedTemp >= heatThreshold) {
+                // Heat warning
+                warningEl.classList.add('heat');
+                warningIcon.textContent = '🔥';
+                warningEl.style.display = 'block';
+                warningEl.title = 'Heat Warning: High temperature alert!';
+                console.log('✓ Heat warning activated at', roundedTemp, testUnit);
+            } else {
+                // No warning
+                warningEl.style.display = 'none';
+                console.log('✓ No warning at', roundedTemp, testUnit);
+            }
+        }
+        
+        function resetTemperatureDisplay() {
+            // Fetch fresh weather data from the server
+            fetch('/api/dashboard')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.weather) {
+                        weather = {
+                            current: data.weather,
+                            daily: data.daily,
+                            hourly: data.hourly,
+                            location: data.location
+                        };
+                        updateWeather(data.weather, data.daily, data.hourly, data.location);
+                        console.log('✓ Display reset to live weather data');
+                    }
+                })
+                .catch(err => console.error('Reset failed:', err));
+        }
+        // END TEST FUNCTIONS
+        
         function getWeatherIcon(code) {
             // WMO Weather codes mapping to emojis (comprehensive)
             const iconMap = {
