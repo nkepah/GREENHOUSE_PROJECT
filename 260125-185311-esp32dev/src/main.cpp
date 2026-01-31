@@ -1798,6 +1798,11 @@ void setup()
                 wifiReconnectAttempts = 0;
             }
 
+            // Sync Settings from Pi Server (if connected)
+            if(!isAPMode && WiFi.status() == WL_CONNECTED) {
+                syncSettingsFromPi();
+            }
+
             // Pending weather refresh (triggered 5s after WebSocket connect) - ONLY if Pi is NOT connected
             if(pendingWeatherRefresh > 0 && millis() >= pendingWeatherRefresh) {
                 pendingWeatherRefresh = 0;  // Clear flag
