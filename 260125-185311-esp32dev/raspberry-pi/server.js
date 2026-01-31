@@ -675,6 +675,48 @@ app.post('/api/device/update-ip', (req, res) => {
     res.json({ success: true, message: 'IP updated' });
 });
 
+// Device verification endpoint - ESP32 checks if it's registered with correct IP
+app.post('/api/device/verify', (req, res) => {
+    const { device_id, current_ip } = req.body;
+    
+    if (!device_id) {
+        return res.status(400).json({ error: 'Missing device_id' });
+    }
+    
+    // Check if device exists and get stored IP
+    if (!config.devices[device_id]) {
+        // Device not found in database
+        console.log(`[DEVICE] Verification FAILED: ${device_id} not in database`);
+        return res.status(404).json({ 
+            found: false, 
+            message: 'Device not registered' 
+        });
+    }
+    
+    const storedIP = config.devices[device_id].ip;
+    
+    if (storedIP === current_ip) {
+        // Device found and IP matches
+        console.log(`[DEVICE] Verification OK: ${device_id} at ${current_ip}`);
+        return res.json({ 
+            found: true, 
+            ip_match: true,
+            stored_ip: storedIP,
+            message: 'Device verified - IP matches'
+        });
+    } else {
+        // Device found but IP mismatch
+        console.log(`[DEVICE] Verification MISMATCH: ${device_id} - stored=${storedIP}, current=${current_ip}`);
+        return res.json({ 
+            found: true, 
+            ip_match: false,
+            stored_ip: storedIP,
+            current_ip: current_ip,
+            message: 'IP mismatch - re-register required'
+        });
+    }
+});
+
 // =============================================================================
 // WEBSOCKET SERVER
 // =============================================================================
