@@ -737,30 +737,32 @@
                 <div id="clock" style="color: var(--text-primary); font-weight: 500;">--:--:--</div>
                 
                 <div class="settings-wrapper" style="position: relative;">
-                    <button class="settings-btn" onclick="toggleSettings(event)">⚙️</button>
-                    <div class="settings-dropdown" id="settingsDropdown">
-                        <div class="dropdown-header">Settings</div>
-                        <button class="dropdown-item" onclick="alert('Units & Date settings coming soon')">
-                            <span>📏</span> Units & Date Format
-                        </button>
-                        <button class="dropdown-item" onclick="alert('Location settings coming soon')">
-                            <span>📍</span> Location & Time Zone
-                        </button>
-                        <button class="dropdown-item" onclick="alert('Thresholds settings coming soon')">
-                            <span>🌡️</span> Thresholds
-                        </button>
-                        <button class="dropdown-item" onclick="alert('Theme settings coming soon')">
-                            <span>🎨</span> Themes
-                        </button>
-                        <div class="dropdown-divider"></div>
-                        <button class="dropdown-item" onclick="alert('About Farm Hub')">
-                            <span>ℹ️</span> About
-                        </button>
-                    </div>
+                    <button class="settings-btn" id="settingsBtn" onclick="toggleSettings(event)" ontouchstart="toggleSettings(event)">⚙️</button>
                 </div>
             </div>
         </div>
     </header>
+
+    <!-- Settings Menu (Moved outside header to avoid stacking context issues) -->
+    <div class="settings-dropdown" id="settingsDropdown">
+        <div class="dropdown-header">Settings <span style="float:right; cursor:pointer;" onclick="toggleSettings(event)">✕</span></div>
+        <button class="dropdown-item" onclick="alert('Units & Date settings coming soon')">
+            <span>📏</span> Units & Date Format
+        </button>
+        <button class="dropdown-item" onclick="alert('Location settings coming soon')">
+            <span>📍</span> Location & Time Zone
+        </button>
+        <button class="dropdown-item" onclick="alert('Thresholds settings coming soon')">
+            <span>🌡️</span> Thresholds
+        </button>
+        <button class="dropdown-item" onclick="alert('Theme settings coming soon')">
+            <span>🎨</span> Themes
+        </button>
+        <div class="dropdown-divider"></div>
+        <button class="dropdown-item" onclick="alert('About Farm Hub')">
+            <span>ℹ️</span> About
+        </button>
+    </div>
     
     <main>
         <!-- Weather Section -->
