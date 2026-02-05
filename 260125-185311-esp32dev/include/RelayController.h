@@ -25,7 +25,10 @@ private:
 
     // Relay mapping - inline for C++11 compatibility
     // Maps relay number (1-15) to shift register bit position
-    inline static const int RELAY_MAP[15] = {14, 2, 1, 3, 5, 6, 4, 11, 10, 0, 12, 13, 13, 8, 6};
+    // Relay 1=Cooling Fan 1, 2=Cooling Fan 2, 3=Cooling Fan 3, 4=Circulation Fan 1, 5=Circulation Fan 2
+    // 6=Circulation Fan 3, 7=Vent Actuator Open, 8=Vent Actuator Close, 9=Tarp Blower, 10=LED Lights
+    // 11=Heater, 12=Spare, 13=Fan MOSFET, 14=Spare, 15=Spare
+    inline static const int RELAY_MAP[15] = {14, 2, 1, 3, 5, 6, 4, 11, 10, 0, 12, 13, 7, 8, 9};
 
     uint16_t currentRegisterState = 0x0000;
     
