@@ -118,6 +118,11 @@ static HTTPClient piHttp;                   // Reused HTTP client for Pi
 static char urlBuffer[384];                 // Reusable buffer for URL building (saves ~100 bytes per call)
 static char jsonBuffer[1024];               // Reusable buffer for JSON operations
 
+// Relay debounce map - prevents rapid-fire toggle spam from overwhelming WebSocket handler
+// Maps channel (1-15) to last toggle millis() time
+static std::map<int, unsigned long> relayDebounceTime;
+static constexpr unsigned long RELAY_DEBOUNCE_MS = 100;  // Ignore toggles within 100ms of last toggle on same relay
+
 // Helper to update NVS if value changed
 void updateNvsString(const char* key, const String& value, Preferences& prefs) {
     String current = prefs.getString(key, "");
@@ -998,6 +1003,17 @@ void handleSocketData(AsyncWebSocketClient *client, uint8_t *data)
         String id = doc["id"];
         int ch = deviceMgr.toggle(id);
         if(ch > 0 && ch <= 15) {
+            // === DEBOUNCE CHECK: Ignore rapid-fire toggles ===
+            unsigned long now = millis();
+            unsigned long lastToggle = relayDebounceTime[ch];
+            if(lastToggle != 0 && (now - lastToggle) < RELAY_DEBOUNCE_MS) {
+                Serial.printf("[RELAY] ⚠️ Ignored rapid toggle on CH%d (debounce active)\n", ch);
+                // Revert the toggle in deviceMgr
+                deviceMgr.toggle(id);
+                return;
+            }
+            relayDebounceTime[ch] = now;
+            
             float deltaAmps = relays.pulseRelay(ch);
             Serial.printf("[RELAY] Pulsed Channel %d\n", ch);
             
