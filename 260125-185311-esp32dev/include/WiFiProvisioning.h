@@ -28,6 +28,8 @@ public:
     // Getters
     static String getDeviceID();
     static WiFiState getState() { return currentState; }
+    static bool isReady() { return currentState == STATE_READY; }
+    static bool isAPMode() { return currentState == STATE_AP_MODE; }
     
     // Network methods
     static bool tryConnection(const char* ssid, const char* password);

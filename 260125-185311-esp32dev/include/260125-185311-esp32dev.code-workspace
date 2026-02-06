@@ -1,0 +1,34 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"path": "../.."
+		},
+		{
+			"name": "SMARTFARMS",
+			"path": "../../../SMARTFARMS"
+		}
+	],
+	"settings": {
+		"chat.tools.terminal.autoApprove": {
+			"ssh": true,
+			"scp": true,
+			"/^bash deploy_to_pi\\.sh smartfarmshub nkepah$/": {
+				"approve": true,
+				"matchCommandLine": true
+			},
+			"git checkout": true,
+			"timeout": true,
+			"C:/Users/ngoma/.platformio/penv/Scripts/platformio.exe": true,
+			"git ls-tree": true,
+			"\"c:/Users/ngoma/.platformio/penv/Scripts/platformio.exe\"": true,
+			"./deploy.sh": true,
+			"dir": true,
+			"read": true,
+			"c:/Users/ngoma/.platformio/penv/Scripts/platformio.exe": true,
+			"git cat-file": true
+		}
+	}
+}
