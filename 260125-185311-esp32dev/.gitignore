@@ -1,1 +1,26 @@
+# PlatformIO
+.pio/
+.platformio/
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# VS Code
+.vscode/tasks.json
+.vscode/c_cpp_properties.json
+.vscode/settings.json
+
+# Build artifacts
+*.o
+*.a
+*.bin
+*.elf
+*.map
+
+# OS
 nul
+.DS_Store
+Thumbs.db
