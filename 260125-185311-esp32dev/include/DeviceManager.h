@@ -73,20 +73,20 @@ public:
         return (it != devices.end()) ? &(*it) : nullptr;
     }
 
-    void updateDetails(const String &id, const String &name, int channel) {
+    void updateDetails(const String &id, const String &name, int channel, bool commit = true) {
         auto it = std::find_if(devices.begin(), devices.end(), 
             [&id](const Device &d) { return d.id == id; });
             
         if(it != devices.end()) {
             it->name = name;
             it->hardwareChannel = channel;
-            saveLayout();
+            if(commit) saveLayout();
         }
     }
     
     // Extended update for physical sensors/cameras
     void updatePhysicalDevice(const String &id, const String &name, int channel, 
-                             PhysicalDeviceType physType, const String &address, int pin) {
+                             PhysicalDeviceType physType, const String &address, int pin, bool commit = true) {
         auto it = std::find_if(devices.begin(), devices.end(), 
             [&id](const Device &d) { return d.id == id; });
             
@@ -96,27 +96,27 @@ public:
             it->physicalType = physType;
             it->physicalAddress = address;
             it->physicalPin = pin;
-            saveLayout();
+            if(commit) saveLayout();
         }
     }
     
-    void updateRotation(const String &id, int rotation) {
+    void updateRotation(const String &id, int rotation, bool commit = true) {
         auto it = std::find_if(devices.begin(), devices.end(), 
             [&id](const Device &d) { return d.id == id; });
             
         if(it != devices.end()) {
             it->rotation = rotation;
-            saveLayout();
+            if(commit) saveLayout();
         }
     }
     
-    void updateRotationMobile(const String &id, int rotation_mobile) {
+    void updateRotationMobile(const String &id, int rotation_mobile, bool commit = true) {
         auto it = std::find_if(devices.begin(), devices.end(), 
             [&id](const Device &d) { return d.id == id; });
             
         if(it != devices.end()) {
             it->rotation_mobile = rotation_mobile;
-            saveLayout();
+            if(commit) saveLayout();
         }
     }
     
@@ -141,25 +141,25 @@ public:
         }
     }
 
-    void updatePosition(const String &id, int x, int y) {
+    void updatePosition(const String &id, int x, int y, bool commit = true) {
         auto it = std::find_if(devices.begin(), devices.end(),
             [&id](const Device &d) { return d.id == id; });
             
         if(it != devices.end()) {
             it->x = x;
             it->y = y;
-            saveLayout();
+            if(commit) saveLayout();
         }
     }
     
-    void updateMobilePosition(const String &id, int x_mobile, int y_mobile) {
+    void updateMobilePosition(const String &id, int x_mobile, int y_mobile, bool commit = true) {
         auto it = std::find_if(devices.begin(), devices.end(),
             [&id](const Device &d) { return d.id == id; });
             
         if(it != devices.end()) {
             it->x_mobile = x_mobile;
             it->y_mobile = y_mobile;
-            saveLayout();
+            if(commit) saveLayout();
         }
     }
     
@@ -168,13 +168,13 @@ public:
         updatePosition(id, x, y);
     }
 
-    void setEnabled(const String &id, bool enabled) {
+    void setEnabled(const String &id, bool enabled, bool commit = true) {
         auto it = std::find_if(devices.begin(), devices.end(),
             [&id](const Device &d) { return d.id == id; });
             
         if(it != devices.end()) {
             it->enabled = enabled;
-            saveLayout();
+            if(commit) saveLayout();
         }
     }
 
@@ -213,7 +213,7 @@ public:
     }
 
     // Toggle with channel sync - optimized with modern C++
-    int toggle(const String &id) {
+    int toggle(const String &id, bool commit = true) {
         auto it = std::find_if(devices.begin(), devices.end(),
             [&id](const Device &d) { return d.id == id; });
             
@@ -233,12 +233,12 @@ public:
             it->active = newState;
         }
         
-        saveLayout();
+        if(commit) saveLayout();
         return targetChannel;
     }
 
     // Explicit state setter with channel sync
-    int setState(const String &id, bool state) {
+    int setState(const String &id, bool state, bool commit = true) {
         auto it = std::find_if(devices.begin(), devices.end(),
             [&id](const Device &d) { return d.id == id; });
             
@@ -256,7 +256,7 @@ public:
             it->active = state;
         }
         
-        saveLayout();
+        if(commit) saveLayout();
         return targetChannel;
     }
 

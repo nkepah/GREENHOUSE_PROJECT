@@ -920,27 +920,40 @@ void handleSocketData(AsyncWebSocketClient *client, uint8_t *data)
         int physPin = doc["phys_pin"] | -1;
         bool enabled = doc["enabled"] | true;  // Default to enabled if not specified
         
-        deviceMgr.updatePhysicalDevice(id, name, ch, physType, physAddr, physPin);
+        Serial.printf("[DEV] Received update_device_physical: id=%s, rotation=%d, rotation_mobile=%d, enabled=%d\n", 
+                     id.c_str(), rotation, rotation_mobile, enabled);
         
-        // Update rotation for desktop if provided
+        // Update physical details (no save)
+        deviceMgr.updatePhysicalDevice(id, name, ch, physType, physAddr, physPin, false);
+        
+        // Update rotation for desktop if provided (no save)
         if(rotation != -999) {
-            deviceMgr.updateRotation(id, rotation);
+            Serial.printf("[DEV] Setting desktop rotation to %d\n", rotation);
+            deviceMgr.updateRotation(id, rotation, false);
         }
         
-        // Update rotation for mobile if provided
+        // Update rotation for mobile if provided (no save)
         if(rotation_mobile != -999) {
-            deviceMgr.updateRotationMobile(id, rotation_mobile);
+            Serial.printf("[DEV] Setting mobile rotation to %d\n", rotation_mobile);
+            deviceMgr.updateRotationMobile(id, rotation_mobile, false);
         }
         
-        // If disabling, turn OFF the device first
+        // If disabling, turn OFF the device first (no save)
         if (!enabled) {
-            int channel = deviceMgr.setState(id, false);
+            int channel = deviceMgr.setState(id, false, false);
             if(channel > 0 && channel <= 15) {
                 relays.pulseRelay(channel); // Turn off relay
             }
         }
         
-        deviceMgr.setEnabled(id, enabled);  // Update enabled state
+        // Update enabled state (no save)
+        deviceMgr.setEnabled(id, enabled, false);
+        
+        // Commit all changes once
+        Serial.println("[DEV] Saving layout to flash...");
+        deviceMgr.saveLayout();
+        Serial.println("[DEV] Layout saved successfully");
+        
         Serial.printf("[DEV] Updated physical device: %s, Rotation: %d/%d, Type: %d, Pin: %d, Enabled: %d\n", 
                      id.c_str(), rotation, rotation_mobile, static_cast<int>(physType), physPin, enabled);
         // Broadcast updated device list
