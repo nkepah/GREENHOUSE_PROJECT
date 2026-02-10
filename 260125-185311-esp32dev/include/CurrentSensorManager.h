@@ -54,10 +54,13 @@ private:
     static constexpr float AMPS_PER_VOLT = CT_RATIO / (BURDEN_RESISTOR * WIRE_WRAPS);
     // = 2000 / (33 * 3) = 20.20 A/V
     
-    // Sampling configuration - optimized for speed
-    static constexpr uint8_t SAMPLES_PER_CYCLE = 40;      // Reduced for speed
-    static constexpr uint8_t SAMPLE_DELAY_US = 80;        // 80µs between samples
-    static constexpr uint8_t NUM_CYCLES = 1;              // Single AC cycle
+    // Sampling configuration - optimized for accuracy/stability
+    // Previous settings (40 samples * 80us = 3.2ms) were effectively random snapshotting!
+    // We need 20ms for one full 50Hz cycle, 16.7ms for 60Hz.
+    // 250 samples * 80us = 20ms (exact 50Hz cycle)
+    static constexpr int SAMPLES_PER_CYCLE = 250;      
+    static constexpr int SAMPLE_DELAY_US = 80;         // 80µs between samples (~12.5kHz)
+    static constexpr int NUM_CYCLES = 5;               // 5 cycles = 100ms total (smooth average)
     
     // Fast continuous reading cache
     volatile float cachedAmps = 0.0f;
