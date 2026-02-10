@@ -1641,21 +1641,27 @@ void setup()
             }
             taskYIELD();  // Allow other tasks between sections
             
-            // === POWER MONITORING DATA (cached reading for non-blocking UI) ===
+            // === POWER MONITORING DATA (only if sensor is calibrated) ===
             JsonObject power = sync["power"].to<JsonObject>();
-            power["total_amps"] = relays.getCachedTotalAmps();  // Cached - non-blocking
-            
-            // Per-device current data (from delta measurements during relay toggle)
-            JsonArray deviceAmps = power["devices"].to<JsonArray>();
-            for(const auto &d : deviceMgr.devices) {
-                if(d.hardwareChannel > 0 && d.hardwareChannel <= 15) {
-                    JsonObject dPower = deviceAmps.add<JsonObject>();
-                    dPower["id"] = d.id;
-                    dPower["ch"] = d.hardwareChannel;
-                    dPower["amps"] = relays.getDeviceAmps(d.hardwareChannel);
-                    dPower["on"] = relays.getDeviceState(d.hardwareChannel);
-                    dPower["healthy"] = relays.isDeviceHealthy(d.hardwareChannel);
+            if(currentSensor.isCalibrated()) {
+                power["total_amps"] = relays.getCachedTotalAmps();  // Cached - non-blocking
+                
+                // Per-device current data (from delta measurements during relay toggle)
+                JsonArray deviceAmps = power["devices"].to<JsonArray>();
+                for(const auto &d : deviceMgr.devices) {
+                    if(d.hardwareChannel > 0 && d.hardwareChannel <= 15) {
+                        JsonObject dPower = deviceAmps.add<JsonObject>();
+                        dPower["id"] = d.id;
+                        dPower["ch"] = d.hardwareChannel;
+                        dPower["amps"] = relays.getDeviceAmps(d.hardwareChannel);
+                        dPower["on"] = relays.getDeviceState(d.hardwareChannel);
+                        dPower["healthy"] = relays.isDeviceHealthy(d.hardwareChannel);
+                    }
                 }
+            } else {
+                // Sensor not calibrated - send 0 values
+                power["total_amps"] = 0.0f;
+                power["devices"] = JsonArray();
             }
             taskYIELD();  // Allow other tasks
             
